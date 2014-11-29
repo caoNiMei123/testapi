@@ -1,7 +1,6 @@
-
 <div class="container">
 <div class="row">
-        <?php $this->load->view('sidebar/apisbar');?>
+        <?php $this->load->view('sidebar/tongjibar');?>
         <div class="span9" >
         <section>
        		<canvas id="q" style="width:100%;height:100%;"></canvas>
