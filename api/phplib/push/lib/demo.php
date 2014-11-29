@@ -13,17 +13,18 @@ header("Content-Type: text/html; charset=utf-8");
 
 require_once(dirname(__FILE__) . '/' . 'IGt.Push.php');
 
+define('HOST','http://sdk.open.api.igexin.com/apiex.htm');
 define('APPKEY','B7ZXT5FW1c9mBK2QzYhII3');
 define('APPID','6N67PoCPHM6whyzs2QX4z5');
 define('MASTERSECRET','1zQgZL1uSU81i9cCwOWWc3');
-define('HOST','http://sdk.open.api.igexin.com/apiex.htm');
-define('CID','378f7800b123b2497840619629c1985a'); // client_id
+define('CID','fc824262451e82c0c59a82ca335f7bd5'); // client_id
 
-//getUserStatus();
+
+getUserStatus();
 
 //stoptask();
 
-pushMessageToSingle();
+//pushMessageToSingle();
 
 /*
 pushMessageToList();

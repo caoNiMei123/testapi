@@ -4,9 +4,11 @@ class PushPorxy
 {
 	private static $instance = NULL;
 	
-	private $igt_obj = NULL;
+	private $arr_igt_obj = array();
 	
 	const TABLE_DEVICE_INFO = 'device_info';
+	const USERTYPE_DRIVER = 1;
+    const USERTYPE_PASSENGER = 2;
 	
 	/**
 	 * @return PushPorxy
@@ -23,29 +25,48 @@ class PushPorxy
 
 	protected function __construct()
 	{
-		$this->igt_obj = new IGeTui(PushProxyConfig::$host,
-									PushProxyConfig::$appKey,
-									PushProxyConfig::$mastersecret);
-									
-		$this->igt_obj->set_debug(PushProxyConfig::$pushDebugMode);
+		$this->arr_igt_obj['driver'] = new IGeTui(PushProxyConfig::$host,
+												  PushProxyConfig::$arrPushAppkey['driver'],
+												  PushProxyConfig::$arrPushMasterSecret['driver']);
+								  
+		$this->arr_igt_obj['passenger'] = new IGeTui(PushProxyConfig::$host,
+												  PushProxyConfig::$arrPushAppkey['passenger'],
+												  PushProxyConfig::$arrPushMasterSecret['passenger']);
+		
+		$this->arr_igt_obj['passenger']->set_debug(PushProxyConfig::$pushDebugMode);
+		$this->arr_igt_obj['driver']->set_debug(PushProxyConfig::$pushDebugMode);					
 	}
 	
 	/*
 	 * 推送消息给单个client
 	 * @param  int	  $msg_type; 参考PushProxyConfig::$arrPushMsgType
 	 * @param  array  $arr_msg; $msg_type决定消息内容，参考PushProxyConfig::$arrPushMsgNotify等
-	 * @param  string $user_id;
+	 * @param  array  $arr_user;
 	 * @param  bool   $is_offline; 是否离线
 	 * @param  int    $expire; 离线时的超时时间
 	 * @return array  
 	 */
 	public function push_to_single($msg_type, 
 								   $arr_msg, 
-								   $user_id, 
+								   $arr_user,
+								   $user_type, 
 								   $is_offline = true, 
 								   $expire = PushProxyConfig::PUSH_OFFLINE_EXPIRE_TIME)
 	{
-		$template = $this->_gene_msg($msg_type, $arr_msg);
+		$user_id = $arr_user[0]['user_id'];
+		$device_id = $arr_user[0]['device_id'];
+		$user_type_str = '';
+		
+		if (self::USERTYPE_DRIVER == $user_type)
+		{
+			$user_type_str = 'driver';
+		}
+		else
+		{
+			$user_type_str = 'passenger';
+		}
+				
+		$template = $this->_gene_msg($msg_type, $user_type_str, $arr_msg);
 		if (NULL == $template)
 		{
 			return false;
@@ -66,28 +87,28 @@ class PushPorxy
 		}
 		
 		// 查询user_id对应的push_id(即:client_id)
-		$user_client_id = $this->_get_client_id(array($user_id));
-		if (false === $user_client_id)
+		$arr_info = $this->_get_client_id($arr_user);
+		if (false === $arr_info)
 		{
 			return false;
 		}
 		
 		if (true === PushProxyConfig::$pushDebugMode)
 		{
-			CLog::debug("get user_client_id succ [user_client_id: %s]",
-						json_encode($user_client_id));
+			CLog::debug("get client_id succ [arr_info: %s]",
+						json_encode($arr_info));
 		}
 		
-		$client_id = $user_client_id[0]['client_id'];
-
+		$client_id = $arr_info[0]['client_id'];
+		
 		// 组织个推的target
 		$target = new IGtTarget();
-        
-		$target->set_appId(PushProxyConfig::$appid);
+
+		$target->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
 		$target->set_clientId($client_id);
 		
 		// 调用个推接口，推送消息
-		$arr_ret = $this->igt_obj->pushMessageToSingle($message,$target);
+		$arr_ret = $this->arr_igt_obj[$user_type_str]->pushMessageToSingle($message,$target);
 		if (!isset($arr_ret['result']) ||
 			'ok' !== $arr_ret['result'])
 		{
@@ -102,23 +123,35 @@ class PushPorxy
 	 * 推送消息给多个client
 	 * @param  int	  $msg_type; 参考PushProxyConfig::$arrPushMsgType
 	 * @param  array  $arr_msg; $msg_type决定消息内容，参考PushProxyConfig::$arrPushMsgNotify等
-	 * @param  array  $arr_user_id; 多个user_id的数组
+	 * @param  array  $arr_user; 多个user_id和device_id的数组
+	 * @param  int    $user_type; 司机还是乘客
 	 * @param  bool   $is_offline; 是否离线
 	 * @param  int    $expire; 离线时的超时时间
 	 * @return array  
 	 */
 	public function push_to_list($msg_type, 
 							  	 $arr_msg, 
-							  	 $arr_user_id, 
+							  	 $arr_user, 
+							  	 $user_type,
 							  	 $is_offline = true, 
 							  	 $expire = PushProxyConfig::PUSH_OFFLINE_EXPIRE_TIME)
 	{
-		$template = $this->_gene_msg($msg_type, $arr_msg);
+		$user_type_str = '';
+		if (self::USERTYPE_DRIVER == $user_type)
+		{
+			$user_type_str = 'driver';
+		}
+		else
+		{
+			$user_type_str = 'passenger';
+		}
+		
+		$template = $this->_gene_msg($msg_type, $user_type_str, $arr_msg);
 		if (NULL == $template)
 		{
 			return false;
 		}
-
+		
 		// 组织个推的message
 		$message = new IGtSingleMessage();
 		$message->set_data($template);
@@ -136,39 +169,39 @@ class PushPorxy
 			$message->set_offlineExpireTime($expire * 1000);
 		}
 		
-		$content_id = $this->igt_obj->getContentId($message);
+		$content_id = $this->arr_igt_obj[$user_type_str]->getContentId($message);
 		if (empty($content_id))
 		{
 			CLog::warning("get content_id failed");
 			return false;
 		}
 		
-		// 查询user
-		$arr_user_client_id = $this->_get_client_id($arr_user_id);
-		if (false === $arr_user_client_id)
+		// 获取user的推送id
+		$arr_info = $this->_get_client_id($arr_user);
+		if (false === $arr_info)
 		{
 			return false;
 		}
 		
 		if (true === PushProxyConfig::$pushDebugMode)
 		{
-			CLog::debug("get user_client_id succ [user_client_id: %s]",
-						json_encode($arr_user_client_id));
+			CLog::debug("get client_id succ [arr_info: %s]",
+						json_encode($arr_info));
 		}
 		
 		// 组织个推的target
 		$arr_target = array();
-		foreach ($arr_user_client_id as $client_id)
+		foreach ($arr_info as $info)
 		{
 			$target = new IGtTarget();
-			$target->set_appId(PushProxyConfig::$appid);
-			$target->set_clientId($client_id['client_id']);
+			$target->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
+			$target->set_clientId($info['client_id']);
 			
 			$arr_target[] = $target;
 		}
 		
 		// 调用个推接口，推送消息
-		$arr_ret = $this->igt_obj->pushMessageToList($content_id, $arr_target);
+		$arr_ret = $this->arr_igt_obj[$user_type_str]->pushMessageToList($content_id, $arr_target);
 		if (!isset($arr_ret['result']) ||
 			'ok' !== $arr_ret['result'])
 		{
@@ -245,14 +278,14 @@ class PushPorxy
 		}
 		
 		// 调用个推接口，推送消息
-		$ret = $this->igt_obj->pushMessageToApp($message);
+		//$ret = $this->igt_obj->pushMessageToApp($message);
 		// todo 判断ret
 		
 		return true;
 	}
 
 	
-	private function _gene_msg($msg_type, $arr_msg)
+	private function _gene_msg($msg_type, $user_type_str, $arr_msg)
 	{
 		$msg_template = NULL;
 		switch ($msg_type)
@@ -286,8 +319,14 @@ class PushPorxy
 				return NULL;
 		}
 		
-        $msg_template->set_appId(PushProxyConfig::$appid);
-        $msg_template->set_appkey(PushProxyConfig::$appKey);
+		if (false === $msg_template)
+		{
+			CLog::warning("generate msg failed [msg_type: %s]", $msg_type);
+			return NULL;
+		}
+
+        $msg_template->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
+        $msg_template->set_appkey(PushProxyConfig::$arrPushAppkey[$user_type_str]);
         
 		return $msg_template;
 	}
@@ -313,9 +352,6 @@ class PushPorxy
 		$debug_msg_str .= 'trans_content: ' . $arr_msg['trans_content'];
 		
 		$msg_template = new IGtNotificationTemplate();
-
-        $msg_template->set_appId(PushProxyConfig::$appid);
-        $msg_template->set_appkey(PushProxyConfig::$appKey);
         
         $msg_template->set_title($arr_msg['title']);
         $msg_template->set_text($arr_msg['text']);
@@ -366,9 +402,6 @@ class PushPorxy
 		$debug_msg_str .= 'url: ' 	. $arr_msg['url'] 	. ', ';
 		
 		$msg_template = new IGtLinkTemplate();
-
-        $msg_template->set_appId(PushProxyConfig::$appid);
-        $msg_template->set_appkey(PushProxyConfig::$appKey);
         
         $msg_template->set_title($arr_msg['title']);
         $msg_template->set_text($arr_msg['text']);
@@ -428,26 +461,29 @@ class PushPorxy
         return $msg_template;
 	}
 	
-	private function _get_client_id($arr_user_id)
+	private function _get_client_id($arr_user)
 	{
-		$dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-		if (false === $dbProxy)
+		$db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+		if (false === $db_proxy)
 		{
 			CLog::warning("connect to the DB failed");
 			return false;
 		}
 		
-		/*
-		$in_option = '';
-		foreach($arr_user_id as $user_id)
+		// 组织user_id和device_id
+		$arr_user_id = array();
+		$arr_device_id_sign = array();
+		
+		foreach ($arr_user as $user_info)
 		{
-			$in_option .= $user_id . ',';
+			if (isset($user_info['user_id']) &&
+				isset($user_info['device_id']))
+			{
+				$arr_user_id[] = $user_info['user_id'];
+				$arr_device_id_sign[] = Utils::sign64($user_info['device_id']);
+			}
 		}
-		
-		// 去掉最后一个逗号
-		$in_option = substr(string, 0, strlen($in_option) - 1);
-		*/
-		
+
 		$condition = array(
 			'and' => array(
 				array(
@@ -455,14 +491,19 @@ class PushPorxy
 			 			'in' => $arr_user_id,
 					),
 				),
+				array(
+					'dev_id_sign' => array(
+			 			'in' => $arr_device_id_sign,
+					),
+				)
 			),
 		);
 		$append_condition = array(
 			'start' => 0,
 			'limit' => count($arr_user_id),
 		);
-		$arr_response = $dbProxy->select(self::TABLE_DEVICE_INFO, 
-										 array('user_id', 'client_id'), 
+		$arr_response = $db_proxy->select(self::TABLE_DEVICE_INFO, 
+										 array('client_id'),
 										 $condition,
 										 $append_condition);
 		if (false === $arr_response || !is_array($arr_response))
@@ -471,6 +512,12 @@ class PushPorxy
 			return false;
 		}
 		
+		if (0 == count($arr_response))
+		{
+			CLog::warning("empty client_id [sql: %s]", $db_proxy->getLastSQL());
+			return false;
+		}
+
 		return $arr_response;
 		
 	}

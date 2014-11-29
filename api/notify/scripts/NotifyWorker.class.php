@@ -102,53 +102,7 @@ class NotifyWorker
 	}
 	
 	public static function do_notify($table_num)
-	{/*
-		$user_id = 1;
-		$push_proxy_object = PushPorxy::getInstance();
-		
-		$arr_content = array(
-			'msg_type' => 1,
-			'msg_content' => array(
-				'user_id' => 123,
-				'src' => '百度大厦',
-				'src_gps' => '123,456',
-				'dest' => '三元桥',
-				'dest_gps' => '776,656',
-				'pid' => 4456,
-			),
-			'msg_ctime' => 111,
-			'msg_expire' => 444,
-		);
-		$arr_msg = array(
-			'trans_type' => 1,
-			'trans_content' => json_encode($arr_content),
-		);
-		$push_proxy_object->push_to_single(PushProxyConfig::$arrPushMsgType['trans'], 
-								   		   $arr_msg, 
-								   		   $user_id);
-		*/   
-		
-		/*
-		$arr_msg = array(
-			'title' => '拼车通知',
-			'text'  => '拼车内容',
-			'logo'  => 'xxx.png',
-			'trans_type' => 1,
-			'trans_content' => 'fire in the hole',
-			'is_ring'       => true,
-			'is_vibrate'    => true,
-		);
-		$push_proxy_object->push_to_single(PushProxyConfig::$arrPushMsgType['notify'], 
-								   		   $arr_msg, 
-								   		   $user_id);
-		*/
-		/*
-		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['notify'], 
-							  	 		 $arr_msg, 
-							  	 		 $arr_driver_user_id, 
-							  	 		 true);*/
-		
-		
+	{
 		// 组织分表名
 		$table_task_info = self::TABLE_TASK_INFO_PREFIX . $table_num;
 		
@@ -523,6 +477,96 @@ class NotifyWorker
 		
 		CLog::debug("set_task_status succ [table_name: %s, pid: %s, status: %s]",
 					$table_name, $pid, $status);
+	}
+	
+	public static function _test_push()
+	{
+		$push_proxy_object = PushPorxy::getInstance();
+
+/*
+		$user_type = 2;
+		$arr_user = array(
+			array(
+				'user_id' => 666,
+				'device_id' => '800',
+			),
+		);
+		
+		
+		$arr_content = array(
+			'msg_type' => 1,
+			'msg_content' => array(
+				'user_id' => 123,
+				'src' => '百度大厦',
+				'src_gps' => '123,456',
+				'dest' => '三元桥',
+				'dest_gps' => '776,656',
+				'pid' => 4456,
+			),
+			'msg_ctime' => 111,
+			'msg_expire' => 444,
+		);
+		$arr_msg = array(
+			'trans_type' => 1,
+			'trans_content' => json_encode($arr_content),
+		);
+		$push_proxy_object->push_to_single(PushProxyConfig::$arrPushMsgType['trans'], 
+								   		   $arr_msg, 
+								   		   $arr_user,
+								   		   $user_type);
+
+*/
+				
+		/*
+		$arr_msg = array(
+			'title' => '拼车通知',
+			'text'  => '拼车内容',
+			'logo'  => 'xxx.png',
+			'trans_type' => 1,
+			'trans_content' => 'fire in the hole',
+			'is_ring'       => true,
+			'is_vibrate'    => true,
+		);
+		$push_proxy_object->push_to_single(PushProxyConfig::$arrPushMsgType['notify'], 
+								   		   $arr_msg, 
+								   		   $user_id);
+		*/
+	
+
+		$arr_msg = array(
+			'title' => '拼车通知',
+			'text'  => '拼车内容',
+			'logo'  => 'xxx.png',
+			'trans_type' => 1,
+			'trans_content' => 'fire in the hole',
+			'is_ring'       => true,
+			'is_vibrate'    => true,
+		);
+		$arr_user = array(
+			array(
+				'user_id' => 666,
+				'device_id' => '800',
+			),
+			array(
+				'user_id' => 667,
+				'device_id' => '801',
+			),
+			array(
+				'user_id' => 668,
+				'device_id' => '802',
+			),
+			array(
+				'user_id' => 669,
+				'device_id' => '803',
+			),
+		);
+		$user_type = 2;
+		
+		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['notify'], 
+							  	 		 $arr_msg, 
+							  	 		 $arr_user,
+							  	 		 $user_type);
+
 	}
 	
 }
