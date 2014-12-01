@@ -135,7 +135,8 @@ CREATE TABLE `complain_info` (
 
 CREATE TABLE `log_info` (
     `id` int  NOT NULL AUTO_INCREMENT,
-    `day` bigint  unsigned NOT NULL,
+    `day` int  unsigned NOT NULL,
+    `hour` int  unsigned NOT NULL,
     `item_1` bigint  unsigned default 0, -- 发布订单总数 
     `item_2` bigint  unsigned default 0, -- 成交订单总数
     `item_3` bigint  unsigned default 0, -- 超时订单总数
