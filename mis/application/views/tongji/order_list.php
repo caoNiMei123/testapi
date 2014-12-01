@@ -1,21 +1,20 @@
-<?php
-$(function () {
+<script type="text/javascript"> 
+function get_list(key_arr, value_arr) {    
     $('#container').highcharts({
         title: {
-            text: 'Monthly Average Temperature',
+            text: '订单统计',
             x: -20 //center
         },
         subtitle: {
-            text: 'Source: WorldClimate.com',
+            text: 'Source: Mysql',
             x: -20
         },
         xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            categories: key_arr
         },
         yAxis: {
             title: {
-                text: 'Temperature (°C)'
+                text: '个数'
             },
             plotLines: [{
                 value: 0,
@@ -24,7 +23,7 @@ $(function () {
             }]
         },
         tooltip: {
-            valueSuffix: '°C'
+            valueSuffix: '个'
         },
         legend: {
             layout: 'vertical',
@@ -33,23 +32,32 @@ $(function () {
             borderWidth: 0
         },
         series: [{
-            name: 'Tokyo',
-            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-        }, {
-            name: 'New York',
-            data: [-0.2, 0.8, 5.7, 11.3, 17.0, 22.0, 24.8, 24.1, 20.1, 14.1, 8.6, 2.5]
-        }, {
-            name: 'Berlin',
-            data: [-0.9, 0.6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0]
-        }, {
-            name: 'London',
-            data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8]
+            name: '订单个数',
+            data: value_arr
         }]
     });
-});
+};
+
+var key_array=new Array();
+var value_array=new Array();
+</script> 
+<?php if (!empty($list)):?>
+    <?php foreach ($list as $key => $item): ?>
+        <script type="text/javascript"> 
+            key_array.push(<?php echo $item['day'];?>);
+            value_array.push(<?php echo $item['item_1'];?>);        
+        </script> 
+    <?php endforeach;?>
+
+<div class="container">    
+    <script type="text/javascript"> 
+        get_list(key_array, value_array);
+    </script>
+</div>
 
 
+<?php else:?>
+    
+<?php endif;?>
 
 
-/* vim: set expandtab ts=4 sw=4 sts=4 tw=100 */
-?>
