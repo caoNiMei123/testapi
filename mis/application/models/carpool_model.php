@@ -8,7 +8,7 @@ class Carpool_Model extends CI_Model{
 	
 	public function get_feedback($start, $limit){
 		$res = array();
-		$query = $this->db->query("select * from complain_info  order by ctime desc limit $start, $limit ");
+		$query = $this->db->query("select * from complain_info  where status = 0 order by ctime desc limit $start, $limit ");
 		foreach ($query->result_array() as $row)$res[]=$row;		
         return $res; 	
 	}

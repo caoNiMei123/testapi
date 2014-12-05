@@ -24,13 +24,21 @@ class Feedback extends MY_Controller {
 		$this->get_list( $page * 10, 10);
 	}
     public function get_list($start , $limit){
-       $this->load->model("carpool_model"); 
-       $list = $this->carpool_model->get_feedback($start , $limit);
-       $data["list"] = $list;
-       $data["page"] = $start/10;
-       $this->load->view('feedback/feedback',$data);
+        $this->load->model("carpool_model"); 
+        $list = $this->carpool_model->get_feedback($start , $limit);
+        $data["list"] = $list;
+        $data["page"] = $start/10;
+        $this->load->view('feedback/feedback',$data);
     }
-	public function test(){
+	public function set(){
+        $this->load->model("carpool_model"); 
+        $this->carpool_model->set_feedback(intval($_POST['id']));
+        echo json_encode(array(
+            'errno' => 0,
+            'errmsg'=> '',
+        ));
+        return;
+       
 	}
 
 	public function log(){
