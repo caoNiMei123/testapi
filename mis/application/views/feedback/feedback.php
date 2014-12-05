@@ -14,6 +14,16 @@
         
     }
 </script>
+<div  class="button">
+<?php if ($page != 0):?>
+             
+    <a href="<?php echo base_url();?>mis/index.php?c=feedback&m=index&page=<?php echo $page-1;?>"   class="btn btn-success">上一页</a>
+
+<?php endif;?> 
+             
+    <a href="<?php echo base_url();?>mis/index.php?c=feedback&m=index&page=<?php echo $page+1;?>"   class="btn btn-success">下一页</a>
+</div>
+
 <?php if (!empty($list)):?>
 	<?php foreach ($list as $item): ?>
 		<div  class="list-group-item">
@@ -29,5 +39,5 @@
         </div>  
 	<?php endforeach;?>
 <?php else:?>
-    暂时没有反馈    
+    没有数据了    
 <?php endif;?>
