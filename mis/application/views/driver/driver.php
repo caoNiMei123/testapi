@@ -1,19 +1,24 @@
 <script type="text/javascript"> 
     function Click(obj)
     {
-        alert(obj);  //单击事件完成的功能－输出提示
-        $.post(base_url+"?c=driver&m=set",{user_id:obj},function(data){
-            if(data.errno == 0){
-                return;
-            }else{
-                $('#message').html(data.errmsg);
-                $('#messagebox').modal('show');
-                return;
-            }
+        $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{user_id:obj},function(data){
+            location.reload(true);
+            return;
         });
+        
         
     }
 </script>
+
+<div  class="button">
+<?php if ($page != 0):?>
+             
+    <a href="<?php echo base_url();?>mis/index.php?c=driver&m=index&page=<?php echo $page-1;?>"   class="btn btn-success" >上一页</a>
+
+<?php endif;?> 
+             
+    <a href="<?php echo base_url();?>mis/index.php?c=driver&m=index&page=<?php echo $page+1;?>"   class="btn btn-success" >下一页</a>
+</div>
 <?php if (!empty($list)):?>
 	<?php foreach ($list as $item): ?>
 		<div  class="list-group-item">
@@ -24,12 +29,12 @@
                 <p><i class="icon-star">状态： <?php if($item['status'] == 0)echo '未审核';else echo '已审核';?></i></p>
             </div>   
             <div class="button" style="margin-bottom: 0px;">               
-                <input type="button" id=<?php echo "go".$item['user_id'];?> onclick="Click(<?php echo $item['user_id'];?>)" value="通过"> 
+                <input type="button" id=<?php echo "go".$item['user_id'];?> onclick="Click(<?php echo $item['user_id'];?>)" value="通过" class="btn btn-success"> 
             </div>             
         </div>  
 	<?php endforeach;?>
 <?php else:?>
-    暂时没有司机    
+    没有数据了    
 <?php endif;?>
 
 
