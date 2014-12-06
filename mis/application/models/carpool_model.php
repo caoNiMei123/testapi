@@ -46,21 +46,21 @@ class Carpool_Model extends CI_Model{
 
 	public function get_order_list($start, $end){
 		$res = array();		
-		$query = $this->db->query("select day, hour, item_1 from log_info where day > $start and day < $end ");
+		$query = $this->db->query("select day, hour, item_1 from log_info where day >= $start and day <= $end ");
 		foreach ($query->result_array() as $row)$res[]=$row;		
         return $res; 
     }
 
     public function get_succ_order_list($start, $end){
 		$res = array();		
-		$query = $this->db->query("select day, hour, item_2 from log_info where day > $start and day < $end ");
+		$query = $this->db->query("select day, hour, item_2 from log_info where day >= $start and day <= $end ");
 		foreach ($query->result_array() as $row)$res[]=$row;		
         return $res; 
     }
 
     public function get_timeout_order_list($start, $end){
 		$res = array();		
-		$query = $this->db->query("select day, hour, item_3 from log_info where day > $start and day < $end ");
+		$query = $this->db->query("select day, hour, item_3 from log_info where day >= $start and day <= $end ");
 		foreach ($query->result_array() as $row)$res[]=$row;		
         return $res; 
     }
