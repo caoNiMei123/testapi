@@ -27,6 +27,7 @@ CREATE TABLE `pickride_info` (
     `id` int  NOT NULL AUTO_INCREMENT,
     `pid` bigint  unsigned NOT NULL,
     `user_id` bigint  unsigned,
+    `phone` bigint(20) DEFAULT NULL,
     `src` varchar(256),
     `dest` varchar(256),
     `src_latitude` float(10, 6),
@@ -37,6 +38,7 @@ CREATE TABLE `pickride_info` (
     `ctime` int not NULL,
     `mtime` int not NULL,
     `driver_id` bigint  unsigned default 0,
+    `driver_phone` bigint(20) DEFAULT 0,
     `status` int DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `pid_key` (`pid`),
@@ -63,6 +65,7 @@ CREATE TABLE `driver_info` (
 CREATE TABLE `secstr_info` (
     `id` bigint  NOT NULL AUTO_INCREMENT,
     `phone`  bigint not null,
+    `type` tinyint default 0,
     `secstr` varchar(10),
     `ctime` int not NULL,
     PRIMARY KEY (`id`),
