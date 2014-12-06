@@ -64,6 +64,7 @@
 	              <li <?php if($menu == "tongji"){?> class="active"<?php }?>><a href="<?php echo base_url("mis/index.php?c=tongji&m=index")?>">统计</a></li>
 	              <li <?php if($menu == "feedback"){?> class="active"<?php }?>><a href="<?php echo base_url("mis/index.php?c=feedback&m=index")?>">反馈</a></li>
 	              <li <?php if($menu == "driver"){?> class="active"<?php }?>><a href="<?php echo base_url("mis/index.php?c=driver&m=index")?>">司机审核</a></li>
+                  <li <?php if($menu == "passenger"){?> class="active"<?php }?>><a href="<?php echo base_url("mis/index.php?c=passenger&m=index")?>">乘客审核</a></li>
 	            </ul>
 	          </div><!--/.nav-collapse -->
 	        </div>

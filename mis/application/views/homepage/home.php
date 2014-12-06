@@ -21,7 +21,7 @@
 		  .typist('echo', '$ 后台审核&报表统计')
 		  .typist('echo', '$ 1. 司机身份审核')
           .typist('echo', '$ 2. 乘客身份审核')
-		  .typist('echo', '$ 2. 反馈信息处理')
-		  .typist('echo', '$ 3. 统计信息查看')
+		  .typist('echo', '$ 3. 反馈信息处理')
+		  .typist('echo', '$ 4. 统计信息查看')
 	})
 </script>

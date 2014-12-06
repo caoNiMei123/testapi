@@ -25,8 +25,7 @@
             <div class="span5">
 	           <p><i class="icon-time">创建时间： <?php echo date("Y-m-d",$item['ctime']);?></i></p>
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
-                <p><i class="icon-star">反馈内容： <?php echo $item['content'];?></i></p>
-                <p><i class="icon-star">处理状态： <?php if($item['status'] == 0)echo '未处理';else echo '已处理';?></i></p>
+                <p><i class="icon-star">反馈内容： <?php echo $item['content'];?></i></p>                
             </div>        
             <div class="button" style="margin-bottom: 0px;">               
                 <input type="button" id=<?php echo "go".$item['id'];?> onclick="Click(<?php echo $item['id'];?>)" value="通过" class="btn btn-success"> 

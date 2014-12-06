@@ -5,7 +5,7 @@
 <div class="container">
     <div class="row" style="margin-left: 0">
         <div class="well">
-            <h1 class="text-center">司机列表</h1>
+            <h1 class="text-center">乘客列表</h1>
             <div class="list-group">
                 
             </div>
