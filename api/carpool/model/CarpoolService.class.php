@@ -288,7 +288,8 @@ class CarpoolService
         {
             throw new Exception('carpool.invalid_driver no gps found');
         }
-
+        $latitude = $arr_response[0]['latitude'];
+        $longitude = $arr_response[0]['longitude'];
         $arr_response = $db_proxy->select('pickride_info', array('pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
             array('status' =>  array('=' => self::CARPOOL_STATUS_DOING)),                          
@@ -302,8 +303,7 @@ class CarpoolService
         }
 
         
-        $latitude = $arr_response[0]['latitude'];
-        $longitude = $arr_response[0]['longitude'];
+        
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
                 array('user_id' =>  array('!=' => $user_id)),  
