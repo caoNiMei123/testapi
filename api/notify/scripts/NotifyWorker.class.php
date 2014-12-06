@@ -555,7 +555,7 @@ class NotifyWorker
 								   		   $user_id);
 		*/
 	
-
+		/*
 		$arr_msg = array(
 			'title' => '拼车通知',
 			'text'  => '拼车内容',
@@ -582,6 +582,19 @@ class NotifyWorker
 		$user_type = 1;
 		
 		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['notify'], 
+							  	 		 $arr_msg, 
+							  	 		 $arr_user,
+							  	 		 $user_type);
+		*/
+		 		 
+		$arr_msg = array(
+			'trans_type' => 1,
+			'trans_content' => 'helleo hahah',
+		);
+		
+		$user_type = 1;
+		
+		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['trans'], 
 							  	 		 $arr_msg, 
 							  	 		 $arr_user,
 							  	 		 $user_type);
