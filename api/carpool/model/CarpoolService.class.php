@@ -115,7 +115,10 @@ class CarpoolService
             if($db_proxy->getErrorCode() == 1062)
                 throw new Exception('carpool.duplicate pid alrealdy created');
             else    
-                throw new Exception('carpool.internal insert to the DB failed');
+            {
+                throw new Exception('carpool.internal insert to the DB failed [err_code: ]' .
+                                    $db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());
+            }
         }       
         $arr_response = array(
             'pid' => $pid,  
@@ -214,8 +217,10 @@ class CarpoolService
         	'trans_content' => $msg,
         );
         $arr_user = array(
-        	'user_id' => $to_uid,
-        	'device_id' => $devuid,
+        	array(
+	        	'user_id' => $to_uid,
+	        	'device_id' => $devuid,
+        	),
         );
         
         PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);       
@@ -321,8 +326,10 @@ class CarpoolService
         	'trans_content' => $msg,
         );
         $arr_user = array(
-        	'user_id' => $passenger_id,
-        	'device_id' => $devuid,
+        	array(
+	        	'user_id' => $passenger_id,
+	        	'device_id' => $devuid,
+        	),
         );
         
         //通知 乘客我已经接单
@@ -388,8 +395,10 @@ class CarpoolService
         	'trans_content' => $msg,
         );
         $arr_user = array(
-        	'user_id' => $passenger_id,
-        	'device_id' => $devuid,
+        	array(
+	        	'user_id' => $passenger_id,
+	        	'device_id' => $devuid,
+        	),
         );
         
         //通知 乘客订单结束
