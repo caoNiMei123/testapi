@@ -18,6 +18,7 @@
              
     <a href="<?php echo base_url();?>mis/index.php?c=feedback&m=index&page=<?php echo $page+1;?>"   class="btn btn-success" >下一页</a>
 </div>
+<br />
 
 <?php if (!empty($list)):?>
 	<?php foreach ($list as $item): ?>

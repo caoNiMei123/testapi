@@ -65,7 +65,8 @@
     </script>
 
 
-    
+    <br />
+    <br />
 
     <?php else:?>
         <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
@@ -82,7 +83,7 @@
     <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto">  
     <form>
         <script>DateInput('startdate', true, 'YYYYMMDD')</script>
-        
+        <br />
         <script>DateInput('enddate', true, 'YYYYMMDD')</script>
         <input type="button" onClick="Click(this.form.startdate.value,this.form.enddate.value)" value="刷新">
     </form>

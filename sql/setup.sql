@@ -148,5 +148,5 @@ CREATE TABLE `log_info` (
     `item_9` bigint  unsigned default 0, 
     `item_10` bigint  unsigned default 0,   
     PRIMARY KEY (`id`),
-    UNIQUE KEY `day_key` (`day`)    
+    UNIQUE KEY `day_key` (`day`, `hour`)    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='统计表' ;

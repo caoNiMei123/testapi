@@ -8,8 +8,8 @@ class UserService
     const TABLE_SECSTR_INFO = 'secstr_info';
     const USERTYPE_DRIVER =1;
     const USERTYPE_PASSENGER=2;
-    const USERSTATUS_INACTIVE = 0;
-    const USERSTATUS_NORMAL = 1;
+    const USERSTATUS_INACTIVE = 0; //未审核
+    const USERSTATUS_CHECK = 1;//发起审核，审核中
     const USERSTATUS_ACTIVE = 2;
 
     
