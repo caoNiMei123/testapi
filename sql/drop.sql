@@ -1,0 +1,23 @@
+DROP TABLE IF EXISTS `user_info`;
+
+DROP TABLE IF EXISTS `pickride_info`;
+DROP TABLE IF EXISTS `driver_info`;
+DROP TABLE IF EXISTS `secstr_info`;
+DROP TABLE IF EXISTS `client_version_info`;
+DROP TABLE IF EXISTS `device_info`;
+DROP TABLE IF EXISTS `task_info_0`;
+DROP TABLE IF EXISTS `task_info_1`;
+DROP TABLE IF EXISTS `task_info_2`;
+DROP TABLE IF EXISTS `task_info_3`;
+DROP TABLE IF EXISTS `task_info_4`;
+DROP TABLE IF EXISTS `task_info_5`;
+DROP TABLE IF EXISTS `task_info_6`;
+DROP TABLE IF EXISTS `task_info_7`;
+DROP TABLE IF EXISTS `task_info_8`;
+DROP TABLE IF EXISTS `task_info_9`;
+DROP TABLE IF EXISTS `task_info_10`;
+DROP TABLE IF EXISTS `task_info_11`;
+DROP TABLE IF EXISTS `task_info_12`;
+DROP TABLE IF EXISTS `task_info_13`;
+DROP TABLE IF EXISTS `task_info_14`;
+DROP TABLE IF EXISTS `task_info_15`;
