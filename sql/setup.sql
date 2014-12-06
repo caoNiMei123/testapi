@@ -27,6 +27,8 @@ CREATE TABLE `pickride_info` (
     `id` int  NOT NULL AUTO_INCREMENT,
     `pid` bigint  unsigned NOT NULL,
     `user_id` bigint  unsigned,
+    `dev_id` varchar(64) NOT NULL,
+    `dev_id_sign` bigint unsigned not NULL,
     `phone` bigint(20) DEFAULT NULL,
     `src` varchar(256),
     `dest` varchar(256),
