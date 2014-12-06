@@ -518,7 +518,9 @@ class PushPorxy
 			return false;
 		}
 		
-		CLog::debug("get client_id succ [arr_client_id: %s]", json_encode($arr_response));
+		CLog::debug("get client_id succ [sql: %s, arr_client_id: %s]", 
+					$db_proxy->getLastSQL(),
+					json_encode($arr_response));
 		
 		return $arr_response;
 	}
