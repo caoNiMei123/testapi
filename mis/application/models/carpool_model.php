@@ -23,6 +23,18 @@ class Carpool_Model extends CI_Model{
         return $res; 	
 
     }
+
+    public function get_passenger($start, $limit){
+        $res = array();     
+        $query = $this->db->query("select * from user_info where user_type = 2 and status = 1  order by ctime desc limit $start, $limit");
+        foreach ($query->result_array() as $row)$res[]=$row;        
+        return $res;    
+
+    }
+    public function set_passenger($user_id){
+        $query = $this->db->query("update user_info  set status =2 where user_id = $user_id");
+        return 0;
+    }
     public function set_driver($user_id){
 		$query = $this->db->query("update user_info  set status =2 where user_id = $user_id");
 		return 0;

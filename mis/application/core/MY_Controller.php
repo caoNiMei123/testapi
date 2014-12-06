@@ -6,12 +6,14 @@ class MY_Controller extends CI_Controller
 			"tongji"=>array("tongji"), 
 			"feedback"=>array("feedback"),
 			"driver"=>array("driver"),
+			"passenger"=>array("passenger"),
 	);
 	private static $sidebar = array(
 			"home"=>array("index"=>"index"),
 			"feedback"=>array("index"=>"index"),
 			"tongji"=>array("index"=>"index", "order_num" => "order_num", "suc_order_num" => "suc_order_num", "timeout_order_num" => "timeout_order_num"),
 			"driver"=>array("index"=>"index"),
+			"passenger"=>array("index"=>"index"),
 			);
 	public $data = array();
 	
