@@ -32,7 +32,7 @@ class UserService
     }
     public function query($arr_req, $arr_opt)
     {
-        $user_name = $arr_req['user_name'] ;
+        /*$user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
         $user_type = intval($arr_req['user_type']) ; 
         $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
@@ -59,7 +59,7 @@ class UserService
         }
         $user_id = intval($arr_response[0]['user_id']);
         $user_type = intval($arr_response[0]['user_type']);       
-
+        */
     }
     public function register($arr_req, $arr_opt)
     {
