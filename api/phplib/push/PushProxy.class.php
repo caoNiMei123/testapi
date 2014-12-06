@@ -49,7 +49,7 @@ class PushPorxy
 	public function push_to_single($msg_type, 
 								   $arr_msg, 
 								   $arr_user,
-								   $user_type, 
+								   $user_type,
 								   $is_offline = true, 
 								   $expire = PushProxyConfig::PUSH_OFFLINE_EXPIRE_TIME)
 	{
@@ -480,7 +480,7 @@ class PushPorxy
 				isset($user_info['device_id']))
 			{
 				$arr_user_id[] = $user_info['user_id'];
-				$arr_device_id_sign[] = Utils::sign64($user_info['device_id']);
+				$arr_device_id_sign[] = crc32($user_info['device_id']);
 			}
 		}
 
@@ -519,7 +519,6 @@ class PushPorxy
 		}
 
 		return $arr_response;
-		
 	}
 }
 

@@ -415,6 +415,7 @@ class UserService
             'mtime'     => $now,
         );
         $duplicate = array(
+        	'client_id' => $client_id,
             'mtime' => $now,
             'status'=>0,
         );
@@ -426,7 +427,10 @@ class UserService
             throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
                 $error_code . ', error_msg: ' . $error_msg . ']');
         }
-        CLog::trace("user report succ [account: %s, client_id : %s]", $user_name, $client_id);
+        
+        CLog::trace("user report succ [account: %s, dev_id: %s, client_id : %s]", 
+        			$user_name, $devuid, $client_id);
+        			
         return true;
     }
 

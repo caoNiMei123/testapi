@@ -144,8 +144,10 @@ class CarpoolService
     {
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = intval($arr_req['user_type']) ;       
-        $pid = $arr_req['pid'] ;        
+        $user_type = intval($arr_req['user_type']) ;    
+        $devuid = $arr_req['devuid'];
+        $pid = $arr_req['pid'] ;
+        
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
@@ -207,10 +209,16 @@ class CarpoolService
             'msg_expire' => 60,
         ));
         
-        PushPorxy::getInstance()->push_to_single(4, array(
-            'trans_type' => 1, 
-            'trans_content' => $msg,        
-        ), $to_uid);       
+        $arr_msg = array(
+        	'trans_type' => 1,
+        	'trans_content' => $msg,
+        );
+        $arr_user = array(
+        	'user_id' => $to_uid,
+        	'device_id' => $devuid,
+        );
+        
+        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);       
         
 
         //修改任务表
@@ -233,7 +241,10 @@ class CarpoolService
     {               
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;        
-        $pid = $arr_req['pid'] ;              
+        $pid = $arr_req['pid'] ;
+		$devuid = $arr_req['devuid'];
+		$user_type = $arr_req['user_type'];
+        
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
@@ -292,7 +303,6 @@ class CarpoolService
             throw new Exception('carpool.param this pid not exists');
         }
 
-        
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['accept_order'],
             'msg_content' => array(
@@ -305,12 +315,21 @@ class CarpoolService
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
         ));
+        
+        $arr_msg = array(
+        	'trans_type' => 1,
+        	'trans_content' => $msg,
+        );
+        $arr_user = array(
+        	'user_id' => $passenger_id,
+        	'device_id' => $devuid,
+        );
+        
         //通知 乘客我已经接单
-        PushPorxy::getInstance()->push_to_single(4, array(
-            'trans_type' => 1, 
-            'trans_content' => $msg,        
-        ), $passenger_id);
-        CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", $user_name, $user_id, $pid, $passenger_phone);
+        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+        
+        CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
+        			$user_name, $user_id, $pid, $passenger_phone);
 
         return true;
     }   
@@ -319,7 +338,10 @@ class CarpoolService
     {               
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;        
-        $pid = $arr_req['pid'] ;              
+        $pid = $arr_req['pid'] ;
+        $devuid = $arr_req['devuid'];
+        $user_type = $arr_req['user_type'];            
+        
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
@@ -360,12 +382,21 @@ class CarpoolService
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
         ));
+        
+        $arr_msg = array(
+        	'trans_type' => 1,
+        	'trans_content' => $msg,
+        );
+        $arr_user = array(
+        	'user_id' => $passenger_id,
+        	'device_id' => $devuid,
+        );
+        
         //通知 乘客订单结束
-        PushPorxy::getInstance()->push_to_single(4, array(
-            'trans_type' => 1, 
-            'trans_content' => $msg,        
-        ), $passenger_id);
-        CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", $user_name, $user_id, $pid);
+        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+        
+        CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", 
+        			$user_name, $user_id, $pid);
 
         return true;
     }   

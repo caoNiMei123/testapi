@@ -31,6 +31,8 @@ class DriverService
         $user_id = $arr_req['user_id'] ;
         $user_type = $arr_req['user_type'] ;
         $gps = $arr_req['gps'] ;
+        $devuid = $arr_req['devuid'];
+        
         $ret = Utils::check_string($gps, 1, 256); 
         if (false == $ret) {
             throw new Exception('carpool.param invalid gps');
@@ -45,13 +47,17 @@ class DriverService
         }
         $now = time(NULL);
         $row = array(
-            'user_id'       => $user_id,            
+            'user_id'   => $user_id,
+        	'dev_id'	=> $devuid,
+            'dev_id_sign' => crc32($devuid),     
             'longitude' => $gps_arr[1],
             'latitude'  => $gps_arr[0],                                             
             'ctime'         => $now,
             'mtime'         => $now,
         ); 
         $duplicate_key = array(
+        	'dev_id'	=> $devuid,
+            'dev_id_sign' => crc32($devuid),
             'longitude' => $gps_arr[1],
             'latitude'  => $gps_arr[0],         
             'mtime'     => $now,
@@ -59,7 +65,8 @@ class DriverService
         //$db_proxy->startTransaction();
         $ret = $db_proxy->insert('driver_info', $row, $duplicate_key);
         if (false === $ret) {
-            throw new Exception('carpool.internal insert to the DB failed');
+            throw new Exception('carpool.internal insert to the DB failed [err_code: ' . 
+            					$db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());
         }       
         CLog::trace("driver repot succ [account: %s, user_id : %d, gps : %s ]", $user_name, $user_id, $gps);
         return true;

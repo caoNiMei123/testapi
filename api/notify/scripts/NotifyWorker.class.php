@@ -302,7 +302,7 @@ class NotifyWorker
 			'limit' => NotifyConfig::DRIVER_LIMIT,
 		);
 		$arr_response = $db_proxy->select(self::TABLE_DRIVER_INFO, 
-										 array('user_id', 'latitude', 'longitude'), 
+										 array('user_id', 'dev_id', 'latitude', 'longitude'), 
 										 $condition,
 										 $append_condition);
 		if (false === $arr_response || !is_array($arr_response))
@@ -310,7 +310,7 @@ class NotifyWorker
 			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
-		
+
 		// 在范围内，没有找到司机
 		if (0 == count($arr_response))
 		{
@@ -325,8 +325,8 @@ class NotifyWorker
 
 		$driver_num = count($arr_response);
 		
-		// 组织司机的user_id
-		$arr_driver_user_id = array();
+		// 组织司机的信息
+		$arr_driver_user = array();
 		
 		// 如果数量较多，则进一步计算两点间距离进行筛选，否则直接进行通知
 		$is_skip_count_distance = false;
@@ -335,6 +335,7 @@ class NotifyWorker
 			CLog::trace("the number of drivers is more, will use distance filter");
 			
 			$is_skip_count_distance = true;
+			$pos = 0;
 			foreach($arr_response as $info)
 			{
 				// 计算两点距离
@@ -344,15 +345,17 @@ class NotifyWorker
 														     $info['longitude']);
 				if ($distance < NotifyConfig::$NotifyBetweenDistance)
 				{
-					$arr_driver_user_id[] = $info['user_id'];
+					$arr_driver_user[$pos]['user_id'] = $info['user_id'];
+					$arr_driver_user[$pos]['device_id'] = $info['dev_id'];
 				}
 				
+				++$pos;
 				CLog::debug("get distance succ [distance: %s, src_latitude: %s, src_longitude: %s, driver_latitude: %s, drvier_longitude: %s]", 
 							$distance, $src_latitude, $src_longitude, $info['latitude'], $info['longitude']);
 			}
 			
 			// 若没有满足距离过滤的，则恢复原来的司机数据
-			if (0 == count($arr_driver_user_id))
+			if (0 == count($arr_driver_user))
 			{
 				CLog::trace("no drivers around after use distance filter");
 				$is_skip_count_distance = false;
@@ -362,33 +365,37 @@ class NotifyWorker
 				CLog::trace("use distance filter succ " .
 							"[before_filter_driver_num: %s, " .
 							"after_filter_driver_num: %s]",
-							$driver_num, count($arr_driver_user_id));
+							$driver_num, count($arr_driver_user));
 			}
 		}
 		
 		if (false === $is_skip_count_distance)
 		{
+			$pos = 0;
 			foreach($arr_response as $info)
 			{
-				$arr_driver_user_id[] = $info['user_id'];
+				$arr_driver_user[$pos]['user_id'] = $info['user_id'];
+				$arr_driver_user[$pos]['device_id'] = $info['dev_id'];
+				++$pos;
 			}
 		}
 		
-		CLog::debug("the driver user_id is [driver_user_id: %s]", json_encode($arr_driver_user_id));
-		
+		CLog::debug("the driver user_id is [driver_user_id: %s]", json_encode($arr_driver_user));
+
+		/*
 		// 查询司机对应的消息推送ID
 		$condition = array(
 			'and' => array(
 				array(
 					'user_id' => array(
-			 			'in' => $arr_driver_user_id,
+			 			'in' => $arr_driver_user,
 					),
 				),
 			),
 		);
 		$append_condition = array(
 			'start' => 0, 
-			'limit' => count($arr_driver_user_id),
+			'limit' => count($arr_driver_user),
 		);
 		$arr_response = $db_proxy->select(self::TABLE_DEVICE_INFO, 
 										  array('user_id', 'client_id'), 
@@ -406,6 +413,7 @@ class NotifyWorker
 			CLog::warning("get drvier client_id failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
+		*/
 		
 		// 组织消息，开始推送
 		$arr_content = array(
@@ -427,12 +435,14 @@ class NotifyWorker
 			'trans_type' => 1,
 			'trans_content' => json_encode($arr_content),
 		);
+		$user_type = 1; // 司机类型;
 		
 		$push_proxy_object = PushPorxy::getInstance();
 		
 		$ret = $push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['trans'], 
 							  	 		 		$arr_msg, 
-							  	 		 		$arr_driver_user_id, 
+							  	 		 		$arr_driver_user, 
+							  	 		 		$user_type,
 							  	 		 		false);
 		if (false === $ret)
 		{
@@ -442,8 +452,8 @@ class NotifyWorker
 								  NotifyConfig::$arrNotifyTaskStatus['error_push']);
 			return;
 		}
-
-		CLog::trace("notify succ [pid: %s, driver_num: %s]", $pid, count($arr_driver_user_id));
+		
+		CLog::trace("notify succ [pid: %s, driver_num: %s]", $pid, count($arr_driver_user));
 	}
 	
 	public static function set_task_status($table_name, $pid, $status)

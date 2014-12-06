@@ -9,7 +9,8 @@ class DriverReportAction extends CarpoolBaseAction
         {
             throw new Exception("carpool.auth user is not login");
         }
-        if (!isset($this->requests['gps']))
+        if (!isset($this->requests['gps']) || 
+        	!isset($this->requests['devuid']))
         {
             throw new Exception("carpool.param param error");
         }
@@ -22,6 +23,7 @@ class DriverReportAction extends CarpoolBaseAction
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['gps'] = $this->requests['gps'];
+        $arr_req['devuid'] = $this->requests['devuid'];
         
 
         $driver_service = DriverService::getInstance();

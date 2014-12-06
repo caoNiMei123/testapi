@@ -26,6 +26,17 @@ class DBConfig
         'password' => 'gaowei',
         'dbname'   => 'carpooldb',
         'charset'  => 'utf8',
+        */
+    
+        'host'     => array(
+            array('10.81.64.83', 8888), 
+            array('10.81.64.83', 8888), 
+        ),
+        
+        'uname'    => 'zhanglei18',
+        'password' => '',
+        'dbname'   => 'carpooldb',
+        'charset'  => 'utf8',
     );
 }
 

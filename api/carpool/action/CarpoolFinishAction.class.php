@@ -9,7 +9,8 @@ class CarpoolFinishAction extends CarpoolBaseAction
         {
             throw new Exception("carpool.auth user is not login");
         }
-        if (!isset($this->requests['pid']) )
+        if (!isset($this->requests['pid']) ||
+        	!isset($this->requests['devuid']))
         {
             throw new Exception("carpool.param param error");
         }
@@ -22,6 +23,7 @@ class CarpoolFinishAction extends CarpoolBaseAction
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['user_name'] = $this->requests['user_name'];
+        $arr_req['devuid'] = $this->requests['devuid'];
         
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->finish($arr_req, $arr_opt);       
