@@ -45,6 +45,8 @@ CREATE TABLE `pickride_info` (
 CREATE TABLE `driver_info` (
     `id` bigint  NOT NULL AUTO_INCREMENT,
     `user_id` bigint  unsigned ,
+    `dev_id` varchar(64)  NOT NULL,
+    `dev_id_sign` bigint unsigned not NULL,
     `latitude` float(10, 6),
     `longitude` float(10, 6),
     `ctime` int not NULL,
