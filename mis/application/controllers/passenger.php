@@ -41,6 +41,16 @@ class Passenger extends MY_Controller {
         return;
     }
 
+    public function batchset(){
+        $this->load->model("carpool_model"); 
+        $this->carpool_model->batch_set_passenger($_POST['email']);
+        echo json_encode(array(
+            'errno' => 0,
+            'errmsg'=> '',
+        ));
+        return;
+    }
+
 	public function log(){
 		
 	}

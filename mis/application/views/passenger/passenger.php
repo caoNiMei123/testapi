@@ -10,6 +10,22 @@
     }
 </script>
 
+
+
+<script type="text/javascript">
+        $("#go").click(function(){
+                obj = $("#email").val();
+                $.post("http://"+window.location.host+"/mis/index.php?c=passenger&m=batchset",{email:obj},function(data){
+                    location.reload(true);
+                    return;
+                });            
+               
+        });
+
+</script>
+
+
+
 <div  class="button">
 <?php if ($page != 0):?>
              

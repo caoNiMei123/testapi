@@ -1,6 +1,15 @@
 <div class="container">
 <div class="page-header">
 </div>
+
+<div class="input-prepend input-append" style="margin-bottom: 0px;">
+    <span class="add-on">邮箱后缀</span>
+    <input class="span2" id="email" type="text">
+    <button class="btn" type="button" id="go">批量通过（不带@）</button>
+</div>
+<br />
+<br />
+<br />
 <!-- Rating List - START -->
 <div class="container">
     <div class="row" style="margin-left: 0">

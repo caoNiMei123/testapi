@@ -35,6 +35,10 @@ class Carpool_Model extends CI_Model{
         $query = $this->db->query("update user_info  set status =2 where user_id = $user_id");
         return 0;
     }
+    public function batch_set_passenger($email){
+        $query = $this->db->query("update user_info  set status =2 where email like \"%@$email\"");
+        return 0;
+    }
     public function set_driver($user_id){
 		$query = $this->db->query("update user_info  set status =2 where user_id = $user_id");
 		return 0;
