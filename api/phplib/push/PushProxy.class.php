@@ -463,6 +463,8 @@ class PushPorxy
 	
 	private function _get_client_id($arr_user)
 	{
+		CLog::debug("get client_id proc begin [arr_user: %s]", json_encode($arr_user));
+		
 		$db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
 		if (false === $db_proxy)
 		{
