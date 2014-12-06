@@ -335,7 +335,7 @@ class CarpoolService
         $arr_user = array(
         	array(
 	        	'user_id' => $passenger_id,
-	        	'device_id' => $$passenger_dev_id,
+	        	'device_id' => $passenger_dev_id,
         	),
         );
         
