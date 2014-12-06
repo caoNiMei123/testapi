@@ -65,9 +65,29 @@
     </script>
 
 
+    
 
     <?php else:?>
-        
+        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     <?php endif;?>
+
+    <script type="text/javascript">
+    function Click(time1, time2)
+    {         
+        window.location.replace("http://"+window.location.host+"/mis/index.php?c=tongji&m=get_order_list&startdate="+time1+"&enddate="+time2);
+        
+    }
+    </script>
+
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto">  
+    <form>
+        <script>DateInput('startdate', true, 'YYYYMMDD')</script>
+        
+        <script>DateInput('enddate', true, 'YYYYMMDD')</script>
+        <input type="button" onClick="Click(this.form.startdate.value,this.form.enddate.value)" value="刷新">
+    </form>
+    </div>
+    
 </div>
+
 
