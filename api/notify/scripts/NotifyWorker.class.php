@@ -11,11 +11,6 @@ class NotifyWorker
 	
 	public static function doExecute($cur_process_num, $total_process_num)
 	{
-		// zl_test
-		self::_test_push();
-		return;
-		// zl_test
-		
 		$pre_num = 0;
 		$begin_table_num = 0;
 		$end_table_num = 0;
@@ -586,7 +581,7 @@ class NotifyWorker
 							  	 		 $arr_user,
 							  	 		 $user_type);
 		*/
-		 		 
+		/*
 		$arr_msg = array(
 			'trans_type' => 1,
 			'trans_content' => 'helleo hahah',
@@ -611,7 +606,7 @@ class NotifyWorker
 							  	 		 $arr_msg, 
 							  	 		 $arr_user,
 							  	 		 $user_type);
-
+		*/
 	}
 	
 }
