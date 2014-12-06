@@ -23,6 +23,7 @@ class CarpoolCreateAction extends CarpoolBaseAction
         $arr_req['dest'] = $this->requests['dest'];
         $arr_req['src_gps'] = $this->requests['src_gps'];
         $arr_req['dest_gps'] = $this->requests['dest_gps'];
+        $arr_req['devuid'] = $this->requests['devuid'];
 
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->create($arr_req, $arr_opt);       
