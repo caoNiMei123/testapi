@@ -15,7 +15,7 @@
 
 
 
-
+$day = $argv[1];
 $start = strtotime($argv[1]." 00:00:00");
 $end = strtotime($argv[1]."24:00:00");
 
@@ -87,7 +87,7 @@ if (!$svr_conn){
 if(!mysql_select_db($mysql_db, $svr_conn)){
     exit(1);
 }
-mysql_query("insert into log_info (`day`, `hour`, `item_1`, `item_2`, `item_3`) values ($argv[1], '0', $order, $succ_order, $timeout_order)", $svr_conn);
+mysql_query("insert into log_info (`day`, `hour`, `item_1`, `item_2`, `item_3`) values ('$day', '0', $order, $succ_order, $timeout_order) on duplicate key `item_1`=$order,`item_2`=$succ_order,`item_3`=$timeout_order;", $svr_conn);
 
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100 */
 ?>
