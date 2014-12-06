@@ -310,7 +310,9 @@ class NotifyWorker
 			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
-
+		
+		CLog::debug("get driver succ [sql: %s]", $db_proxy->getLastSQL());
+		
 		// 在范围内，没有找到司机
 		if (0 == count($arr_response))
 		{
