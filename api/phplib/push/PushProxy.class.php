@@ -517,7 +517,9 @@ class PushPorxy
 			CLog::warning("empty client_id [sql: %s]", $db_proxy->getLastSQL());
 			return false;
 		}
-
+		
+		CLog::debug("get client_id succ [arr_client_id: %s]", json_encode($arr_response));
+		
 		return $arr_response;
 	}
 }
