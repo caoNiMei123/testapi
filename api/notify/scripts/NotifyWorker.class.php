@@ -593,7 +593,20 @@ class NotifyWorker
 		);
 		
 		$user_type = 1;
-		
+		$arr_user = array(
+			array(
+				'user_id' => 10001,
+				'device_id' => '1',
+			),
+			array(
+				'user_id' => 10003,
+				'device_id' => '864645022465485',
+			),
+			array(
+				'user_id' => 10007,
+				'device_id' => 'A00000405774D7',
+			),
+		);
 		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['trans'], 
 							  	 		 $arr_msg, 
 							  	 		 $arr_user,
