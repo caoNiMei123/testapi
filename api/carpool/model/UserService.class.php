@@ -8,8 +8,8 @@ class UserService
     const TABLE_SECSTR_INFO = 'secstr_info';
     const USERTYPE_DRIVER =1;
     const USERTYPE_PASSENGER=2;
-    const USERSTATUS_INACTIVE = 0; //未审核
-    const USERSTATUS_CHECK = 1;//发起审核，审核中
+    const USERSTATUS_INACTIVE = 0;
+    const USERSTATUS_NORMAL = 1;
     const USERSTATUS_ACTIVE = 2;
 
     
@@ -30,37 +30,7 @@ class UserService
     {
             
     }
-    public function query($arr_req, $arr_opt)
-    {
-        /*$user_name = $arr_req['user_name'] ;
-        $user_id = $arr_req['user_id'] ;
-        $user_type = intval($arr_req['user_type']) ; 
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
-        {
-            return false;
-        }   
-        $condition = array(
-            'and' => array(
-                array(
-                    'user_id' => array(
-                        '=' => $user_id,
-                    ),
-                ),
-            ),
-        );
-        $arr_response = $dbProxy->select(self::TABLE_USER_INFO, '*', $condition);
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) {
-            throw new Exception('carpool.internal register fail');
-        }
-        $user_id = intval($arr_response[0]['user_id']);
-        $user_type = intval($arr_response[0]['user_type']);       
-        */
-    }
+
     public function register($arr_req, $arr_opt)
     {
         // 1. 检查必选参数合法性
@@ -446,6 +416,8 @@ class UserService
         );
         $duplicate = array(
         	'client_id' => $client_id,
+			'dev_id'     => $devuid,
+            'dev_id_sign' => crc32($devuid),
             'mtime' => $now,
             'status'=>0,
         );
