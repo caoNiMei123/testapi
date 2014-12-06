@@ -19,7 +19,7 @@ $day = $argv[1];
 $starttime = strtotime($argv[1]." 00:00:00");
 $endtime = strtotime($argv[1]."24:00:00");
 
-
+var_dump($day);
 
 $mysql_ip= 'rdsv63ujvaq3yma.mysql.rds.aliyuncs.com';
 $mysql_port = 3306;

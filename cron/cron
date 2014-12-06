@@ -1,0 +1,1 @@
+0 * * * * cd /home/work/code/cron &&  /home/work/php/bin/php tongji.php  `date "+%Y%m%d"`
