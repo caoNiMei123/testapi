@@ -2,7 +2,6 @@
 
 class CarpoolService
 {
-    
     const CARPOOL_STATUS_CREATE  = 0;
     const CARPOOL_STATUS_DOING  = 1;
     const CARPOOL_STATUS_ACCEPTED  = 2;
@@ -202,29 +201,32 @@ class CarpoolService
             throw new Exception('carpool.not_found this pid not exists');
         }
         
-        $msg = json_encode(array(
-            'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
-            'msg_content' => array(
-                'pid' => $pid,    
-                'phone' => $to_phone,               
-            ),
-            'msg_ctime' => time(NULL),
-            'msg_expire' => 60,
-        ));
-        
-        $arr_msg = array(
-        	'trans_type' => 1,
-        	'trans_content' => $msg,
-        );
-        $arr_user = array(
-        	array(
-	        	'user_id' => $to_uid,
-	        	'device_id' => $devuid,
-        	),
-        );
-        
-        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);       
-        
+        // 订单已被司机接单，才需要发通知到司机
+        if (0 != $to_uid)
+        {
+	        $msg = json_encode(array(
+	            'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
+	            'msg_content' => array(
+	                'pid' => $pid,    
+	                'phone' => $to_phone,               
+	            ),
+	            'msg_ctime' => time(NULL),
+	            'msg_expire' => 60,
+	        ));
+	        
+	        $arr_msg = array(
+	        	'trans_type' => 1,
+	        	'trans_content' => $msg,
+	        );
+	        $arr_user = array(
+	        	array(
+		        	'user_id' => $to_uid,
+		        	'device_id' => $devuid,
+	        	),
+	        );
+	        
+	        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+        }       
 
         //修改任务表
         $ret = $db_proxy->update('task_info_'.$pid%16, array('and'=>
