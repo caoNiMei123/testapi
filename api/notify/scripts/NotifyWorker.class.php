@@ -11,6 +11,11 @@ class NotifyWorker
 	
 	public static function doExecute($cur_process_num, $total_process_num)
 	{
+		// zl_test
+		self::_test_push();
+		return;
+		// zl_test
+		
 		$pre_num = 0;
 		$begin_table_num = 0;
 		$end_table_num = 0;
@@ -562,23 +567,19 @@ class NotifyWorker
 		);
 		$arr_user = array(
 			array(
-				'user_id' => 666,
-				'device_id' => '800',
+				'user_id' => 10001,
+				'device_id' => '1',
 			),
 			array(
-				'user_id' => 667,
-				'device_id' => '801',
+				'user_id' => 10003,
+				'device_id' => '864645022465485',
 			),
 			array(
-				'user_id' => 668,
-				'device_id' => '802',
-			),
-			array(
-				'user_id' => 669,
-				'device_id' => '803',
+				'user_id' => 10007,
+				'device_id' => 'A00000405774D7',
 			),
 		);
-		$user_type = 2;
+		$user_type = 1;
 		
 		$push_proxy_object->push_to_list(PushProxyConfig::$arrPushMsgType['notify'], 
 							  	 		 $arr_msg, 
