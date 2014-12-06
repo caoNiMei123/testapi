@@ -292,7 +292,7 @@ class NotifyWorker
 				),
 				array(
 					'mtime' => array(
-			 			'<' => $expire_time,
+			 			'>' => $expire_time,
 					),
 				),
 			),
