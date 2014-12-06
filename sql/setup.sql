@@ -4,10 +4,12 @@ USE `carpooldb`;
 
 CREATE TABLE `user_info` (
     `user_id` bigint  unsigned  NOT NULL AUTO_INCREMENT,
-    `real_name` varchar(50) default '',
+    `name` varchar(50) default '',
     `phone`  bigint not null,
     `email`  varchar(100) default '', 
     `car_type` varchar(50) default '',
+    `seat` tinyint default 0,
+    `detail` varchar(1024) default '',
     `car_num` varchar(50) default '',
     `car_engine_num` varchar(50) default '',
     `user_type`  int not NULL,
