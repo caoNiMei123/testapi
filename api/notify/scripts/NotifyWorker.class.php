@@ -123,6 +123,12 @@ class NotifyWorker
 			return;
 		}
 		
+		
+		/*
+		 * todo: 
+		 * 1. 后续考虑用update替换行锁，获取last_insert_id
+		 * 2. 增加扫taks时，判断taks的超时，已经超时的任务就不用再推送了
+		 */
 		// 拉取创建的任务，并加行锁
 		$condition = array(
 			'and' => array(
