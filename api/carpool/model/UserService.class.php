@@ -220,7 +220,7 @@ class UserService
             throw new Exception('carpool.internal connect to the DB failed');
         }   
 
-        $condition = array(
+        /*$condition = array(
             'and' => array(
                 array(
                     'account' => array(
@@ -242,7 +242,7 @@ class UserService
         if (0 != count($arr_response)) {
             throw new Exception('carpool.duplicate already has a sectr');
         }
-
+        */
         
         $ret = $dbProxy->insert(self::TABLE_SECSTR_INFO, $row);
         if (false === $ret)
@@ -269,7 +269,7 @@ class UserService
             break;
             case self::REASONTYPE_PASSENGER_AUTH:
                 //发邮件
-                EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&secstr=$secstr");
+                EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&secstr=$sec_str");
                 
             break;
         }    

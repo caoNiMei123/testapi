@@ -70,6 +70,9 @@ class PublicLibManager
 		
 		'HttpProxy'			    => PUBLIC_PATH . '/http/HttpProxy.class.php',
 		'MHttpProxy'			=> PUBLIC_PATH . '/http/MHttpProxy.class.php',
+
+        'EmailProxy'            => PUBLIC_PATH . '/email/EmailProxy.class.php',
+        'SmsProxy'              => PUBLIC_PATH . '/sms/SmsProxy.class.php',
 		
 		'DBConfig'              => PUBLIC_CONF_PATH.'/DBConfig.class.php',
         'DBProxy'               => PUBLIC_PATH . '/db/DBProxy.class.php',

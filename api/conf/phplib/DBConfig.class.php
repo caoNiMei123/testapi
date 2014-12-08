@@ -16,7 +16,7 @@ class DBConfig
 		'charset'  => 'utf8',
 		*/
     
-    	/*
+    	
         'host'     => array(
             array('10.58.95.60', 3206), 
             array('10.58.95.60', 3206), 
@@ -26,9 +26,9 @@ class DBConfig
         'password' => 'gaowei',
         'dbname'   => 'carpooldb',
         'charset'  => 'utf8',
-        */
+        
     
-        'host'     => array(
+        /*'host'     => array(
             array('10.81.64.83', 8888), 
             array('10.81.64.83', 8888), 
         ),
@@ -37,6 +37,7 @@ class DBConfig
         'password' => '',
         'dbname'   => 'carpooldb',
         'charset'  => 'utf8',
+        */
     );
 }
 
