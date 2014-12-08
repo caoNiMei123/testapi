@@ -71,6 +71,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'query' => array(
                 'CarpoolQueryAction',
             ),    
+            'batch_query' => array(
+                'CarpoolBatchQueryAction',
+            ),  
             
         ),
         

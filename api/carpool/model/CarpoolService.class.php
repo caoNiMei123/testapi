@@ -516,7 +516,9 @@ class CarpoolService
             unset($value['src_latitude']);  
             unset($value['src_longitude']);  
             unset($value['dest_latitude']);  
-            unset($value['dest_longitude']);   
+            unset($value['dest_longitude']);  
+            unset($value['driver_dev_id']);  
+            unset($value['passenger_dev_id']); 
 
         }
         CLog::trace("order list succ [account: %s, user_id : %d ]", $user_name, $user_id);
@@ -557,13 +559,8 @@ class CarpoolService
         unset($ret['dest_longitude']);   
         if($user_id == $ret['user_id']){
             $ret['phone'] = $ret['driver_phone'];            
-        }
-        else if ($user_id == $ret['driver_id']){
-            $ret['phone'] = $ret['user_phone'];            
-        }        
-        else {
-            throw new Exception('carpool.invalid_user user_id illegal');
-        }
+        }      
+        
         $ret['seat'] = intval($ret['seat']);
         $ret['ctime'] = intval($ret['ctime']);
         $ret['mtime'] = intval($ret['mtime']);
@@ -573,12 +570,84 @@ class CarpoolService
         $ret['status'] = intval($ret['status']);
         $ret['phone'] = intval($ret['phone']);
         unset($ret['driver_phone']);
-        unset($ret['driver_id']);
-        unset($ret['user_phone']);
+        unset($ret['driver_id']);        
         unset($ret['user_id']);
+        unset($ret['driver_dev_id']);
+        unset($ret['passenger_dev_id']);
         $ret['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         CLog::trace("order query succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return $ret;
+    }   
+    public function batch_query($arr_req, $arr_opt)
+    {
+
+        $user_id = $arr_req['user_id'] ;
+        $user_type = $arr_req['user_type'] ;
+        $list = $arr_req['list'] ;
+        $arr_list = json_decode($list);
+
+        if(!$arr_list || count($arr_list) > CarpoolConfig::CARPOOL_PAGE_LIMIT)
+        {
+            throw new Exception("carpool.param list illegal");
+        }
+
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy) 
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }       
+        if($user_type == UserService::USERTYPE_DRIVER)
+        {
+            $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
+                array(
+                    array('pid' =>  array('in' => $arr_list)),
+                    array('driver_id' =>  array('=' => $user_id)),
+                ),                          
+            ));
+        }
+        else{
+            $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
+                array(
+                    array('pid' =>  array('in' => $arr_list)),
+                    array('user_id' =>  array('=' => $user_id)),
+                ),                          
+            ));
+        }
+        
+        if (false === $arr_response || !is_array($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        foreach($arr_response as $key => &$value){
+            unset($value['id']);
+            $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
+            $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
+            unset($value['src_latitude']);  
+            unset($value['src_longitude']);  
+            unset($value['dest_latitude']);  
+            unset($value['dest_longitude']);  
+            if($user_id == $value['user_id']){
+                $value['phone'] = $value['driver_phone'];            
+            }
+            unset($value['driver_phone']);
+            $value['seat'] = intval($value['seat']);
+            $value['ctime'] = intval($value['ctime']);
+            $value['mtime'] = intval($value['mtime']);
+            if ($value['status'] == self::CARPOOL_STATUS_CREATE && $value['ctime'] < time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT) {
+                $value['status'] = self::CARPOOL_STATUS_TIMEOUT;
+            }
+            $value['status'] = intval($value['status']);
+            $value['phone'] = intval($value['phone']);            
+            unset($value['driver_id']);            
+            unset($value['user_id']);
+            $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
+            unset($value['driver_dev_id']);
+            unset($value['passenger_dev_id']);
+
+        }
+        
+        CLog::trace("order batch query succ [account: %s, user_id : %d ]", $user_name, $user_id);
+        return array('list' => $arr_response);
     }   
 }
 

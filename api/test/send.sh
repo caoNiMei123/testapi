@@ -13,6 +13,8 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/driver?method=report&devuid=1&ctype
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=accept&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' -d 'pid=14937130105680741056'
 #carpool finish 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=finish&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' -d 'pid=14937130105680741056'
+#carpool batch_query
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=batch_query&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'list=[3287598590273545518]'
 #carpool list 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=list&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=list&devuid=1&ctype=1' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' 
