@@ -23,3 +23,5 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/driver?method=report&devuid=1&ctype
 #gettoken
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=gettoken&devuid=1&ctype=1' -d 'account=18601165873' -d 'type=1' -d 'reason=1'
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=gettoken&devuid=1&ctype=1' -d 'account=gaowei@baidu.com' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10003' -d 'type=2' -d 'reason=2'
+#feedback
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/feedback?method=create&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'type=1' -d 'detail=abcdefg'

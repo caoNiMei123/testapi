@@ -20,7 +20,7 @@ class FeedbackCreateAction extends CarpoolBaseAction
         $arr_opt = array();
         
         $arr_req['type'] = intval($this->requests['type']);
-        $arr_req['detail'] = intval($this->requests['detail']);
+        $arr_req['detail'] = $this->requests['detail'];
         $arr_req['user_name'] = $this->requests['user_name'];
 		$arr_req['user_id'] = $this->requests['user_id'];
 		$arr_req['user_type'] = intval($this->requests['user_type']);

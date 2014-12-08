@@ -58,7 +58,7 @@ class FeedbackService
             'content' => $detail,                
             'ctime'     => $now,
             'mtime'     => $now,
-            'statas'    => self::FEEDBACKSTAUS_CREATE,
+            'status'    => self::FEEDBACKSTAUS_CREATE,
         );
         
         
