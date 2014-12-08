@@ -314,7 +314,7 @@ class UserService
         {
             throw new Exception('carpool.secstr secstr wrong or timeout');
         }
-        
+
         if(0 == $user_id)
         {
             return true;
@@ -436,7 +436,7 @@ class UserService
             ),
         );
         
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type', 'status'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -491,6 +491,11 @@ class UserService
         {
             throw new Exception('carpool.param invalid client_id length [max_len: 64]');
         }
+        //只有司机可以report
+        if($user_type == self::USERTYPE_PASSENGER)
+        {
+            return true;
+        }
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy)
@@ -504,12 +509,7 @@ class UserService
                     'user_id' => array(
                         '=' => $user_id,
                     ),
-                ),
-                array(
-                    'status' => array(
-                        '=' => 0,
-                    ),
-                ),
+                ),          
 
             ),
         );
@@ -522,7 +522,11 @@ class UserService
         if (0 == count($arr_response)) {
             throw new Exception('carpool.param user_id not exist');
         }
-           
+        //司机没认证，不更新他的表
+        if($arr_response[0]['status'] == self::USERSTATUS_INACTIVE)
+        {
+            return true;
+        }   
         $now = time(NULL);
         $row = array(               
             'user_id'     => $user_id,
@@ -582,6 +586,49 @@ class UserService
             'user_type'   => intval($rawArray[5]),
         );
     }
+
+    public function query($arr_req, $arr_opt)
+    {
+        // 1. 检查必选参数合法性
+        $user_name = $arr_req['user_name'] ;
+        $user_id = $arr_req['user_id'] ;
+        $user_type = $arr_req['user_type'] ;
+        
+        // 2. 访问数据库
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }   
+
+        $condition = array(
+            'and' => array(
+                array(
+                    'user_id' => array(
+                        '=' => $user_id,
+                    ),
+                ),             
+
+            ),
+        );
+        
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, '*', $condition);
+        if (false === $arr_response || !is_array($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        if (0 == count($arr_response)) {
+            throw new Exception('carpool.param user_id not exist');
+        }
+           
+        $arr_return = array();
+        
+        CLog::trace("user query succ [account: %s]", $user_name);
+                    
+        return $arr_return;
+    }
+
+
 }
 
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */

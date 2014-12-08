@@ -9,6 +9,8 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=create&devuid=1&ctype=
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=cancel&devuid=1&ctype=1' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' -d 'pid=14937130105680741056'
 #driver report
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/driver?method=report&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' -d 'gps=34.211964,117.131692'
+#user query 
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=query&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' 
 #carpool accept 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=accept&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' -d 'pid=14937130105680741056'
 #carpool finish 

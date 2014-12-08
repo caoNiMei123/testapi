@@ -31,6 +31,10 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'reg' => array(
                 'UserRegisterAction',
             ),
+
+            'query' => array(
+                'UserQueryAction',
+            ),
             
             'login' => array(
                 'UserLoginAction',
