@@ -308,7 +308,7 @@ class CarpoolService
             array(array('pid' => array('=' => $pid)),
                 array('user_id' =>  array('!=' => $user_id)),  
                 array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)),              
-        )), 'driver_id='.$user_id.',driver_phone = '.intval($user_name).',mtime ='.time(NULL).',status ='.self::CARPOOL_STATUS_DOING. ', driver_dev_id = '.$devuid);
+        )), 'driver_id='.$user_id.',driver_phone = '.intval($user_name).',mtime ='.time(NULL).',status ='.self::CARPOOL_STATUS_DOING. ", driver_dev_id = '$devuid'");
         if (false === $ret) {
             throw new Exception('carpool.internal insert to the DB failed');
         }
