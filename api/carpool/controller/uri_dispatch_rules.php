@@ -86,6 +86,15 @@ ActionControllerConfig::$config['hash_mapping'] = array(
         
         'dispatch'=>'openapi2',
     ),
+    '/rest/2.0/carpool/feedback' => array(
+        'method_hash' => array(
+            'create' => array(
+                'FeedbackCreateAction',
+            ),
+        ),
+        
+        'dispatch'=>'openapi2',
+    ),
 );
 
 
