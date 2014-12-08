@@ -622,7 +622,28 @@ class UserService
         }
            
         $arr_return = array();
-        
+
+        $arr_return['name'] = $arr_response[0]['name'];
+        $arr_return['status'] = $arr_response[0]['status'];
+        $arr_return['ctime'] = intval($arr_response[0]['ctime']);
+        $arr_return['type'] = intval($arr_response[0]['user_type']);
+        $arr_return['phone'] = intval($arr_response[0]['phone']);
+
+        if($user_type == self::USERTYPE_PASSENGER)
+        {
+            $arr_return['detail']['email'] = $arr_response[0]['email']; 
+        }else
+        {
+
+            $arr_return['detail']['car_type'] = $arr_response[0]['car_type'];
+            $arr_return['detail']['seat'] = $arr_response[0]['seat'];
+            $arr_info = json_decode($arr_response[0]['detail'], true);            
+        }
+                
+
+        //to do , 需要给头像地址
+        $arr_return['head'] = '';
+
         CLog::trace("user query succ [account: %s]", $user_name);
                     
         return $arr_return;
