@@ -42,6 +42,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
 			'report' => array(
                 'UserReportAction',
             ),
+            'auth' => array(
+                'UserAuthAction',
+            ),
 
         ),
         

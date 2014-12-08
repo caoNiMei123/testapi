@@ -78,7 +78,8 @@ class CarpoolConfig
         'order_info' =>5,
         'finish_order' =>6,
     );
-
-    public static $domain = "http://182.92.164.183:8089";
+    //test
+    public static $domain = "http://10.26.74.23:8089";
+    //public static $domain = "http://182.92.164.183:8089";
 
 }

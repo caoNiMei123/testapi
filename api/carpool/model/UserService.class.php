@@ -9,7 +9,7 @@ class UserService
     const USERTYPE_DRIVER =1;
     const USERTYPE_PASSENGER=2;
     const USERSTATUS_INACTIVE = 0;
-    const USERSTATUS_NORMAL = 1;
+    const USERSTATUS_CHECK = 1;
     const USERSTATUS_ACTIVE = 2;
     const TOKENTYPE_PHONE=1;
     const TOKENTYPE_EMAIL=2;
@@ -111,17 +111,17 @@ class UserService
         
         
         // 3. 访问数据库
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }   
         
-        $ret = $dbProxy->insert(self::TABLE_USER_INFO, $row);
+        $ret = $db_proxy->insert(self::TABLE_USER_INFO, $row);
         if (false === $ret)
         {
-            $error_code = $dbProxy->getErrorCode();
-            $error_msg = $dbProxy->getErrorMsg();
+            $error_code = $db_proxy->getErrorCode();
+            $error_msg = $db_proxy->getErrorMsg();
 
             if ( $error_code == 1062) {
                 throw new Exception('carpool.duplicate account already exists');
@@ -140,7 +140,7 @@ class UserService
                 ),
             ),
         );
-        $arr_response = $dbProxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -176,6 +176,15 @@ class UserService
         {
             throw new Exception('carpool.param invalid reason' );
         }
+
+        // 3. 访问数据库
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }   
+
+
         //目前reg 只支持手机， auth只支持邮箱
         switch($reason){
             case self::REASONTYPE_REG:
@@ -192,6 +201,29 @@ class UserService
                     'type'      => self::TOKENTYPE_PHONE, 
                 );
                 $timeout = CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT;
+                $condition = array(
+                    'and' => array(
+                        array(
+                            'account' => array(
+                                '=' => $account,
+                            ),
+                        ),
+                        array(
+                            'ctime' => array(
+                                '<' => time(NULL) + $timeout,
+                            ),
+                        ),
+                    ),
+                );        
+                $arr_response = $db_proxy->select(self::TABLE_SECSTR_INFO, array('id'), $condition);
+                if (false === $arr_response || !is_array($arr_response))
+                {
+                    throw new Exception('carpool.internal select from the DB failed');
+                }
+                if (0 != count($arr_response)) {
+                    throw new Exception('carpool.duplicate already has a sectr');
+                }
+
                 break;
             case self::REASONTYPE_PASSENGER_AUTH:
                 $ret = Utils::is_valid_email($account);
@@ -210,45 +242,13 @@ class UserService
                 );
                 $timeout = CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT;
                 break;
-        }     
+        }            
         
-
-        // 3. 访问数据库
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
-
-        /*$condition = array(
-            'and' => array(
-                array(
-                    'account' => array(
-                        '=' => $account,
-                    ),
-                ),
-                array(
-                    'ctime' => array(
-                        '<' => time(NULL) + $timeout,
-                    ),
-                ),
-            ),
-        );        
-        $arr_response = $dbProxy->select(self::TABLE_SECSTR_INFO, array('id'), $condition);
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 != count($arr_response)) {
-            throw new Exception('carpool.duplicate already has a sectr');
-        }
-        */
-        
-        $ret = $dbProxy->insert(self::TABLE_SECSTR_INFO, $row);
+        $ret = $db_proxy->insert(self::TABLE_SECSTR_INFO, $row);
         if (false === $ret)
         {
-            $error_code = $dbProxy->getErrorCode();
-            $error_msg = $dbProxy->getErrorMsg();
+            $error_code = $db_proxy->getErrorCode();
+            $error_msg = $db_proxy->getErrorMsg();
 
             if ( $error_code == 1062) {
                 throw new Exception('carpool.duplicate account already exists');
@@ -268,8 +268,28 @@ class UserService
                 SmsPorxy::getInstance()->push_to_single($account, $sec_str);
             break;
             case self::REASONTYPE_PASSENGER_AUTH:
-                //发邮件
-                EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&secstr=$sec_str");
+                $mail_profix = substr($account, strrpos($account, '@')+1);
+
+                if(in_array($mail_profix,EmailConfig::$white_list))
+                {
+
+                    //发邮件， 这个时候不用给用户设置申请态， 因为他自己可以auth
+                    EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&account=$account&secstr=$sec_str&ctype=1&devuid=1");
+                }
+                else
+                {
+
+                    $ret = $db_proxy->update('user_info', array('and'=>
+                        array(array('user_id' =>  array('=' => $arr_opt['user_id'])), 
+                            array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
+                            array('status' =>  array('<>' => self::USERSTATUS_ACTIVE)),                                  
+                        )), 'status='.self::USERSTATUS_CHECK); 
+
+                    if (false === $ret) {
+                        throw new Exception('carpool.internal update DB failed');
+                    }
+                }
+                
                 
             break;
         }    
@@ -277,15 +297,55 @@ class UserService
         CLog::trace("get token succ [account: %s, secstr : %s]", $account, $sec_str);            
     }
 
-    public function check_str($account, $secstr, $timeout)
+
+    public function auth($arr_req, $arr_opt)
     {
-        if (CarpoolConfig::$debug) {
+        $account = $arr_req['account'];
+        $secstr = $arr_req['secstr'];
+        $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
+        if (false == $ret)
+        {
+            throw new Exception('carpool.param invalid account length [max_len: ' . 
+                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
+        }
+
+        $user_id = 0;
+        if(!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT, $user_id))
+        {
+            throw new Exception('carpool.secstr secstr wrong or timeout');
+        }
+        
+        if(0 == $user_id)
+        {
+            return true;
+        }
+        // 3. 访问数据库
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }   
+
+
+        $ret = $db_proxy->update('user_info', array('and'=>
+            array(array('user_id' =>  array('=' => $user_id)), 
+            array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
+                array('status' =>  array('<>' => self::USERSTATUS_ACTIVE)),                                  
+        )), 'status='.self::USERSTATUS_ACTIVE);  
+          
+        
+        CLog::trace("user auth succ [account: %s, secstr : %s]", $account, $sec_str);            
+    }
+
+    public function check_str($account, $secstr, $timeout, &$user_id = NULL)
+    {
+        if (!strpos($account, '@') && CarpoolConfig::$debug) {
             return true;  
         }
 
         // 3. 访问数据库
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
         {
             return false;
         }   
@@ -299,23 +359,33 @@ class UserService
                 ),
                 array(
                     'ctime' => array(
-                        '<' => time(NULL) + $timeout,
+                        '>' => time(NULL) - $timeout,
+                    ),
+                ),
+                array(
+                    'secstr' => array(
+                        '=' => $secstr,
                     ),
                 ),
             ),
-        );        
-        $arr_response = $dbProxy->select(self::TABLE_SECSTR_INFO, array('id'), $condition);
+        );    
+
+         
+        $arr_response = $db_proxy->select(self::TABLE_SECSTR_INFO, array('id', 'user_id'), $condition);
+          
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
         }
         if (1 != count($arr_response)) {
             return false;
+        }       
+
+        if(!is_null($user_id))
+        {
+            $user_id = intval($arr_response[0]['user_id']);
         }
-        if($arr_response[0]['secstr'] != $secstr) {
-            return false;
-        }
-        
+
         return true;
 
         
@@ -350,8 +420,8 @@ class UserService
         }
         
         // 3. 访问数据库
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }   
@@ -366,7 +436,7 @@ class UserService
             ),
         );
         
-        $arr_response = $dbProxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -382,16 +452,16 @@ class UserService
                 'ctime'     => $now,
                 'mtime'     => $now,
             );
-            $ret = $dbProxy->insert(self::TABLE_USER_INFO, $row);
+            $ret = $db_proxy->insert(self::TABLE_USER_INFO, $row);
             if (false === $ret)
             {
-                $error_code = $dbProxy->getErrorCode();
-                $error_msg = $dbProxy->getErrorMsg();
+                $error_code = $db_proxy->getErrorCode();
+                $error_msg = $db_proxy->getErrorMsg();
                 throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
                     $error_code . ', error_msg: ' . $error_msg . ']');
             }
             
-            $arr_response = $dbProxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
+            $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
             if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
             {
                 throw new Exception('carpool.internal select from the DB failed');
@@ -422,8 +492,8 @@ class UserService
             throw new Exception('carpool.param invalid client_id length [max_len: 64]');
         }
         // 2. 访问数据库
-        $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }   
@@ -444,7 +514,7 @@ class UserService
             ),
         );
         
-        $arr_response = $dbProxy->select(self::TABLE_USER_INFO, array('phone'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -469,11 +539,11 @@ class UserService
             'mtime' => $now,
             'status'=>0,
         );
-        $ret = $dbProxy->insert('device_info', $row, $duplicate);
+        $ret = $db_proxy->insert('device_info', $row, $duplicate);
         if (false === $ret)
         {
-            $error_code = $dbProxy->getErrorCode();
-            $error_msg = $dbProxy->getErrorMsg();
+            $error_code = $db_proxy->getErrorCode();
+            $error_msg = $db_proxy->getErrorMsg();
             throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
                 $error_code . ', error_msg: ' . $error_msg . ']');
         }

@@ -475,7 +475,6 @@ class DB
     {
         $this->__getSQLAssember();
         $sql = $this->sqlAssember->getUpdate($table, $row, $conds, $options, $appends);
-        if(!$sql || !$this->query($sql))
         {
             return false;
         }
