@@ -11,6 +11,10 @@ class UserService
     const USERSTATUS_INACTIVE = 0;
     const USERSTATUS_NORMAL = 1;
     const USERSTATUS_ACTIVE = 2;
+    const TOKENTYPE_PHONE=1;
+    const TOKENTYPE_EMAIL=2;
+    const REASONTYPE_REG=1;
+    const REASONTYPE_PASSENGER_AUTH=2;
 
     
     /**
@@ -54,7 +58,7 @@ class UserService
         
         
         $secstr = $arr_req['secstr'];
-        if (!self::checkStr($account, $secstr)) {
+        if (!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT)) {
             throw new Exception('carpool.secstr secstr error');
         }
         $now = time();
@@ -151,29 +155,62 @@ class UserService
         CLog::trace("register succ [account: %s, type : %d, user_id : %d]", $account, $type,$user_id);
     }
     
-    public function sendsms($arr_req, $arr_opt)
+    public function get_token($arr_req, $arr_opt)
     {
         $account = $arr_req['account'];
         $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
         if (false == $ret)
         {
             throw new Exception('carpool.param invalid account length [max_len: ' . 
-                                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
+                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
         }
-        
-        $ret = Utils::is_valid_phone($account);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid account [account: ' . $account . ']');
-        }
-                
-        $sec_str = Utils::generate_rand_str(6, '1234567890');
-        $row = array(               
-            'phone'     => $account,
-            'secstr'    => $sec_str,                
-            'ctime'     => time(NULL),
-        );
 
+        $type = isset($arr_opt['type'])? $arr_opt['type']:self::TOKENTYPE_PHONE;
+        $reason = isset($arr_opt['reason'])? $arr_opt['reason']:self::REASONTYPE_REG;
+
+        if($type != self::TOKENTYPE_PHONE && $type != self::TOKENTYPE_EMAIL)
+        {
+            throw new Exception('carpool.param invalid type' );
+        }
+        if($reason != self::REASONTYPE_REG && $reason != self::REASONTYPE_PASSENGER_AUTH)
+        {
+            throw new Exception('carpool.param invalid reason' );
+        }
+        //目前reg 只支持手机， auth只支持邮箱
+        switch($reason){
+            case self::REASONTYPE_REG:
+                $ret = Utils::is_valid_phone($account);
+                if (false == $ret)
+                {
+                    throw new Exception('carpool.param invalid account [account: ' . $account . ']');
+                }
+                $sec_str = Utils::generate_rand_str(6, '1234567890');
+                $row = array(               
+                    'account'     => $account,
+                    'secstr'    => $sec_str,                
+                    'ctime'     => time(NULL),
+                    'type'      => self::TOKENTYPE_PHONE, 
+                );
+                $timeout = CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT;
+                break;
+            case self::REASONTYPE_PASSENGER_AUTH:
+                $ret = Utils::is_valid_email($account);
+                $user_id = $arr_opt['user_id'];
+                if (false == $ret)
+                {
+                    throw new Exception('carpool.param invalid account [account: ' . $account . ']');
+                }
+                $sec_str = Utils::generate_rand_str(100, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
+                $row = array(               
+                    'account'     => $account,
+                    'secstr'    => $sec_str,                
+                    'ctime'     => time(NULL),
+                    'type'      => self::TOKENTYPE_PHONE, 
+                    'user_id'   => $user_id,
+                );
+                $timeout = CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT;
+                break;
+        }     
         
 
         // 3. 访问数据库
@@ -186,13 +223,13 @@ class UserService
         $condition = array(
             'and' => array(
                 array(
-                    'phone' => array(
+                    'account' => array(
                         '=' => $account,
                     ),
                 ),
                 array(
                     'ctime' => array(
-                        '<' => time(NULL) + CarpoolConfig::CARPOOL_SECSTR_TIMEOUT,
+                        '<' => time(NULL) + $timeout,
                     ),
                 ),
             ),
@@ -220,16 +257,27 @@ class UserService
             throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
                                 $error_code . ', error_msg: ' . $error_msg . ']');
         }
-        //发短信
-        if (CarpoolConfig::$debug) {
-            return true;  
-        }
-        SmsPorxy::getInstance()->push_to_single($account, $sec_str);
-        CLog::trace("sendsms succ [account: %s, secstr : %s]", $account, $sec_str);            
+
+        switch($reason){
+            case self::REASONTYPE_REG:
+                //发短信
+                if (CarpoolConfig::$debug) 
+                {
+                    return true;  
+                }
+                SmsPorxy::getInstance()->push_to_single($account, $sec_str);
+            break;
+            case self::REASONTYPE_PASSENGER_AUTH:
+                //发邮件
+                EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&secstr=$secstr");
+                
+            break;
+        }    
+        
+        CLog::trace("get token succ [account: %s, secstr : %s]", $account, $sec_str);            
     }
 
-
-    public function checkStr($account, $secstr)
+    public function check_str($account, $secstr, $timeout)
     {
         if (CarpoolConfig::$debug) {
             return true;  
@@ -245,13 +293,13 @@ class UserService
         $condition = array(
             'and' => array(
                 array(
-                    'phone' => array(
+                    'account' => array(
                         '=' => $account,
                     ),
                 ),
                 array(
                     'ctime' => array(
-                        '<' => time(NULL) + CarpoolConfig::CARPOOL_SECSTR_TIMEOUT,
+                        '<' => time(NULL) + $timeout,
                     ),
                 ),
             ),
@@ -297,7 +345,7 @@ class UserService
 
         
         $secstr = $arr_req['secstr'];
-        if (!self::checkStr($account, $secstr)) {
+        if (!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT)) {
             throw new Exception('carpool.secstr secstr error');
         }
         

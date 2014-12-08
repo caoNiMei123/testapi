@@ -69,6 +69,7 @@ CREATE TABLE `secstr_info` (
     `account`  varchar(256) not null,
     `type` tinyint default 0,
     `secstr` varchar(256) not null,
+    `user_id` bigint default 0 ,
     `ctime` int not NULL,
     PRIMARY KEY (`id`),
     KEY `account_key` (`account`)

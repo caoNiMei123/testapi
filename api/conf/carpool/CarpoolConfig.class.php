@@ -55,7 +55,9 @@ class CarpoolConfig
 
     const CARPOOL_ORDER_TIMEOUT = 1200;
 
-    const CARPOOL_SECSTR_TIMEOUT = 60;
+    const CARPOOL_SECSTR_PHONE_TIMEOUT = 60;
+
+    const CARPOOL_SECSTR_EMAIL_TIMEOUT = 3600;
 
     const CARPOOL_PAGE_LIMIT = 100;
 	
@@ -76,4 +78,7 @@ class CarpoolConfig
         'order_info' =>5,
         'finish_order' =>6,
     );
+
+    public static $domain = "http://182.92.164.183:8089";
+
 }
