@@ -35,7 +35,8 @@ $svr_conn = NULL;
 
 while(true){
     echo "start:  $start\n";
-    mysql_close($svr_conn);     
+    if(!is_null($svr_conn))
+    	mysql_close($svr_conn);     
     $svr_conn = mysql_connect("$mysql_ip:$mysql_port",$mysql_user,$mysql_pass,1);
     if (!$svr_conn){
         echo "Connect to db fail\n";
