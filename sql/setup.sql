@@ -66,12 +66,12 @@ CREATE TABLE `driver_info` (
 
 CREATE TABLE `secstr_info` (
     `id` bigint  NOT NULL AUTO_INCREMENT,
-    `phone`  bigint not null,
+    `account`  varchar(256) not null,
     `type` tinyint default 0,
-    `secstr` varchar(10),
+    `secstr` varchar(256) not null,
     `ctime` int not NULL,
     PRIMARY KEY (`id`),
-    KEY `phone_key` (`phone`)
+    KEY `account_key` (`account`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='临时令牌表' ;
 
 CREATE TABLE `client_version_info` (
