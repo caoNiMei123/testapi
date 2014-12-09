@@ -42,50 +42,61 @@ class UserService
         $account = $arr_req['account'];
         $type = $arr_req['type'];
         $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        if (false == $ret) {
+        if (false == $ret) 
+        {
             throw new Exception('carpool.param invalid account length [max_len: ' . 
                                 CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
         }
 
         $ret = Utils::is_valid_phone($account);
-        if (false == $ret) {
+        if (false == $ret) 
+        {
             throw new Exception('carpool.param invalid account [account: ' . $account . ']');
         }
-        if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) {
+        if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
+        {
             throw new Exception('carpool.param invalid type');
         }
 
         
         
         $secstr = $arr_req['secstr'];
-        if (!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT)) {
+        if (!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT)) 
+        {
             throw new Exception('carpool.secstr secstr error');
         }
         $now = time();
         $row = array();
 
-        if ($type == self::USERTYPE_DRIVER) {
-            if (is_null($arr_opt['detail'])) {
+        if ($type == self::USERTYPE_DRIVER) 
+        {
+            if (is_null($arr_opt['detail'])) 
+            {
                 throw new Exception('carpool.param detail is null');
             }
             $arr_detail = json_decode($arr_opt['detail'], true);
-            if (!is_array($arr_detail)) {
+            if (!is_array($arr_detail)) 
+            {
                 throw new Exception('carpool.param detail is not array');
             }
-            if (!isset($arr_detail['car_num']) || !isset($arr_detail['car_engine_num']) || !isset($arr_detail['car_type'])) {
+            if (!isset($arr_detail['car_num']) || !isset($arr_detail['car_engine_num']) || !isset($arr_detail['car_type'])) 
+            {
                 throw new Exception('carpool.param detail param is wrong');
             }
             
             $ret = Utils::check_string($arr_detail['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);
-            if (false == $ret) {
+            if (false == $ret) 
+            {
                 throw new Exception('carpool.param invalid car_num');
             }
             $ret = Utils::check_string($arr_detail['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
-            if (false == $ret) {
+            if (false == $ret) 
+            {
                 throw new Exception('carpool.param invalid car_engine_num');
             }
             $ret = Utils::check_string($arr_detail['car_type'], 1, CarpoolConfig::USER_MAX_CAR_TYPE_LENGTH);
-            if (false == $ret) {
+            if (false == $ret) 
+            {
                 throw new Exception('carpool.param invalid car_type');
             }
             
@@ -100,7 +111,8 @@ class UserService
                 'mtime'     => $now,
             );
         }
-        else {
+        else 
+        {
             $row = array(               
                 'phone'     => $account,
                 'user_type' => self::USERTYPE_PASSENGER,
@@ -123,7 +135,8 @@ class UserService
             $error_code = $db_proxy->getErrorCode();
             $error_msg = $db_proxy->getErrorMsg();
 
-            if ( $error_code == 1062) {
+            if ( $error_code == 1062) 
+            {
                 throw new Exception('carpool.duplicate account already exists');
             }
             
@@ -145,7 +158,8 @@ class UserService
         {
             throw new Exception('carpool.internal select from the DB failed');
         }
-        if (0 == count($arr_response)) {
+        if (0 == count($arr_response)) 
+        {
             throw new Exception('carpool.internal register fail');
         }
         $user_id = intval($arr_response[0]['user_id']);
@@ -339,7 +353,8 @@ class UserService
 
     public function check_str($account, $secstr, $timeout, &$user_id = NULL)
     {
-        if (!strpos($account, '@') && CarpoolConfig::$debug) {
+        if (!strpos($account, '@') && CarpoolConfig::$debug) 
+        {
             return true;  
         }
 
@@ -377,7 +392,8 @@ class UserService
         {
             throw new Exception('carpool.internal select from the DB failed');
         }
-        if (1 != count($arr_response)) {
+        if (1 != count($arr_response)) 
+        {
             return false;
         }       
 
@@ -404,7 +420,8 @@ class UserService
                                 CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
         }
         $type = $arr_req['type'];   
-        if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) {
+        if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
+        {
             throw new Exception('carpool.param invalid type');
         } 
         $ret = Utils::is_valid_phone($account);
@@ -442,7 +459,8 @@ class UserService
             throw new Exception('carpool.internal select from the DB failed');
         }
         if (0 == count($arr_response)) {
-            if ($type == self::USERTYPE_DRIVER){
+            if ($type == self::USERTYPE_DRIVER)
+            {
                 throw new Exception('carpool.invalid_user login fail');
             }
             $now = time(NULL);
@@ -632,16 +650,15 @@ class UserService
         if($user_type == self::USERTYPE_PASSENGER)
         {
             $arr_return['detail']['email'] = $arr_response[0]['email']; 
-        }else
+        }
+        else
         {
 
             $arr_return['detail']['car_type'] = $arr_response[0]['car_type'];
             $arr_return['detail']['seat'] = $arr_response[0]['seat'];
             $arr_info = json_decode($arr_response[0]['detail'], true);            
         }
-        $head_bucket = CarpoolConfig::$s3_bucket;
-
-        $head_object = 'head_' . $user_id; 
+        
         $now = time(NULL);  
         $uk = self::api_encode_uid($user_id);      
 
