@@ -20,7 +20,8 @@ class ImageThumbnailAction extends CarpoolBaseAction
 		
 
         $image_service = ImageService::getInstance();
-        $arr_response = $feed_service->create($arr_req, $arr_opt);
+        $arr_response = $image_service->thumbnail($arr_req, $arr_opt);
+        $this->set('img', $arr_response['img']);  
     }
     
     public function doGet()

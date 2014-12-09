@@ -107,7 +107,7 @@ ActionControllerConfig::$config['hash_mapping'] = array(
     ),
     '/rest/2.0/carpool/image' => array(
         'method_hash' => array(
-            'thunbnail' => array(
+            'thumbnail' => array(
                 'ImageThumbnailAction',
             ),
         ),

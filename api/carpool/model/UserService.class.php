@@ -646,7 +646,7 @@ class UserService
         $uk = self::api_encode_uid($user_id);      
 
         //to do , 需要给头像地址
-        $arr_return['head'] = 'http://'.CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&uk=$uk&timestamp=$now&sign="
+        $arr_return['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
             .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
 
         CLog::trace("user query succ [account: %s]", $user_name);
