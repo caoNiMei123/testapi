@@ -18,6 +18,7 @@ class CommonConst
     const EC_CM_SECSTR_ERROR          = 7;
     const EC_CM_ORDER_STATUS          = 8;
     const EC_CM_INVALID_DRIVER          = 9;
+    const EC_CM_SERVER_REJECT          = 10;
 
     
     // UserService错误码
@@ -41,6 +42,7 @@ class CommonConst
         self::EC_CM_SECSTR_ERROR           => 'secstr error',
         self::EC_CM_ORDER_STATUS           => 'order status now allow',
         self::EC_CM_INVALID_DRIVER         => 'invalid driver',
+        self::EC_CM_SERVER_REJECT          => 'server reject', 
     );
 
     static $tipMsgs = array(

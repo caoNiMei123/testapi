@@ -73,10 +73,13 @@ class PublicLibManager
 
         'EmailProxy'            => PUBLIC_PATH . '/email/EmailProxy.class.php',
         'EmailConfig'           => PUBLIC_CONF_PATH.'/../carpool/EmailConfig.class.php',
+        
         'SmsProxy'              => PUBLIC_PATH . '/sms/SmsProxy.class.php',
 		
 		'DBConfig'              => PUBLIC_CONF_PATH.'/DBConfig.class.php',
         'DBProxy'               => PUBLIC_PATH . '/db/DBProxy.class.php',
+
+        'ALIOSS'              => PUBLIC_PATH . '/oss/sdk.class.php',
 		
 		'PushPorxy'             => PUBLIC_PATH . '/push/PushProxy.class.php',
 		'PushProxyConfig'       => PUBLIC_CONF_PATH . '/PushProxyConfig.class.php',

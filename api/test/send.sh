@@ -13,6 +13,8 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/driver?method=report&devuid=1&ctype
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=query&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' 
 #user modify
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=modify&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'name=abcdefg'
+
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=modify&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'head=111111111111111111111111111111111111111111111111111111111111'
 #carpool accept 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=accept&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' -d 'pid=14937130105680741056'
 #carpool finish 

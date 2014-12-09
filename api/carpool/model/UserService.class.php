@@ -639,10 +639,15 @@ class UserService
             $arr_return['detail']['seat'] = $arr_response[0]['seat'];
             $arr_info = json_decode($arr_response[0]['detail'], true);            
         }
-                
+        $head_bucket = CarpoolConfig::$s3_bucket;
+
+        $head_object = 'head_' . $user_id; 
+        $now = time(NULL);  
+        $uk = self::api_encode_uid($user_id);      
 
         //to do , 需要给头像地址
-        $arr_return['head'] = '';
+        $arr_return['head'] = 'http://'.CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&uk=$uk&timestamp=$now&sign="
+            .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
 
         CLog::trace("user query succ [account: %s]", $user_name);
                     
@@ -674,7 +679,26 @@ class UserService
             if (false == $ret) {
                 throw new Exception('carpool.param invalid name length');
             }
-            // to do 上传s3, 拿到head_bucket 和 head_object
+            
+
+            $oss_sdk_service = new ALIOSS();
+            $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
+            $head_bucket = CarpoolConfig::$s3_bucket;
+            $head_object = 'head_' . $user_id;
+            $upload_file_options = array(
+                ALIOSS::OSS_CONTENT => $head,
+                ALIOSS::OSS_LENGTH  => strlen($content), 
+            );
+            try{   
+                $response = $oss_sdk_service->upload_file_by_content($head_bucket,$head_object,$upload_file_options);            
+            }catch(Exception $ex){
+                throw new Exception('carpool.internal upload s3 fail ;message :'
+                    .$ex->getMessage() .'; file : '.$ex->getFile() .'; line : '.$ex->getLine());
+            }
+            if(!$response->isOk())
+            {
+                throw new Exception('carpool.internal upload s3 fail :'. $response->body);
+            }
 
             if(!is_null($arr_opt['name']))
             {
@@ -704,6 +728,30 @@ class UserService
             throw new Exception('carpool.internal update DB failed');
         }
 
+    }
+
+
+    public static function api_encode_uid($user_id)
+    {
+        $sid = ($user_id & 0x0000ff00) << 16;
+        $sid += (($user_id & 0xff000000) >> 8) & 0x00ff0000;
+        $sid += ($user_id & 0x000000ff) << 8;
+        $sid += ($user_id & 0x00ff0000) >> 16;
+        $sid ^= 282335; 
+        return $sid;
+    }   
+    public static function api_decode_uid($sid)
+    {
+        if (!is_int($sid) && !is_numeric($sid))
+        {
+            return false;
+        }
+        $sid ^= 282335;
+        $user_id = ($sid & 0x00ff0000) << 8;
+        $user_id += ($sid & 0x000000ff) << 16;
+        $user_id += (($sid & 0xff000000) >> 16) & 0x0000ff00;
+        $user_id += ($sid & 0x0000ff00) >> 8;
+        return $user_id;
     }
 }
 

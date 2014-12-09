@@ -20,6 +20,8 @@ class CarpoolConfig
    	public static $userSK = 'A8ec24caf34ef7227cx6c67d29ffd3fb';
 	
     public static $cookieSK = 'B7ec24caf34ef7a27cx6c67d29efd3fb';
+
+    public static $s3SK = 'C7ec24caf34ef7a27dx6c97d20e1dxea';
     
 	// 请求的超时时间，单位: 秒
 	public static $reqTimeout = 10;    
@@ -33,7 +35,11 @@ class CarpoolConfig
     
     public static $debug = true;
 
-    public static $s3_bucket = 'real_pin';   
+    public static $s3_bucket = 'real-pin'; 
+    public static $s3_host = 'oss-cn-beijing-internal.aliyuncs.com ';
+    //注意， 这个地址比较贵。。。，尽量用内网
+    //public static $s3_host = 'oss-cn-beijing.aliyuncs.com';
+
     
    	/*
 	 * UserService配置
@@ -68,6 +74,8 @@ class CarpoolConfig
     const CARPOOL_SECSTR_EMAIL_TIMEOUT = 3600;
 
     const CARPOOL_PAGE_LIMIT = 100;
+
+    const CARPOOL_IMAGE_TIMEOUT = 3600;
 	
 	/*
 	 * PushService配置
