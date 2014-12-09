@@ -40,18 +40,23 @@ class ImageService
         $head_object = 'head_' . $user_id; 
         $oss_sdk_service = new ALIOSS();
         $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
-        $response = $obj->get_object($head_bucket,$head_object,$options); 
-        var_dump($response);
-        exit(0);
-            
+        try{  
+            $response = $oss_sdk_service->get_object($head_bucket,$head_object,$options); 
+        }catch(Exception $ex){
+            throw new Exception('carpool.internal get object fail ;message :'
+                .$ex->getMessage() .'; file : '.$ex->getFile() .'; line : '.$ex->getLine());
+        }
+        
         if(!$response->isOk())
         {
             throw new Exception('carpool.internal upload s3 fail :'. $response->body);
         }
-
-
-
         CLog::trace("thumbnail succ [account: %s, type : %d, user_id : %d]", $account, $type,$user_id);
+
+        return array(
+            'img' => $response->body
+        );
+
     }
     
 }
