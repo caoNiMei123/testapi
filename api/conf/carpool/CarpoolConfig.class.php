@@ -31,7 +31,9 @@ class CarpoolConfig
         'ios'   => 4,
     );
     
-    public static $debug = true;   
+    public static $debug = true;
+
+    public static $s3_bucket = 'real_pin';   
     
    	/*
 	 * UserService配置
@@ -41,6 +43,12 @@ class CarpoolConfig
     
     // passwd最大长度
 	const USER_MAX_PASSWD_LENGTH = 32;
+
+    // name最大长度
+    const USER_MAX_NAME_LENGTH = 50;
+
+    // head最大长度
+    const USER_MAX_HEAD_LENGTH = 51200;//50k
 	
 	// cookie超时时间
 	const USER_COOKIE_EXPIRE_TIME = 2592000;

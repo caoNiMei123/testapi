@@ -649,7 +649,62 @@ class UserService
         return $arr_return;
     }
 
+    public function modify($arr_req, $arr_opt)
+    {
+        // 1. 检查必选参数合法性
+        $user_name = $arr_req['user_name'] ;
+        $user_id = $arr_req['user_id'] ;
+        $user_type = $arr_req['user_type'] ;
+        $name = '';
+        $head = '';
+        $update = '';
+        if(!is_null($arr_opt['name']))
+        {
+            $name = $arr_opt['name'];
+            $ret = Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);
+            if (false == $ret) {
+                throw new Exception('carpool.param invalid name length');
+            }
+            $update .= "name = '$name'";
+        }
+        if(!is_null($arr_opt['head']))
+        {
+            $head = $arr_opt['head'];
+            $ret = Utils::check_string($head, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);
+            if (false == $ret) {
+                throw new Exception('carpool.param invalid name length');
+            }
+            // to do 上传s3, 拿到head_bucket 和 head_object
 
+            if(!is_null($arr_opt['name']))
+            {
+                $update .= ',';
+            }
+            $head_bucket = CarpoolConfig::$s3_bucket;
+            $head_object = '';
+            $update .= "head_bucket = '$head_bucket', head_object = '$head_object'";
+
+        }
+        
+        // 2. 访问数据库
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }   
+
+        
+        $ret = $db_proxy->update('user_info', array('and'=>
+            array(
+                array('user_id' =>  
+                    array('=' => $user_id)),                                                             
+                )
+            ), $update); 
+        if (false === $ret) {
+            throw new Exception('carpool.internal update DB failed');
+        }
+
+    }
 }
 
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */

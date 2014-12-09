@@ -49,6 +49,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'auth' => array(
                 'UserAuthAction',
             ),
+            'modify' => array(
+                'UserModifyAction',
+            ),
 
         ),
         
