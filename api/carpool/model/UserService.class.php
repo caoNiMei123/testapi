@@ -8,9 +8,13 @@ class UserService
     const TABLE_SECSTR_INFO = 'secstr_info';
     const USERTYPE_DRIVER =1;
     const USERTYPE_PASSENGER=2;
-    const USERSTATUS_INACTIVE = 0;
-    const USERSTATUS_CHECK = 1;
-    const USERSTATUS_ACTIVE = 2;
+    const USERTYPE_BOTH=3;
+    
+    const USERSTATUS_INIT = 0; //初始态
+    const USERSTATUS_CHECK = 1;//乘客处于验证态;
+    const USERSTATUS_AUTHORIZED = 2;//已经验证;
+    
+    
     const TOKENTYPE_PHONE=1;
     const TOKENTYPE_EMAIL=2;
     const REASONTYPE_REG=1;
@@ -47,12 +51,9 @@ class UserService
         if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
         {
             throw new Exception('carpool.param invalid type');
-        }
-
-        
+        }       
         
         $secstr = $arr_req['secstr'];
-
         self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT); 
         
         $now = time();
@@ -60,21 +61,14 @@ class UserService
 
         if ($type == self::USERTYPE_DRIVER) 
         {
-            Utils::check_null('detail', $arr_opt['detail']);
-            
+            Utils::check_null('detail', $arr_opt['detail']);            
             $arr_detail = json_decode($arr_opt['detail'], true);
-
-            Utils::check_array('array_detail', $arr_detail);
-            
+            Utils::check_array('array_detail', $arr_detail);            
             Utils::check_null('car_num', $arr_detail['car_num']);
-
-            Utils::check_null('car_engine_num', $arr_detail['car_engine_num']);            
-            
-            Utils::check_string($arr_detail['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);
-            
+            Utils::check_null('car_engine_num', $arr_detail['car_engine_num']);
+            Utils::check_string($arr_detail['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);            
             Utils::check_string($arr_detail['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
-                 
-        
+               
             $row = array(               
                 'phone'     => $account,
                 'car_type'  => '',
@@ -82,6 +76,13 @@ class UserService
                 'car_engine_num'  =>$arr_detail['car_engine_num'],
                 'user_type' => self::USERTYPE_DRIVER,
                 'ctime'     => $now,
+                'mtime'     => $now,
+            );
+            $update = array(
+                'user_type'  => 3,
+                'car_type'  => '',
+                'car_num'  => $arr_detail['car_num'],
+                'car_engine_num'  =>$arr_detail['car_engine_num'],
                 'mtime'     => $now,
             );
         }
@@ -93,6 +94,10 @@ class UserService
                 'ctime'     => $now,
                 'mtime'     => $now,
             );
+            $update = array(
+                'user_type'  => 3,
+                'mtime'     => $now,
+            );
         }       
         
         
@@ -102,27 +107,58 @@ class UserService
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }   
-        
-        $ret = $db_proxy->insert(self::TABLE_USER_INFO, $row);
+        $ret = $db_proxy->startTransaction();
         if (false === $ret)
         {
-            $error_code = $db_proxy->getErrorCode();
-            $error_msg = $db_proxy->getErrorMsg();
-
-            if ( $error_code == 1062) 
+            throw new Exception('carpool.internal start transaction fail');
+        }
+        $condition = array(
+            'and' => array(
+                array(
+                    'phone' => array(
+                        '=' => $account,
+                    ),
+                ),
+            ),
+        );        
+        $arr_response = $db_proxy->selectForUpdate(self::TABLE_USER_INFO, array('user_id','user_type', 'user_status', 'driver_status'), $condition);
+        if (false === $ret)
+        {
+            $db_proxy->rollback();
+            throw new Exception('carpool.internal select DB');        
+        }   
+        //这个手机可能以相反身份注册过一次 
+        if( 0 != count($arr_response))
+        {
+            $old_type = intval($arr_response[0]['user_type']);
+            if($old_type & $type)
             {
+                //类型冲突
+                $db_proxy->rollback();
                 throw new Exception('carpool.duplicate account already exists');
             }
-            
-            throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
-                                $error_code . ', error_msg: ' . $error_msg . ']');
+            $ret = $db_proxy->update(self::TABLE_USER_INFO, $condition , $update);
+            if (false === $ret)
+            {
+                $db_proxy->rollback();
+                throw new Exception('carpool.internal select DB');     
+            }
+            $user_id = intval($arr_response[0]['user_id']);
+        }else{
+            $ret = $db_proxy->insert(self::TABLE_USER_INFO, $row);
+            if (false === $ret)
+            {
+                $db_proxy->rollback();
+                throw new Exception('carpool.internal select DB');     
+            }
+            $user_id = $db_proxy->getLastID();
+            if(0 == $user_id)
+            {
+                $db_proxy->rollback();
+                throw new Exception('carpool.internal get user_id failed');
+            }       
         }
-        
-        $user_id = $db_proxy->getLastID();
-        if(0 == $user_id)
-        {
-            throw new Exception('carpool.internal get user_id failed');
-        }       
+        $db_proxy->commit();              
         
         $uinfo = self::_encrypt_uinfo($account, $user_id, $type);
         setcookie('CPUINFO', $uinfo, time() + CarpoolConfig::USER_COOKIE_EXPIRE_TIME);
@@ -251,8 +287,8 @@ class UserService
                     $ret = $db_proxy->update('user_info', array('and'=>
                         array(array('user_id' =>  array('=' => $arr_opt['user_id'])), 
                             array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
-                            array('status' =>  array('<>' => self::USERSTATUS_ACTIVE)),                                  
-                        )), 'status='.self::USERSTATUS_CHECK); 
+                            array('user_status' =>  array('<>' => self::USERSTATUS_AUTHORIZED)),                                  
+                        )), 'user_status='.self::USERSTATUS_CHECK); 
 
                     if (false === $ret) {
                         throw new Exception('carpool.internal update DB failed');
@@ -293,8 +329,8 @@ class UserService
         $ret = $db_proxy->update('user_info', array('and'=>
             array(array('user_id' =>  array('=' => $user_id)), 
             array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
-                array('status' =>  array('<>' => self::USERSTATUS_ACTIVE)),                                  
-        )), 'status='.self::USERSTATUS_ACTIVE);  
+                array('user_status' =>  array('<>' => self::USERSTATUS_AUTHORIZED)),                                  
+        )), 'user_status ='.self::USERSTATUS_AUTHORIZED);  
           
         
         CLog::trace("user auth succ [account: %s, secstr : %s]", $account, $sec_str);            
@@ -362,8 +398,7 @@ class UserService
     {
         // 1. 检查必选参数合法性
         $account = $arr_req['account'];
-        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        
+        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);        
         $type = $arr_req['type'];   
         if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
         {
@@ -398,7 +433,7 @@ class UserService
             ),
         );
         
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type', 'status'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type', 'user_status', 'driver_status'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -417,22 +452,36 @@ class UserService
             );
             $ret = $db_proxy->insert(self::TABLE_USER_INFO, $row);
             if (false === $ret)
-            {
-                $error_code = $db_proxy->getErrorCode();
-                $error_msg = $db_proxy->getErrorMsg();
-                throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
-                    $error_code . ', error_msg: ' . $error_msg . ']');
-            }
-            
+            {                
+                throw new Exception('carpool.internal insert to the DB failed');
+            }            
             $user_id = $db_proxy->getLastID();
             if(0 == $user_id)
             {
                 throw new Exception('carpool.internal get user_id failed');
-            }       
-
+            }
         }
         else
         {
+            $old_type = intval($arr_response[0]['user_type']);
+            if($old_type != $type){
+                //乘客要隐含注册
+                if ($type == self::USERTYPE_DRIVER)
+                {
+                    throw new Exception('carpool.invalid_user login fail');
+                }
+                $now = time(NULL);                
+                $update = array(
+                    'user_type'  => 3,
+                    'mtime'     => $now,
+                );
+                $ret = $db_proxy->update(self::TABLE_USER_INFO, $condition , $update);
+                if (false === $ret)
+                {                
+                    throw new Exception('carpool.internal insert to the DB failed');
+                }            
+            }
+            
             $user_id = intval($arr_response[0]['user_id']);
         }
                 
@@ -487,7 +536,7 @@ class UserService
             throw new Exception('carpool.param user_id not exist');
         }
         //司机没认证，不更新他的表
-        if($arr_response[0]['status'] == self::USERSTATUS_INACTIVE)
+        if($arr_response[0]['driver_status'] == self::USERSTATUS_INACTIVE)
         {
             return true;
         }   
@@ -587,19 +636,19 @@ class UserService
            
         $arr_return = array();
 
-        $arr_return['name'] = $arr_response[0]['name'];
-        $arr_return['status'] = $arr_response[0]['status'];
+        $arr_return['name'] = $arr_response[0]['name'];        
         $arr_return['ctime'] = intval($arr_response[0]['ctime']);
         $arr_return['type'] = intval($arr_response[0]['user_type']);
         $arr_return['phone'] = intval($arr_response[0]['phone']);
 
         if($user_type == self::USERTYPE_PASSENGER)
         {
+            $arr_return['status'] = $arr_response[0]['user_status'];
             $arr_return['detail']['email'] = $arr_response[0]['email']; 
         }
         else
         {
-
+            $arr_return['status'] = $arr_response[0]['driver_status'];
             $arr_return['detail']['car_type'] = $arr_response[0]['car_type'];
             $arr_return['detail']['seat'] = $arr_response[0]['seat'];
             $arr_info = json_decode($arr_response[0]['detail'], true);            

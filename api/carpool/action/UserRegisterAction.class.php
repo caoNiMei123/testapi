@@ -14,7 +14,7 @@ class UserRegisterAction extends CarpoolBaseAction
         $arr_opt = array();
         
         $arr_req['account'] = $this->requests['account'];
-        $arr_req['type'] = $this->requests['type'];
+        $arr_req['type'] = intval($this->requests['type']);
         $arr_req['secstr'] = $this->requests['secstr'];
         $arr_opt['detail'] = $this->requests['detail'];
         $user_service = UserService::getInstance();
