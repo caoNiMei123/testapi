@@ -77,7 +77,7 @@ class CarpoolService
                 ),
                 array(
                     'user_type' => array(
-                        '<>' => self::USERTYPE_DRIVER,
+                        '<>' => UserService::USERTYPE_DRIVER,
                     ),
                 ),
             ),

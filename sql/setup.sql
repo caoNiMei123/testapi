@@ -17,9 +17,10 @@ CREATE TABLE `user_info` (
     `head_object` varchar(100) default '',
     `ctime` int not NULL,
     `mtime` int not NULL,
-    `status` tinyint default 0,
+    `user_status` tinyint default 0,
+    `driver_status` tinyint default 0,
     PRIMARY KEY (`user_id`),
-    UNIQUE KEY `user_key` (`user_id`, `user_type`, `status`),
+    UNIQUE KEY `user_key` (`user_id`, `user_type`, `user_status`, `driver_status`),
     UNIQUE KEY `phone_index` (`phone`, `user_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT = 10000 COMMENT='用户表' ;
 
