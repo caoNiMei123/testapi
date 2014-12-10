@@ -527,7 +527,7 @@ class UserService
             ),
         );
         
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone', 'driver_status'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
