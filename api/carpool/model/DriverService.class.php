@@ -33,10 +33,8 @@ class DriverService
         $gps = $arr_req['gps'] ;
         $devuid = $arr_req['devuid'];
         
-        $ret = Utils::check_string($gps, 1, 256); 
-        if (false == $ret) {
-            throw new Exception('carpool.param invalid gps');
-        }
+        Utils::check_string($gps, 1, 256); 
+        
         $gps_arr = explode(',', $gps);        
         if(!is_array($gps_arr) || count($gps_arr) !=2 ) {
             throw new Exception('carpool.param invalid gps');

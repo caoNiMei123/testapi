@@ -36,12 +36,8 @@ class PushService
         $client_id_encrypt = $arr_req['client_id'];
         $client_id = Ucrypt::rc4(CarpoolConfig::$passwdSK, base64_decode($client_id_encrypt));
 
-        $ret = Utils::check_string($client_id, 1, CarpoolConfig::Push_MAX_CLIENT_ID_LENGTH);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid client_id length [max_len: ' . 
-                                CarpoolConfig::Push_MAX_CLIENT_ID_LENGTH . ']');
-        }
+        Utils::check_string($client_id, 1, CarpoolConfig::Push_MAX_CLIENT_ID_LENGTH);
+        
         
         // 2. 检查可选参数合法性
         // none

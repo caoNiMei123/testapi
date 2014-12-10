@@ -42,29 +42,16 @@ class CarpoolService
         $dest = $arr_req['dest'] ;
         $src_gps = $arr_req['src_gps'] ;
         $dest_gps = $arr_req['dest_gps'] ;        
-        $ret = Utils::check_int($type, 1, 2); 
-        if (false == $ret) 
-        {
-            throw new Exception('carpool.param invalid type');
-        }
-        $ret = Utils::check_string($src, 1, 256); 
-        if (false == $ret) 
-        {
-            throw new Exception('carpool.param invalid src');
-        }
-        $ret = Utils::check_string($dest, 1, 256); 
-        if (false == $ret) 
-        {
-            throw new Exception('carpool.param invalid dest');
-        }
-        $ret = Utils::check_string($src_gps, 1, 256); 
-        if (false == $ret) {
-            throw new Exception('carpool.param invalid src_gps');
-        }
-        $ret = Utils::check_string($dest_gps, 1, 256); 
-        if (false == $ret) {
-            throw new Exception('carpool.param invalid dest_gps');
-        }
+        Utils::check_int($type, 1, 2); 
+        
+        Utils::check_string($src, 1, 256); 
+        
+        Utils::check_string($dest, 1, 256); 
+        
+        Utils::check_string($src_gps, 1, 256); 
+        
+        Utils::check_string($dest_gps, 1, 256); 
+        
         $src_gps_arr = explode(',', $src_gps);
         $dest_gps_arr = explode(',', $dest_gps);
         if(!is_array($src_gps_arr) || !is_array($dest_gps_arr) || count($src_gps_arr) !=2 || count($dest_gps_arr) !=2) 

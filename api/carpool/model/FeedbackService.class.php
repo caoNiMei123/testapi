@@ -44,10 +44,7 @@ class FeedbackService
         {
             throw new Exception('carpool.param invalid type');
         }
-        $ret = Utils::check_string($detail, 1, 1024);
-        if (false == $ret) {
-            throw new Exception('carpool.param invalid account length');
-        }       
+        Utils::check_string($detail, 1, 1024); 
 
         
         $now = time(NULL);
