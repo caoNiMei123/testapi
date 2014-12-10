@@ -9,8 +9,7 @@ class CarpoolService
     const CARPOOL_STATUS_DONE = 4;
     const CARPOOL_STATUS_TIMEOUT  = 5;
 
-    const USERTYPE_DRIVER =1;
-    const USERTYPE_PASSENGER=2;
+    
 
     private static $instance = NULL;
     
@@ -76,9 +75,14 @@ class CarpoolService
                         '=' => $user_id,
                     ),
                 ),
+                array(
+                    'user_type' => array(
+                        '<>' => self::USERTYPE_DRIVER,
+                    ),
+                ),
             ),
         );
-        $arr_response = $db_proxy->select(UserService::TABLE_USER_INFO, array('status','user_type'), $condition);
+        $arr_response = $db_proxy->select(UserService::TABLE_USER_INFO, array('user_status', 'driver_status','user_type'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -86,10 +90,10 @@ class CarpoolService
         if (0 == count($arr_response)) {
             throw new Exception('carpool.invalid_user user_id not exist');
         }
-        $user_status = intval($arr_response[0]['status']);
+        $user_status = intval($arr_response[0]['user_status']);
         if($user_status == UserService::USERSTATUS_CHECK)
         {
-            $user_status = UserService::USERSTATUS_INACTIVE;
+            $user_status = UserService::USERSTATUS_INIT;
         }
 
         $ret = $db_proxy->startTransaction();
@@ -207,7 +211,7 @@ class CarpoolService
         $to_uid = 0;
         $to_phone = 0; 
         $to_devuid = '';
-        if ($user_type == self::USERTYPE_PASSENGER) 
+        if ($user_type == UserService::USERTYPE_PASSENGER) 
         {
             //乘客逻辑 
             if ($status != self::CARPOOL_STATUS_CREATE && $status != self::CARPOOL_STATUS_DOING) 
@@ -300,11 +304,16 @@ class CarpoolService
         $pid = $arr_req['pid'];
 		$devuid = $arr_req['devuid'];
 		$user_type = $arr_req['user_type'];
-        
+        if($user_type != UserService::USERTYPE_DRIVER)
+        {
+            throw new Exception('carpool.invalid_user not a driver');
+        }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
         }
+
+
         //先检查司机有没有资格接单
         $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>           
             array(array('user_id' =>  array('=' => $user_id)), 
@@ -541,7 +550,7 @@ class CarpoolService
             throw new Exception('carpool.internal connect to the DB failed');
         }       
         $ret = true;
-        if ($user_type ==  self::USERTYPE_DRIVER) 
+        if ($user_type ==  UserService::USERTYPE_DRIVER) 
         {
             $ret = $db_proxy->select('pickride_info', '*',
                 array(
@@ -598,7 +607,7 @@ class CarpoolService
             unset($value['seat']);                    
             $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
             $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
-            if ($user_type ==  self::USERTYPE_PASSENGER) 
+            if ($user_type ==  UserService::USERTYPE_PASSENGER) 
             {
                 $value['phone'] = $value['driver_phone'];                
             }

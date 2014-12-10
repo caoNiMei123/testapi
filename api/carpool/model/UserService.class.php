@@ -536,7 +536,7 @@ class UserService
             throw new Exception('carpool.param user_id not exist');
         }
         //司机没认证，不更新他的表
-        if($arr_response[0]['driver_status'] == self::USERSTATUS_INACTIVE)
+        if($arr_response[0]['driver_status'] == self::USERSTATUS_INIT)
         {
             return true;
         }   
