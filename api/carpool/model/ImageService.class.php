@@ -32,11 +32,15 @@ class ImageService
         $timestamp = $arr_req['timestamp'] ;
         $sign = $arr_req['sign'] ;
 
-        //需要判断timestamp有没有超时
+        
         if($sign != hash_hmac('sha1', "$uk:$timestamp", CarpoolConfig::$s3SK, false))
         {
             throw new Exception('carpool.param check sign fail');
         }     
+        if(time(NULL) - $timestamp > CarpoolConfig::CARPOOL_IMAGE_TIMEOUT)
+        {
+            throw new Exception('carpool.auth url timeout');
+        }
         $user_id = UserService::api_decode_uid($uk);
         $head_bucket = CarpoolConfig::$s3_bucket;   
         $head_object = 'head_' . $user_id; 

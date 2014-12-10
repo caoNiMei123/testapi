@@ -5,15 +5,10 @@ class UserReportAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['user_name']) || !isset($this->requests['user_id']) || !isset($this->requests['user_type'])) {
-			throw new Exception("carpool.auth user is not login");
-		}
-		if (!isset($this->requests['client_id']))
-        {
-            throw new Exception("carpool.param client_id not exist");
-        }
-        
-        
+        $this->exist('user_name', "carpool.auth");
+        $this->exist('user_id', "carpool.auth");
+        $this->exist('user_type', "carpool.auth");
+        $this->exist('client_id');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();

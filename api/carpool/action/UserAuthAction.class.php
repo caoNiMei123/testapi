@@ -5,14 +5,12 @@ class UserAuthAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['account']) || !isset($this->requests['secstr']))
-        {
-            throw new Exception("carpool.param account or secstr not exist");
-        }
-        if (!isset($this->requests['type']) || !isset($this->requests['reason']))
-        {
-            throw new Exception("carpool.param type or reason not exist");
-        }
+
+        $this->exist('account');
+        $this->exist('secstr');
+        $this->exist('type');
+        $this->exist('reason');
+        
         // 2. 取参数，分成必选和可选
         $arr_req = array();
         $arr_opt = array();        

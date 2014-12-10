@@ -42,18 +42,8 @@ class UserService
         // 检查account
         $account = $arr_req['account'];
         $type = $arr_req['type'];
-        $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        if (false == $ret) 
-        {
-            throw new Exception('carpool.param invalid account length [max_len: ' . 
-                                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
-        }
-
-        $ret = Utils::is_valid_phone($account);
-        if (false == $ret) 
-        {
-            throw new Exception('carpool.param invalid account [account: ' . $account . ']');
-        }
+        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH); 
+        Utils::is_valid_phone($account);        
         if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
         {
             throw new Exception('carpool.param invalid type');
@@ -62,41 +52,28 @@ class UserService
         
         
         $secstr = $arr_req['secstr'];
-        if (!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT)) 
-        {
-            throw new Exception('carpool.secstr secstr error');
-        }
+
+        self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT); 
+        
         $now = time();
         $row = array();
 
         if ($type == self::USERTYPE_DRIVER) 
         {
-            if (is_null($arr_opt['detail'])) 
-            {
-                throw new Exception('carpool.param detail is null');
-            }
+            Utils::check_null('detail', $arr_opt['detail']);
+            
             $arr_detail = json_decode($arr_opt['detail'], true);
-            if (!is_array($arr_detail)) 
-            {
-                throw new Exception('carpool.param detail is not array');
-            }
-            if (!isset($arr_detail['car_num']) || !isset($arr_detail['car_engine_num']) ) 
-            {
-                throw new Exception('carpool.param detail param is wrong');
-            }
+
+            Utils::check_array('array_detail', $arr_detail);
             
-            $ret = Utils::check_string($arr_detail['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);
-            if (false == $ret) 
-            {
-                throw new Exception('carpool.param invalid car_num');
-            }
-            $ret = Utils::check_string($arr_detail['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
-            if (false == $ret) 
-            {
-                throw new Exception('carpool.param invalid car_engine_num');
-            }
+            Utils::check_null('car_num', $arr_detail['car_num']);
+
+            Utils::check_null('car_engine_num', $arr_detail['car_engine_num']);            
             
+            Utils::check_string($arr_detail['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);
             
+            Utils::check_string($arr_detail['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
+                 
         
             $row = array(               
                 'phone'     => $account,
@@ -155,13 +132,8 @@ class UserService
     public function get_token($arr_req, $arr_opt)
     {
         $account = $arr_req['account'];
-        $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid account length [max_len: ' . 
-                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
-        }
-
+        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
+        
         $type = isset($arr_opt['type'])? $arr_opt['type']:self::TOKENTYPE_PHONE;
         $reason = isset($arr_opt['reason'])? $arr_opt['reason']:self::REASONTYPE_REG;
 
@@ -299,18 +271,12 @@ class UserService
     {
         $account = $arr_req['account'];
         $secstr = $arr_req['secstr'];
-        $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid account length [max_len: ' . 
-                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
-        }
+        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
+        
 
         $user_id = 0;
-        if(!self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT, $user_id))
-        {
-            throw new Exception('carpool.secstr secstr wrong or timeout');
-        }
+        self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT, $user_id);
+        
         // secstr 反查不出uid， 直接返回， 不更新用户状态
         if(0 == $user_id)
         {
@@ -345,7 +311,7 @@ class UserService
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy)
         {
-            return false;
+            throw new Exception('carpool.secstr secstr error');
         }   
 
         $condition = array(
@@ -373,11 +339,11 @@ class UserService
           
         if (false === $arr_response || !is_array($arr_response))
         {
-            throw new Exception('carpool.internal select from the DB failed');
+            throw new Exception('carpool.secstr secstr error');
         }
         if (1 != count($arr_response)) 
         {
-            return false;
+            throw new Exception('carpool.secstr secstr error');
         }       
 
         if(!is_null($user_id))
@@ -396,12 +362,8 @@ class UserService
     {
         // 1. 检查必选参数合法性
         $account = $arr_req['account'];
-        $ret = Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid account length [max_len: ' . 
-                                CarpoolConfig::USER_MAX_ACCOUNT_LENGTH . ']');
-        }
+        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
+        
         $type = $arr_req['type'];   
         if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
         {
@@ -491,11 +453,8 @@ class UserService
         $user_type = $arr_req['user_type'] ;
         $client_id = $arr_req['client_id'];
         $devuid = $arr_req['devuid'];
-        $ret = Utils::check_string($client_id, 1, 64);
-        if (false == $ret)
-        {
-            throw new Exception('carpool.param invalid client_id length [max_len: 64]');
-        }
+        Utils::check_string($client_id, 1, 64);
+        
         //只有司机可以report
         if($user_type == self::USERTYPE_PASSENGER)
         {
@@ -670,20 +629,13 @@ class UserService
         if(!is_null($arr_opt['name']))
         {
             $name = $arr_opt['name'];
-            $ret = Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);
-            if (false == $ret) {
-                throw new Exception('carpool.param invalid name length');
-            }
+            Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);            
             $update .= "name = '$name'";
         }
         if(!is_null($arr_opt['head']))
         {
             $head = $arr_opt['head'];
-            $ret = Utils::check_string($head, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);
-            if (false == $ret) {
-                throw new Exception('carpool.param invalid name length');
-            }
-            
+            Utils::check_string($head, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);           
 
             $oss_sdk_service = new ALIOSS();
             $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);

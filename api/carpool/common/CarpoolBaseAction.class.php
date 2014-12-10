@@ -130,6 +130,14 @@ class CarpoolBaseAction extends LogicBaseAction
         
         return true;
     }
+    public function exist($key , $message='carpool.param')
+    {   
+        if(!isset($this->requests[$key]))
+        {
+            throw new Exception("$message $key not exist");
+        }
+
+    }
 }
 
 /* vim: set ts=4 sw=4 sts=4 tw=100 noet: */

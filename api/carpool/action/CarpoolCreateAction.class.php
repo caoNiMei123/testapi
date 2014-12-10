@@ -5,12 +5,13 @@ class CarpoolCreateAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['user_name']) || !isset($this->requests['user_id']) || !isset($this->requests['user_type'])) {
-            throw new Exception("carpool.auth user is not login");
-        }
-        if (!isset($this->requests['src']) || !isset($this->requests['dest']) || !isset($this->requests['src_gps']) || !isset($this->requests['dest_gps'])) {
-            throw new Exception("carpool.param param error");
-        }
+        $this->exist('user_name', "carpool.auth");
+        $this->exist('user_id', "carpool.auth");
+        $this->exist('user_type', "carpool.auth");
+        $this->exist('src');
+        $this->exist('dest');
+        $this->exist('src_gps');
+        $this->exist('dest_gps');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();

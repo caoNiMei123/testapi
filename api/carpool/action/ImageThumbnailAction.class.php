@@ -5,9 +5,9 @@ class ImageThumbnailAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['uk']) || !isset($this->requests['timestamp']) || !isset($this->requests['sign'])) {
-			throw new Exception("carpool.param url illegal");
-		}     
+        $this->exist('uk');
+        $this->exist('timestamp');
+        $this->exist('sign');        
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();

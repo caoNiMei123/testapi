@@ -5,20 +5,9 @@ class UserRegisterAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['account']))
-        {
-            throw new Exception("carpool.param account not exist");
-        }
-        
-        if (!isset($this->requests['type']))
-        {
-            throw new Exception("carpool.param passwd not exist");
-        }
-        
-        if (!isset($this->requests['secstr']))
-        {
-            throw new Exception("carpool.param secstr not exist");
-        }
+        $this->exist('account');
+        $this->exist('type');
+        $this->exist('secstr');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();

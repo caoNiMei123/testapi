@@ -5,10 +5,8 @@ class UserGetTokenAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['account']))
-        {
-            throw new Exception("carpool.param user_id not exist");
-        }
+        $this->exist('account');
+        
         // 2. 取参数，分成必选和可选
         $arr_req = array();
         $arr_opt = array();

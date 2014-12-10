@@ -5,10 +5,9 @@ class CarpoolListAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        if (!isset($this->requests['user_name']) || !isset($this->requests['user_id']) || !isset($this->requests['user_type']))
-        {
-            throw new Exception("carpool.auth user is not login");
-        }
+        $this->exist('user_name', "carpool.auth");
+        $this->exist('user_id', "carpool.auth");
+        $this->exist('user_type', "carpool.auth");
         
         
         // 2. 取参数，分成必选和可选

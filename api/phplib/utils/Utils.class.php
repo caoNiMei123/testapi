@@ -785,7 +785,7 @@ class Utils
 		if (strlen($phone) > 0) {
 			if (!preg_match('/^([0-9]{11}|[0-9]{3,4}-[0-9]{7,8}(-[0-9]{2,5})?)$/i',
 				$phone, $match)) {
-					return false;
+					throw new Exception("carpool.param invalid phone : $phone");
 				}
 		}
 		return true;
@@ -922,22 +922,21 @@ class Utils
 	 **/
 	static function check_int($value, $min = 0, $max = -1, $compare = true) {
 		if(is_null($value)) {
-			return false;
+			throw new Exception("carpool.param invalid num, $value");
 		}
 		if(!is_numeric($value)) {
-			return false;
+			throw new Exception("carpool.param invalid num, $value");
 		}
 		// 注意：intval('0123') = 123, 将会通过此检查 
 		if(intval($value) != $value) {
-			return false;
+			throw new Exception("carpool.param invalid num, $value");
 		}
 		if(true === $compare && $value < $min) {
-			return false;
+			throw new Exception("carpool.param invalid num, $value");
 		}
 		if(true === $compare && 0 <= $max && $max < $value) {
-			return false;
-		}
-		
+			throw new Exception("carpool.param invalid num, $value");
+		}		
 		return true;
 	}
 
@@ -951,17 +950,42 @@ class Utils
 	 **/
 	static function check_string($value, $min_length = 1, $max_length = NULL) {
 		if(is_null($value) || is_array($value)) {
-			return false;
+			throw new Exception("carpool.param invalid length, $value");
 		}
 		if(strlen($value) < $min_length) {
-			return false;
+			throw new Exception("carpool.param invalid length, $value");
 		}
 		if(!is_null($max_length) && strlen($value) > $max_length) {
-			return false;
-		}
-		
+			throw new Exception("carpool.param invalid length, $value");
+		}		
 		return true;
 	}
+	/**
+	 * Check the value input is null.
+	 *
+	 * @param string $key	for log
+	 * @param string $value for check 	 
+	 * @return boolean true | exception
+	**/
+	static function check_null($key , $value) {
+		if (is_null($value)){
+			throw new Exception("carpool.param key is null : $key");
+		} 	
+		return true;	
+	}
+	/**
+	 * Check the value input is array.
+	 *
+	 * @param string $key	for log
+	 * @param string $value for check 	 
+	 * @return boolean true | exception
+	**/
+	static function check_array($key , $value) {
+		if (!is_array($value)){
+			throw new Exception("carpool.param not array : $key");
+		} 	
+		return true;	
+	}		
 
 	/**
 	 * Check whether an array is a simple array without key => value pairs 

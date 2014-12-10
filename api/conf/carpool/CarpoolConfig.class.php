@@ -76,6 +76,8 @@ class CarpoolConfig
     const CARPOOL_PAGE_LIMIT = 100;
 
     const CARPOOL_IMAGE_TIMEOUT = 3600;
+
+    const CARPOOL_DRIVER_REPORT_TIMEOUT = 1800;
 	
 	/*
 	 * PushService配置
