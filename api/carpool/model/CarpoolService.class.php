@@ -298,6 +298,7 @@ class CarpoolService
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
         }
+        // to do  ， 需要事务
         $now =time(NULL);
         $arr_response = $db_proxy->select('pickride_info', array('pid', 'user_id', 'phone', 'passenger_dev_id'),array('and'=>           
             array(array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)), 
@@ -314,6 +315,8 @@ class CarpoolService
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
         $passenger_dev_id = $arr_response[0]['passenger_dev_id'];
+
+        //to do 需要判断上报超时时间
         $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>           
             array(array('user_id' =>  array('=' => $user_id)), 
             array('status' =>  array('=' => 0)),                          

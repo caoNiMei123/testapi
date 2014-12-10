@@ -31,6 +31,8 @@ class ImageService
         $uk = $arr_req['uk'] ;
         $timestamp = $arr_req['timestamp'] ;
         $sign = $arr_req['sign'] ;
+
+        //需要判断timestamp有没有超时
         if($sign != hash_hmac('sha1', "$uk:$timestamp", CarpoolConfig::$s3SK, false))
         {
             throw new Exception('carpool.param check sign fail');

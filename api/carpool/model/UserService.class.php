@@ -34,6 +34,7 @@ class UserService
     {
             
     }
+    //to do ， 两种身份需要uid一致
 
     public function register($arr_req, $arr_opt)
     {
@@ -79,7 +80,7 @@ class UserService
             {
                 throw new Exception('carpool.param detail is not array');
             }
-            if (!isset($arr_detail['car_num']) || !isset($arr_detail['car_engine_num']) || !isset($arr_detail['car_type'])) 
+            if (!isset($arr_detail['car_num']) || !isset($arr_detail['car_engine_num']) ) 
             {
                 throw new Exception('carpool.param detail param is wrong');
             }
@@ -94,16 +95,12 @@ class UserService
             {
                 throw new Exception('carpool.param invalid car_engine_num');
             }
-            $ret = Utils::check_string($arr_detail['car_type'], 1, CarpoolConfig::USER_MAX_CAR_TYPE_LENGTH);
-            if (false == $ret) 
-            {
-                throw new Exception('carpool.param invalid car_type');
-            }
+            
             
         
             $row = array(               
                 'phone'     => $account,
-                'car_type'  => $arr_detail['car_type'],
+                'car_type'  => '',
                 'car_num'  => $arr_detail['car_num'],
                 'car_engine_num'  =>$arr_detail['car_engine_num'],
                 'user_type' => self::USERTYPE_DRIVER,
@@ -143,28 +140,14 @@ class UserService
             throw new Exception('carpool.internal insert to the DB failed [error_code: ' . 
                                 $error_code . ', error_msg: ' . $error_msg . ']');
         }
-
-        $condition = array(
-            'and' => array(
-                array(
-                    'phone' => array(
-                        '=' => $account,
-                    ),
-                ),
-            ),
-        );
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
-        if (false === $arr_response || !is_array($arr_response))
+        
+        $user_id = $db_proxy->getLastID();
+        if(0 == $user_id)
         {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) 
-        {
-            throw new Exception('carpool.internal register fail');
-        }
-        $user_id = intval($arr_response[0]['user_id']);
-        $user_type = intval($arr_response[0]['user_type']);
-        $uinfo = self::_encrypt_uinfo($account, $user_id, $user_type);
+            throw new Exception('carpool.internal get user_id failed');
+        }       
+        
+        $uinfo = self::_encrypt_uinfo($account, $user_id, $type);
         setcookie('CPUINFO', $uinfo, time() + CarpoolConfig::USER_COOKIE_EXPIRE_TIME);
         CLog::trace("register succ [account: %s, type : %d, user_id : %d]", $account, $type,$user_id);
     }
@@ -251,7 +234,7 @@ class UserService
                     'account'     => $account,
                     'secstr'    => $sec_str,                
                     'ctime'     => time(NULL),
-                    'type'      => self::TOKENTYPE_PHONE, 
+                    'type'      => self::TOKENTYPE_EMAIL, 
                     'user_id'   => $user_id,
                 );
                 $timeout = CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT;
@@ -328,7 +311,7 @@ class UserService
         {
             throw new Exception('carpool.secstr secstr wrong or timeout');
         }
-
+        // secstr 反查不出uid， 直接返回， 不更新用户状态
         if(0 == $user_id)
         {
             return true;
@@ -479,16 +462,20 @@ class UserService
                     $error_code . ', error_msg: ' . $error_msg . ']');
             }
             
-            $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type'), $condition);
-            if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+            $user_id = $db_proxy->getLastID();
+            if(0 == $user_id)
             {
-                throw new Exception('carpool.internal select from the DB failed');
-            }
+                throw new Exception('carpool.internal get user_id failed');
+            }       
 
+        }
+        else
+        {
+            $user_id = intval($arr_response[0]['user_id']);
         }
                 
         // 4. 设置cookie
-        $user_id = intval($arr_response[0]['user_id']);
+        
         $uinfo = self::_encrypt_uinfo($account, $user_id, $type);          
         setcookie('CPUINFO', $uinfo, time() + CarpoolConfig::USER_COOKIE_EXPIRE_TIME);
         
@@ -662,7 +649,7 @@ class UserService
         $now = time(NULL);  
         $uk = self::api_encode_uid($user_id);      
 
-        //to do , 需要给头像地址
+        
         $arr_return['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
             .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
 

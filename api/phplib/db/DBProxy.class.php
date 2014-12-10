@@ -490,7 +490,13 @@ class DBProxy
 	        return $this->dbHandle->getAffectedRows();
 	    }
 	}
-
+    public function getLastID(){
+        if ( empty( $this->dbHandle ) ) {
+	        return 0;
+	    } else {
+	        return $this->dbHandle->getInsertID();
+	    }
+    }
 	public function close()
 	{
 	    if ( empty( $this->dbHandle ) ) {

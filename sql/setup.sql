@@ -17,7 +17,7 @@ CREATE TABLE `user_info` (
     `head_object` varchar(100) default '',
     `ctime` int not NULL,
     `mtime` int not NULL,
-    `status` int default 0,
+    `status` tinyint default 0,
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `user_key` (`user_id`, `user_type`, `status`),
     UNIQUE KEY `phone_index` (`phone`, `user_type`)
@@ -27,6 +27,7 @@ CREATE TABLE `pickride_info` (
     `id` int  NOT NULL AUTO_INCREMENT,
     `pid` bigint  unsigned NOT NULL,
     `user_id` bigint  unsigned,
+    `user_status` tinyint DEFAULT 0,
     `driver_dev_id` varchar(64) NOT NULL,
     `passenger_dev_id` varchar(64) NOT NULL,
     `phone` bigint(20) DEFAULT NULL,
@@ -41,7 +42,7 @@ CREATE TABLE `pickride_info` (
     `mtime` int not NULL,
     `driver_id` bigint  unsigned default 0,
     `driver_phone` bigint(20) DEFAULT 0,
-    `status` int DEFAULT 0,
+    `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `pid_key` (`pid`),
     KEY `user_key` (`user_id`, `status`),
@@ -57,7 +58,7 @@ CREATE TABLE `driver_info` (
     `longitude` float(10, 6),
     `ctime` int not NULL,
     `mtime` int not NULL,
-    `status` int DEFAULT 0,
+    `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `user_key` (`user_id`),
     INDEX `latitude_index` (`latitude`),
@@ -84,7 +85,7 @@ CREATE TABLE `client_version_info` (
     `url` varchar(1024),
     `ctime` int not NULL,
     `mtime` int not NULL,
-    `status` int DEFAULT 0,
+    `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `version_key` (`ctype`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版本信息表' ;
@@ -110,7 +111,7 @@ CREATE TABLE `task_info_0` (
     `phone`  bigint,
     `ctime` int not NULL, 
     `mtime` int not NULL, 
-    `status` int DEFAULT 0,
+    `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `pid_key` (`pid`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务表' ;
@@ -139,7 +140,7 @@ CREATE TABLE `complain_info` (
     `content` varchar(2048),    
     `ctime` int not NULL,
     `mtime` int not NULL,    
-    `status` int DEFAULT 0,
+    `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`)   
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='投诉表' ;
 
