@@ -6,6 +6,9 @@ class DriverService
 
     private static $instance = NULL;
     
+    const TABLE_USER_INFO = 'user_info';
+    const TABLE_DRIVER_INFO = 'driver_info';
+
     /**
      * @return StreamService
      */
@@ -43,6 +46,33 @@ class DriverService
         if (false === $db_proxy) {
             throw new Exception('carpool.internal connect to the DB failed');
         }
+        $condition = array(
+            'and' => array(
+                array(
+                    'user_id' => array(
+                        '=' => $user_id,
+                    ),
+                ),          
+
+            ),
+        );
+        
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone', 'driver_status'), $condition);
+        if (false === $arr_response || !is_array($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        if (0 == count($arr_response)) {
+            throw new Exception('carpool.param user_id not exist');
+        }
+        //司机没认证，不更新他的表
+        if($arr_response[0]['driver_status'] == self::USERSTATUS_INIT)
+        {
+            return true;
+        }   
+
+
+
         $now = time(NULL);
         $row = array(
             'user_id'   => $user_id,
@@ -61,7 +91,7 @@ class DriverService
             'mtime'     => $now,
         );  
         //$db_proxy->startTransaction();
-        $ret = $db_proxy->insert('driver_info', $row, $duplicate_key);
+        $ret = $db_proxy->insert(self::TABLE_DRIVER_INFO, $row, $duplicate_key);
         if (false === $ret) {
             throw new Exception('carpool.internal insert to the DB failed [err_code: ' . 
             					$db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());

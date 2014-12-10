@@ -504,11 +504,7 @@ class UserService
         $devuid = $arr_req['devuid'];
         Utils::check_string($client_id, 1, 64);
         
-        //只有司机可以report
-        if($user_type == self::USERTYPE_PASSENGER)
-        {
-            return true;
-        }
+        
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy)
@@ -516,30 +512,7 @@ class UserService
             throw new Exception('carpool.internal connect to the DB failed');
         }   
 
-        $condition = array(
-            'and' => array(
-                array(
-                    'user_id' => array(
-                        '=' => $user_id,
-                    ),
-                ),          
-
-            ),
-        );
         
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone', 'driver_status'), $condition);
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) {
-            throw new Exception('carpool.param user_id not exist');
-        }
-        //司机没认证，不更新他的表
-        if($arr_response[0]['driver_status'] == self::USERSTATUS_INIT)
-        {
-            return true;
-        }   
         $now = time(NULL);
         $row = array(               
             'user_id'     => $user_id,
