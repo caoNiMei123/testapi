@@ -464,7 +464,7 @@ class UserService
         else
         {
             $old_type = intval($arr_response[0]['user_type']);
-            if($old_type != $type){
+            if($old_type & $type == 0){
                 //乘客要隐含注册
                 if ($type == self::USERTYPE_DRIVER)
                 {
