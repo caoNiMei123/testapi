@@ -66,6 +66,22 @@ CREATE TABLE `driver_info` (
     INDEX `longitude_index` (`longitude`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='司机信息表' ;
 
+CREATE TABLE `device_info` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint  unsigned  NOT NULL,
+  `client_id` varchar(64)  NOT NULL, # 推送id
+  `dev_id` varchar(64)  NOT NULL,    # 设备id
+  `dev_id_sign` bigint  unsigned not NULL, # dev_id签名
+  `status` tinyint default 0, #0表示在线 1表示离线 
+  `ctime` int not NULL, 
+  `mtime` int not NULL, 
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `udid_key` (`user_id`, `dev_id_sign`),
+  INDEX `uid_index` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='设备表';
+
+
+
 CREATE TABLE `secstr_info` (
     `id` bigint  NOT NULL AUTO_INCREMENT,
     `account`  varchar(256) not null,
@@ -91,19 +107,7 @@ CREATE TABLE `client_version_info` (
     UNIQUE KEY `version_key` (`ctype`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版本信息表' ;
 
-CREATE TABLE `device_info` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint  unsigned  NOT NULL,
-  `client_id` varchar(64)  NOT NULL, # 推送id
-  `dev_id` varchar(64)  NOT NULL,    # 设备id
-  `dev_id_sign` bigint  unsigned not NULL, # dev_id签名
-  `status` tinyint default 0, #0表示在线 1表示离线 
-  `ctime` int not NULL, 
-  `mtime` int not NULL, 
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `udid_key` (`user_id`, `dev_id_sign`),
-  INDEX `uid_index` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='设备表';
+
 
 CREATE TABLE `task_info_0` (
     `id` bigint  NOT NULL AUTO_INCREMENT,
