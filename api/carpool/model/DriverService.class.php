@@ -68,10 +68,10 @@ class DriverService
         //司机没认证，不更新他的表
         if($arr_response[0]['driver_status'] == UserService::USERSTATUS_INIT)
         {
+        	CLog::trace("the driver is not authenticated [user_id: %s, gps: %s]",
+        				$user_id, $gps);
             return true;
-        }   
-
-
+        }
 
         $now = time(NULL);
         $row = array(
@@ -95,8 +95,11 @@ class DriverService
         if (false === $ret) {
             throw new Exception('carpool.internal insert to the DB failed [err_code: ' . 
             					$db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());
-        }       
-        CLog::trace("driver repot succ [account: %s, user_id : %d, gps : %s ]", $user_name, $user_id, $gps);
+        }
+        
+        CLog::trace("driver repot succ [account: %s, user_id: %d, gps: %s]", 
+        			$user_name, $user_id, $gps);
+        			
         return true;
 
     }
