@@ -98,6 +98,11 @@ class CarpoolBaseAction extends LogicBaseAction
 
 
         }
+        
+        // 打出所有参数日志
+        CLog::debug('debug request param [request_param: %s]', 
+        			print_r($this->requests, true));
+        
         if (CarpoolConfig::$debug){
             return true;
         }
