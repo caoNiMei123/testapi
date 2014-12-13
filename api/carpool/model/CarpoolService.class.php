@@ -61,7 +61,9 @@ class CarpoolService
         
         $row = array();
         $now = time(NULL);
-        $pid = Utils::sign64(time(NULL).$user_id.$src_gps.$dest_gps.rand());  
+        
+        // 使用63位无符号签名，避免php数字溢出
+        $pid = Utils::sign63(time(NULL).$user_id.$src_gps.$dest_gps.rand());
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) 

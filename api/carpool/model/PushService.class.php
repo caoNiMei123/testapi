@@ -50,7 +50,7 @@ class PushService
         }
         
         $now = time();
-        $devuid_sign = Utils::sign64($devuid);
+        $devuid_sign = Utils::sign63($devuid);
         $row = array(
             'user_id'       => $user_id,
             'push_id'       => $client_id,
