@@ -343,7 +343,12 @@ class CarpoolService
             array(array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)), 
             array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
             array('pid' =>  array('=' => $pid)),                         
-        )));        
+        )));
+        // zl_test
+        CLog::warning("zzzzzzzzzzzzzzzzzzzzz arr_response: %s", 
+        			  var_export($arr_response, true));
+        			  
+        // zl_test
         if (false === $arr_response || !is_array($arr_response))
         {
             $db_proxy->rollback();
@@ -352,7 +357,8 @@ class CarpoolService
         if (0 == count($arr_response)) 
         {
             $db_proxy->rollback();
-            throw new Exception('carpool.not_found pid not exist');
+            throw new Exception('carpool.not_found pid not exist [sql: ' . 
+            					$db_proxy->getLastSQL() . ']');
         }
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
