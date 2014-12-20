@@ -346,11 +346,6 @@ class CarpoolService
             array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
             array('pid' =>  array('=' => $pid)),                         
         )));
-        // zl_test
-        CLog::warning("zzzzzzzzzzzzzzzzzzzzz arr_response: %s", 
-        			  var_export($arr_response, true));
-        			  
-        // zl_test
         if (false === $arr_response || !is_array($arr_response))
         {
             $db_proxy->rollback();
