@@ -721,7 +721,7 @@ class CarpoolService
             $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
                 array(
                     array('pid' =>  array('in' => $arr_list)),
-                    array('driver_id' =>  array('=' => $user_id)),
+                    //array('driver_id' =>  array('=' => $user_id)),
                 ),                          
             ));
         }
