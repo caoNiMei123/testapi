@@ -308,7 +308,7 @@ class CarpoolService
 		$user_type = $arr_req['user_type'];
         if($user_type != UserService::USERTYPE_DRIVER)
         {
-            throw new Exception('carpool.invalid_user not a driver');
+            throw new Exception('carpool.invalid_driver not a driver');
         }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) {

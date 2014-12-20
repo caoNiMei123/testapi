@@ -441,7 +441,7 @@ class UserService
         if (0 == count($arr_response)) {
             if ($type == self::USERTYPE_DRIVER)
             {
-                throw new Exception('carpool.invalid_user login fail');
+                throw new Exception('carpool.invalid_driver login fail');
             }
             $now = time(NULL);
             $row = array(               
@@ -468,7 +468,7 @@ class UserService
                 //乘客要隐含注册
                 if ($type == self::USERTYPE_DRIVER)
                 {
-                    throw new Exception('carpool.invalid_user login fail');
+                    throw new Exception('carpool.invalid_driver login fail');
                 }
                 $now = time(NULL);                
                 $update = array(
