@@ -150,7 +150,7 @@ class NotifyWorker
 		if (false === $arr_response || 
 			!is_array($arr_response))
 		{
-			$db_proxy->commit();
+			$db_proxy->rollback();
 			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
@@ -158,13 +158,13 @@ class NotifyWorker
 		if (0 == count($arr_response))
 		{
 			//CLog::trace("no task to do [tabl_name: %s]", $table_task_info);
-			$db_proxy->commit();
+			$db_proxy->rollback();
 			return NotifyConfig::$arProcessStatus['no_task'];
 		}
 
 		if (!isset($arr_response[0]['pid']))
 		{
-			$db_proxy->commit();
+			$db_proxy->rollback();
 			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
@@ -197,7 +197,7 @@ class NotifyWorker
 		$ret = $db_proxy->update($table_task_info, $condition, $row);
 		if (false === $ret)
 		{
-			$db_proxy->commit();
+			$db_proxy->rollback();
 			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
 			return;
 		}
