@@ -723,7 +723,7 @@ class CarpoolService
                     array('pid' =>  array('in' => $arr_list)),
                     //array('driver_id' =>  array('=' => $user_id)),
                 ),                          
-            ));
+            ), array( 'start' => 0, 'limit' => CarpoolConfig::CARPOOL_PAGE_LIMIT));
         }
         else
         {
