@@ -1,6 +1,6 @@
 <?php
 
-class CarpoolFinishAction extends CarpoolBaseAction
+class CarpoolAboardAction extends CarpoolBaseAction
 {   
     public function doPost()
     {
@@ -9,7 +9,6 @@ class CarpoolFinishAction extends CarpoolBaseAction
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
         $this->exist('pid');
-        $this->exist('mileage');
         $this->exist('devuid');
         
         // 2. 取参数，分成必选和可选
@@ -21,10 +20,9 @@ class CarpoolFinishAction extends CarpoolBaseAction
         $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['devuid'] = $this->requests['devuid'];
-        $arr_req['mileage'] = $this->requests['mileage'];
         
         $carpool_service = CarpoolService::getInstance();
-        $arr_response = $carpool_service->finish($arr_req, $arr_opt);       
+        $arr_response = $carpool_service->aboard($arr_req, $arr_opt);       
         
     }
     
