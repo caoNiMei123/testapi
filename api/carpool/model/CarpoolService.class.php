@@ -432,7 +432,7 @@ class CarpoolService
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;        
         $pid = $arr_req['pid'] ;
-        $mileage = $arr_req['mileage'] ;
+        $mileage = intval($arr_req['mileage']) ;
         $devuid = $arr_req['devuid'];
         $user_type = $arr_req['user_type'];            
         
@@ -448,7 +448,7 @@ class CarpoolService
             throw new Exception('carpool.internal start transaction fail');
         }
         $now =time(NULL);
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'phone', 'driver_dev_id', 'passenger_dev_id'),array('and'=>           
+        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'user_status', 'phone', 'driver_dev_id', 'passenger_dev_id'),array('and'=>           
             array(array('pid' => array('=' => $pid)),
             array('driver_id' =>  array('=' => $user_id)),  
             array('status' =>  array('=' => self::CARPOOL_STATUS_ABOARD)),                                        
@@ -465,6 +465,7 @@ class CarpoolService
         }
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
+        $passenger_status = intval($arr_response[0]['user_status']);
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
@@ -482,11 +483,22 @@ class CarpoolService
             throw new Exception('carpool.not_found this pid not exists');
         }       
         $db_proxy->commit();
+        $price = 0;
+        if ($passenger_status == UserService::USERSTATUS_AUTHORIZED) 
+        {
+            $price = CarpoolConfig::ORDER_PRICE_VIP * $mileage / 1000;
+        }
+        else
+        {
+            $price = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
+        }
+     
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['finish_order'],
             'msg_content' => array(
                 'pid' => $pid,        
-                'phone' => $user_name,        
+                'phone' => $user_name,   
+                'price' => $price,     
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,

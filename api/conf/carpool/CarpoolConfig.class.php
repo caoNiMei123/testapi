@@ -97,6 +97,9 @@ class CarpoolConfig
         'finish_order' =>6,
         'aboard_order' =>7,
     );
+
+    const ORDER_PRICE_NORMAL = 100;
+    const ORDER_PRICE_VIP = 200;
     //test
     public static $domain = "http://10.26.74.23:8089";
     //public static $domain = "http://182.92.164.183:8089";
