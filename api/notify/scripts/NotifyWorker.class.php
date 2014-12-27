@@ -9,6 +9,14 @@ class NotifyWorker
 	const TABLE_DRIVER_INFO = 'driver_info';
 	const TABLE_DEVICE_INFO = 'device_info';
 	
+	// 拼车订单状态
+	const CARPOOL_STATUS_CREATE  = 0;
+    const CARPOOL_STATUS_ACCEPTED  = 1;
+    const CARPOOL_STATUS_ABOARD  = 2;
+    const CARPOOL_STATUS_CANCLED  = 3;    
+    const CARPOOL_STATUS_DONE = 4;
+    const CARPOOL_STATUS_TIMEOUT  = 5;
+	
 	public static function doExecute($cur_process_num, $total_process_num)
 	{
 		$pre_num = 0;
@@ -218,6 +226,11 @@ class NotifyWorker
 			 			'=' => $pid,
 					),
 				),
+				array(
+					'status' => array(
+			 			'=' => self::CARPOOL_STATUS_CREATE,
+					),
+				),
 			),
 		);
 		$arr_response = $db_proxy->select(self::TABLE_PICKRIDE_INFO, 
@@ -234,7 +247,7 @@ class NotifyWorker
 
 		if (0 == count($arr_response))
 		{
-			CLog::warning("the pid does not exist [pid: %s]", $pid);
+			CLog::trace("the pid does not exist [pid: %s]", $pid);
 			self::set_task_status($table_task_info, $pid, 
 								  NotifyConfig::$arrNotifyTaskStatus['error_invalid_pid']);
 			
