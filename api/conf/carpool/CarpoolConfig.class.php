@@ -95,6 +95,7 @@ class CarpoolConfig
         'driver_location' =>4,
         'order_info' =>5,
         'finish_order' =>6,
+        'aboard_order' =>7,
     );
     //test
     public static $domain = "http://10.26.74.23:8089";
