@@ -276,9 +276,12 @@ Class IGeTui
         curl_setopt($curl, CURLOPT_BINARYTRANSFER, 1);
         curl_setopt($curl, CURLOPT_USERAGENT, 'GeTui PHP/1.0');
         curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+        
+        // 设置超时
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 5);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        
         //通过代理访问接口需要在此处配置代理
         //curl_setopt($curl, CURLOPT_PROXY, '192.168.1.18:808');
         //请求失败有3次重试机会
