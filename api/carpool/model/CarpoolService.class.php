@@ -471,7 +471,8 @@ class CarpoolService
             array(array('pid' => array('=' => $pid)),
             array('driver_id' =>  array('=' => $user_id)),  
             array('status' =>  array('=' => self::CARPOOL_STATUS_ABOARD)),              
-        )), 'driver_id='.$user_id.',mtime ='.time(NULL).',status ='.self::CARPOOL_STATUS_DONE.',mileage' = $mileage);
+        )), 'driver_id='.$user_id.',mtime ='.time(NULL).',status
+        ='.self::CARPOOL_STATUS_DONE.',mileage ='. $mileage);
         if (false === $ret)
         {
             $db_proxy->rollback();
