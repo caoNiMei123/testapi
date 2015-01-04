@@ -68,15 +68,15 @@ class DriverService
         //司机没认证，不更新他的表
         if($arr_response[0]['driver_status'] == UserService::USERSTATUS_INIT)
         {
-        	CLog::trace("the driver is not authenticated [user_id: %s, gps: %s]",
-        				$user_id, $gps);
+            CLog::trace("the driver is not authenticated [user_id: %s, gps: %s]",
+                        $user_id, $gps);
             return true;
         }
 
         $now = time(NULL);
         $row = array(
             'user_id'   => $user_id,
-        	'dev_id'	=> $devuid,
+            'dev_id'    => $devuid,
             'dev_id_sign' => crc32($devuid),     
             'longitude' => $gps_arr[1],
             'latitude'  => $gps_arr[0],                                             
@@ -84,7 +84,7 @@ class DriverService
             'mtime'         => $now,
         ); 
         $duplicate_key = array(
-        	'dev_id'	=> $devuid,
+            'dev_id'    => $devuid,
             'dev_id_sign' => crc32($devuid),
             'longitude' => $gps_arr[1],
             'latitude'  => $gps_arr[0],         
@@ -94,12 +94,12 @@ class DriverService
         $ret = $db_proxy->insert(self::TABLE_DRIVER_INFO, $row, $duplicate_key);
         if (false === $ret) {
             throw new Exception('carpool.internal insert to the DB failed [err_code: ' . 
-            					$db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());
+                                $db_proxy->getErrorCode() . ' err_msg: ' . $db_proxy->getErrorMsg());
         }
         
         CLog::trace("driver repot succ [account: %s, user_id: %d, gps: %s]", 
-        			$user_name, $user_id, $gps);
-        			
+                    $user_name, $user_id, $gps);
+                    
         return true;
 
     }

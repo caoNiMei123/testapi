@@ -43,7 +43,7 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'gettoken' => array(
                 'UserGetTokenAction',
             ),
-			'report' => array(
+            'report' => array(
                 'UserReportAction',
             ),
             'auth' => array(

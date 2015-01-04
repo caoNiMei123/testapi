@@ -14,8 +14,8 @@ class UserQueryAction extends CarpoolBaseAction
         $arr_opt = array();       
         
         $arr_req['user_name'] = $this->requests['user_name'];
-		$arr_req['user_id'] = $this->requests['user_id'];
-		$arr_req['user_type'] = intval($this->requests['user_type']);	
+        $arr_req['user_id'] = $this->requests['user_id'];
+        $arr_req['user_type'] = intval($this->requests['user_type']);   
 
         $user_service = UserService::getInstance();
         $arr_response = $user_service->query($arr_req, $arr_opt);

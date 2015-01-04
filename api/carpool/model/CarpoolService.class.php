@@ -259,28 +259,28 @@ class CarpoolService
         // 订单已被司机接单，才需要发通知到司机
         if (0 != $to_uid)
         {
-	        $msg = json_encode(array(
-	            'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
-	            'msg_content' => array(
-	                'pid' => $pid,    
-	                'phone' => $to_phone,               
-	            ),
-	            'msg_ctime' => time(NULL),
-	            'msg_expire' => 60,
-	        ));
-	        
-	        $arr_msg = array(
-	        	'trans_type' => 1,
-	        	'trans_content' => $msg,
-	        );
-	        $arr_user = array(
-	        	array(
-		        	'user_id' => $to_uid,
-		        	'device_id' => $to_devuid,
-	        	),
-	        );
-	        
-	        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+            $msg = json_encode(array(
+                'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
+                'msg_content' => array(
+                    'pid' => $pid,    
+                    'phone' => $to_phone,               
+                ),
+                'msg_ctime' => time(NULL),
+                'msg_expire' => 60,
+            ));
+            
+            $arr_msg = array(
+                'trans_type' => 1,
+                'trans_content' => $msg,
+            );
+            $arr_user = array(
+                array(
+                    'user_id' => $to_uid,
+                    'device_id' => $to_devuid,
+                ),
+            );
+            
+            PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
         }       
 
         //修改任务表
@@ -304,8 +304,8 @@ class CarpoolService
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;        
         $pid = $arr_req['pid'];
-		$devuid = $arr_req['devuid'];
-		$user_type = $arr_req['user_type'];
+        $devuid = $arr_req['devuid'];
+        $user_type = $arr_req['user_type'];
         if($user_type != UserService::USERTYPE_DRIVER)
         {
             throw new Exception('carpool.invalid_driver not a driver');
@@ -355,7 +355,7 @@ class CarpoolService
         {
             $db_proxy->rollback();
             throw new Exception('carpool.not_found pid not exist [sql: ' . 
-            					$db_proxy->getLastSQL() . ']');
+                                $db_proxy->getLastSQL() . ']');
         }
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
@@ -408,21 +408,21 @@ class CarpoolService
         ));
         
         $arr_msg = array(
-        	'trans_type' => 1,
-        	'trans_content' => $msg,
+            'trans_type' => 1,
+            'trans_content' => $msg,
         );
         $arr_user = array(
-        	array(
-	        	'user_id' => $passenger_id,
-	        	'device_id' => $passenger_dev_id,
-        	),
+            array(
+                'user_id' => $passenger_id,
+                'device_id' => $passenger_dev_id,
+            ),
         );
         
         //通知 乘客我已经接单
         PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
         
         CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
-        			$user_name, $user_id, $pid, $passenger_phone);
+                    $user_name, $user_id, $pid, $passenger_phone);
 
         return true;
     }   
@@ -505,21 +505,21 @@ class CarpoolService
         ));
         
         $arr_msg = array(
-        	'trans_type' => 1,
-        	'trans_content' => $msg,
+            'trans_type' => 1,
+            'trans_content' => $msg,
         );
         $arr_user = array(
-        	array(
-	        	'user_id' => $passenger_id,
-	        	'device_id' => $passenger_dev_id,
-        	),
+            array(
+                'user_id' => $passenger_id,
+                'device_id' => $passenger_dev_id,
+            ),
         );
         
         //通知 乘客订单结束
         PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
         
         CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", 
-        			$user_name, $user_id, $pid);
+                    $user_name, $user_id, $pid);
 
         return true;
     }   
