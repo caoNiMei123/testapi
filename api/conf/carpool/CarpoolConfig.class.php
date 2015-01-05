@@ -36,7 +36,7 @@ class CarpoolConfig
     public static $debug = true;
 
     public static $s3_bucket = 'real-pin'; 
-    //public static $s3_host = 'oss-cn-beijing-internal.aliyuncs.com ';
+    public static $s3_host = 'oss-cn-beijing-internal.aliyuncs.com';
     //注意， 这个地址比较贵。。。，尽量用内网
     public static $s3_host = 'oss-cn-beijing.aliyuncs.com';
 
