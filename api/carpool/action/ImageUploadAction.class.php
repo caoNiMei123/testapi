@@ -17,7 +17,7 @@ class ImageUploadAction extends CarpoolBaseAction
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
 
-        $arr_req['file'] = ;
+        $arr_req['file'] = file_get_contents('php://input');
 
         $image_service = ImageService::getInstance();
         $image_service->thumbnail($arr_req, $arr_opt);

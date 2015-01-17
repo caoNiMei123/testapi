@@ -33,4 +33,4 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=gettoken&devuid=1&ctype
 #feedback
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/feedback?method=create&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'type=1' -d 'detail=abcdefg'
 #image upload
-curl 'http://127.0.0.1:8089/rest/2.0/carpool/image?method=upload&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -T '111111111111111111111111111111111111111111111111111111111111'
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/image?method=upload&devuid=1&ctype=1&user_name=18601165872&user_type=1&user_id=10002' -d '111111111111111111111111111111111111111111111111111111111111'
