@@ -22,7 +22,7 @@ class ImageThumbnailAction extends CarpoolBaseAction
         $image_service = ImageService::getInstance();
         $arr_response = $image_service->thumbnail($arr_req, $arr_opt);
         echo $arr_response;
-        return;
+        exit;
         
     }
     
