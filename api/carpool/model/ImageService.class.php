@@ -58,10 +58,8 @@ class ImageService
             throw new Exception('carpool.internal upload s3 fail :'. $response->body);
         }
         CLog::trace("thumbnail succ [account: %s, type : %d, user_id : %d]", $account, $type,$user_id);
-
-        return array(
-            'img' => $response->body
-        );
+        
+        return $response->body;
 
     }
     
