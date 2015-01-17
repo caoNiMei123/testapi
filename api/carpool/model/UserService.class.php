@@ -646,7 +646,6 @@ class UserService
         $user_id = $arr_req['user_id'] ;
         $user_type = $arr_req['user_type'] ;
         $name = '';
-        $head = '';
         $update = '';
         if(!is_null($arr_opt['name']))
         {
@@ -654,39 +653,7 @@ class UserService
             Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);            
             $update .= "name = '$name'";
         }
-        if(!is_null($arr_opt['head']))
-        {
-            $head = $arr_opt['head'];
-            Utils::check_string($head, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);           
-
-            $oss_sdk_service = new ALIOSS();
-            $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
-            $head_bucket = CarpoolConfig::$s3_bucket;
-            $head_object = 'head_' . $user_id;
-            $upload_file_options = array(
-                ALIOSS::OSS_CONTENT => $head,
-                ALIOSS::OSS_LENGTH  => strlen($content), 
-            );
-            try{   
-                $response = $oss_sdk_service->upload_file_by_content($head_bucket,$head_object,$upload_file_options);            
-            }catch(Exception $ex){
-                throw new Exception('carpool.internal upload s3 fail ;message :'
-                    .$ex->getMessage() .'; file : '.$ex->getFile() .'; line : '.$ex->getLine());
-            }
-            if(!$response->isOk())
-            {
-                throw new Exception('carpool.internal upload s3 fail :'. $response->body);
-            }
-
-            if(!is_null($arr_opt['name']))
-            {
-                $update .= ',';
-            }
-            $head_bucket = CarpoolConfig::$s3_bucket;
-            $head_object = '';
-            $update .= "head_bucket = '$head_bucket', head_object = '$head_object'";
-
-        }
+        
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);

@@ -1,6 +1,6 @@
 <?php
 
-class UserModifyAction extends CarpoolBaseAction
+class ImageUploadAction extends CarpoolBaseAction
 {   
     public function doPost()
     {
@@ -8,21 +8,20 @@ class UserModifyAction extends CarpoolBaseAction
         $this->exist('user_name', "carpool.auth");
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
-
-        //临时作为必要参数， 因为现在只能改名字
-        $this->exist('name', "carpool.param");
-               
+    
         // 2. 取参数，分成必选和可选
         $arr_req = array();
-        $arr_opt = array();       
+        $arr_opt = array();
+        
+        $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
-        $arr_req['user_name'] = $this->requests['user_name'];
-        $arr_opt['name'] = $this->requests['name'];
+
+        $arr_req['file'] = ;
+
+        $image_service = ImageService::getInstance();
+        $image_service->thumbnail($arr_req, $arr_opt);
         
-        
-        $user_service = UserService::getInstance();
-        $arr_response = $user_service->modify($arr_req, $arr_opt);
         
     }
     

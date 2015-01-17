@@ -113,6 +113,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'thumbnail' => array(
                 'ImageThumbnailAction',
             ),
+            'upload' => array(
+                'ImageUploadAction',
+            ),
         ),
         
         'dispatch'=>'openapi2',

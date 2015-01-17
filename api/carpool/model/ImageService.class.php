@@ -62,6 +62,54 @@ class ImageService
         return $response->body;
 
     }
+
+    public function upload($arr_req, $arr_opt)
+    {
+        $user_id = $arr_req['user_id'];
+        $file = $arr_req['file'];
+        
+        Utils::check_string($file, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);           
+
+        $oss_sdk_service = new ALIOSS();
+        $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
+        $head_bucket = CarpoolConfig::$s3_bucket;
+        $head_object = 'head_' . $user_id;
+        $upload_file_options = array(
+            ALIOSS::OSS_CONTENT => $file,
+            ALIOSS::OSS_LENGTH  => strlen($content), 
+        );
+        try{   
+            $response = $oss_sdk_service->upload_file_by_content($head_bucket,$head_object,$upload_file_options);            
+        }catch(Exception $ex){
+            throw new Exception('carpool.internal upload s3 fail ;message :'
+                .$ex->getMessage() .'; file : '.$ex->getFile() .'; line : '.$ex->getLine());
+        }
+        if(!$response->isOk())
+        {
+            throw new Exception('carpool.internal upload s3 fail :'. $response->body);
+        }
+
+           
+        $head_bucket = CarpoolConfig::$s3_bucket;
+        $head_object = '';
+        $update .= "head_bucket = '$head_bucket', head_object = '$head_object'";
+
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy)
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }   
+        
+        $ret = $db_proxy->update('user_info', array('and'=>
+            array(
+                array('user_id' =>  
+                    array('=' => $user_id)),                                                             
+                )
+            ), $update); 
+        if (false === $ret) {
+            throw new Exception('carpool.internal update DB failed');
+        }
+    }
     
 }
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */
