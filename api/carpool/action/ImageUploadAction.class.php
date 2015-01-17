@@ -20,7 +20,7 @@ class ImageUploadAction extends CarpoolBaseAction
         $arr_req['file'] = file_get_contents('php://input');
 
         $image_service = ImageService::getInstance();
-        $image_service->thumbnail($arr_req, $arr_opt);
+        $image_service->upload($arr_req, $arr_opt);
         
         
     }
