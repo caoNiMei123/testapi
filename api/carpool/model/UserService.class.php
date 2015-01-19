@@ -656,8 +656,8 @@ class UserService
         }
         if(!is_null($arr_opt['sex']))
         {
-            $sec = $arr_opt['sex'];
-            Utils::check_int($type, 1, 2);    
+            $sec = intval($arr_opt['sex']);
+            Utils::check_int($type, 0, 1);    
             $update .= ",sex = $sex";
         }
         if(!is_null($arr_opt['car_num']))
