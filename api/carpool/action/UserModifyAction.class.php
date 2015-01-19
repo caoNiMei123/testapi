@@ -8,9 +8,6 @@ class UserModifyAction extends CarpoolBaseAction
         $this->exist('user_name', "carpool.auth");
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
-
-        //临时作为必要参数， 因为现在只能改名字
-        $this->exist('name', "carpool.param");
                
         // 2. 取参数，分成必选和可选
         $arr_req = array();
