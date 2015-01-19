@@ -7,6 +7,7 @@ CREATE TABLE `user_info` (
     `name` varchar(50) default '',
     `phone`  bigint not null,
     `email`  varchar(100) default '', 
+    `sex`  tinyint default 0, 
     `car_type` varchar(50) default '',
     `seat` tinyint default 0,
     `detail` varchar(1024) default '',
