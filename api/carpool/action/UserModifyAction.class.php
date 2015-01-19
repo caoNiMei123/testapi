@@ -19,7 +19,9 @@ class UserModifyAction extends CarpoolBaseAction
         $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_opt['name'] = $this->requests['name'];
-        
+        $arr_opt['sex'] = $this->requests['sex'];
+        $arr_opt['car_num'] = $this->requests['car_num'];
+        $arr_opt['car_engine_num'] = $this->requests['car_engine_num'];
         
         $user_service = UserService::getInstance();
         $arr_response = $user_service->modify($arr_req, $arr_opt);

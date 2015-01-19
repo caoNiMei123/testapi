@@ -647,13 +647,43 @@ class UserService
         $user_type = $arr_req['user_type'] ;
         $name = '';
         $update = '';
+        $driver_check = false;
         if(!is_null($arr_opt['name']))
         {
             $name = $arr_opt['name'];
             Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);            
-            $update .= "name = '$name'";
+            $update .= ",name = '$name'";
         }
-        
+        if(!is_null($arr_opt['sex']))
+        {
+            $sec = $arr_opt['sex'];
+            Utils::check_int($type, 1, 2);    
+            $update .= ",sex = $sex";
+        }
+        if(!is_null($arr_opt['car_num']))
+        {
+            if(self::USERTYPE_DRIVER  !== $user_type)
+            {
+                throw new Exception('carpool.param not a driver');
+            }
+                
+            Utils::check_string($arr_opt['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);         
+            $car_num = $arr_opt['car_num'];
+            $update .= ",car_num = '$car_num'";
+            $driver_check = true;
+        }
+        if(!is_null($arr_opt['car_engine_num']))
+        {
+            if(self::USERTYPE_DRIVER  !== $user_type)
+            {
+                throw new Exception('carpool.param not a driver');
+            }
+            Utils::check_string($arr_opt['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
+            $car_engine_num = $arr_opt['car_engine_num'];   
+            $update .= "car_engine_num = '$car_engine_num'";
+            $driver_check = true;
+        }
+        Utils::check_string($update , 1);
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
@@ -661,6 +691,13 @@ class UserService
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }   
+        $update = substr($update, 1);
+
+        //需要更新为未审核
+        if($driver_check)
+        {
+            $update .= ", driver_status = ". self::USERSTATUS_INIT;   
+        }
 
         
         $ret = $db_proxy->update('user_info', array('and'=>
@@ -669,9 +706,11 @@ class UserService
                     array('=' => $user_id)),                                                             
                 )
             ), $update); 
-        if (false === $ret) {
+
+        if (false === $ret || 1 !== $ret ) {
             throw new Exception('carpool.internal update DB failed');
         }
+
 
     }
 
