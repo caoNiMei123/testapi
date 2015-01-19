@@ -645,21 +645,24 @@ class UserService
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
         $user_type = $arr_req['user_type'] ;
-        $name = '';
+        
         $update = '';
         $driver_check = false;
+
         if(!is_null($arr_opt['name']))
         {
             $name = $arr_opt['name'];
             Utils::check_string($name, 1, CarpoolConfig::USER_MAX_NAME_LENGTH);            
             $update .= ",name = '$name'";
         }
+
         if(!is_null($arr_opt['sex']))
         {
             $sec = intval($arr_opt['sex']);
-            Utils::check_int($type, 0, 1);    
+            Utils::check_int($sex, 0, 1);    
             $update .= ",sex = $sex";
         }
+        
         if(!is_null($arr_opt['car_num']))
         {
             if(self::USERTYPE_DRIVER  !== $user_type)
