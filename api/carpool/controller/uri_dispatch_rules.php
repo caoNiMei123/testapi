@@ -116,6 +116,12 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'thumbnail' => array(
                 'ImageThumbnailAction',
             ),
+        ),
+        
+        'dispatch'=>'openapi2',
+    ),
+    '/rest/2.0/carpool/file' => array(
+        'method_hash' => array(
             'upload' => array(
                 'ImageUploadAction',
             ),

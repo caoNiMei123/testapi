@@ -43,11 +43,15 @@ class ImageService
         }
         $user_id = UserService::api_decode_uid($uk);
         $head_bucket = CarpoolConfig::$s3_bucket;   
-        $head_object = 'head_' . $user_id; 
+        $head_object = 'head_' . $user_id;
+        
+
         $oss_sdk_service = new ALIOSS();
         $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
         try{  
+
             $response = $oss_sdk_service->get_object($head_bucket,$head_object,$options); 
+
         }catch(Exception $ex){
             throw new Exception('carpool.internal get object fail ;message :'
                 .$ex->getMessage() .'; file : '.$ex->getFile() .'; line : '.$ex->getLine());
