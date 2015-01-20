@@ -23,6 +23,9 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=batch_query&devuid=1&c
 #carpool list 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=list&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10000' 
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=list&devuid=1&ctype=1' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' 
+
+#carpool nearby
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=nearby&devuid=1&ctype=1' -d 'user_name=18601165874' -d 'user_type=1' -d 'user_id=10010' -d 'gps=117.131693,34.211964' 
 #user report
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=report&devuid=1&ctype=1' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' -d 'client_id=1'
 #driver report
