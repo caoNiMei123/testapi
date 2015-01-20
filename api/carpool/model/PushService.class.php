@@ -44,10 +44,6 @@ class PushService
         
         // 3. 记录client_id至数据库中
         $dbProxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $dbProxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }
         
         $now = time();
         $devuid_sign = Utils::sign63($devuid);

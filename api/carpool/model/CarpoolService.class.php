@@ -40,7 +40,8 @@ class CarpoolService
         $src = $arr_req['src'] ;
         $dest = $arr_req['dest'] ;
         $src_gps = $arr_req['src_gps'] ;
-        $dest_gps = $arr_req['dest_gps'] ;        
+        $dest_gps = $arr_req['dest_gps'] ; 
+
         Utils::check_int($type, 1, 2); 
         
         Utils::check_string($src, 1, 256); 
@@ -66,10 +67,7 @@ class CarpoolService
         $pid = Utils::sign63(time(NULL).$user_id.$src_gps.$dest_gps.rand());
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }
+        
         $condition = array(
             'and' => array(
                 array(
@@ -89,7 +87,8 @@ class CarpoolService
         {
             throw new Exception('carpool.internal select from the DB failed');
         }
-        if (0 == count($arr_response)) {
+        if (0 == count($arr_response)) 
+        {
             throw new Exception('carpool.invalid_user user_id not exist');
         }
         $user_status = intval($arr_response[0]['user_status']);
@@ -184,10 +183,6 @@ class CarpoolService
         $pid = $arr_req['pid'] ;
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
 
         $ret = $db_proxy->startTransaction();
         if (false === $ret)
@@ -311,10 +306,6 @@ class CarpoolService
             throw new Exception('carpool.invalid_driver not a driver');
         }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }
-
 
         //先检查司机有没有资格接单
         $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>           
@@ -437,10 +428,7 @@ class CarpoolService
         $user_type = $arr_req['user_type'];            
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
+        
         //开事务处理订单流程
         $ret = $db_proxy->startTransaction();
         if (false === $ret)
@@ -535,10 +523,7 @@ class CarpoolService
         $user_type = $arr_req['user_type'];            
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
+        
         //开事务处理订单流程
         $ret = $db_proxy->startTransaction();
         if (false === $ret)
@@ -647,10 +632,7 @@ class CarpoolService
         }
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }       
+        
         $ret = true;
         if ($user_type ==  UserService::USERTYPE_DRIVER) 
         {
@@ -781,11 +763,7 @@ class CarpoolService
         );
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }       
-
+        
         
         $ret = $db_proxy->select('pickride_info', '*', $condition, $append_condition);
         
@@ -837,10 +815,7 @@ class CarpoolService
         $pid = $arr_req['pid'] ;
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }       
+        
         $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
             array(array('pid' =>  array('=' => $pid)),                          
         )));
@@ -912,10 +887,7 @@ class CarpoolService
         }
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) 
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }       
+        
         if($user_type == UserService::USERTYPE_DRIVER)
         {
             $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           

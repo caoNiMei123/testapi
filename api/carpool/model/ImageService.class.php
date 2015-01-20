@@ -99,10 +99,6 @@ class ImageService
         $update .= "head_bucket = '$head_bucket', head_object = '$head_object'";
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
         
         $ret = $db_proxy->update('user_info', array('and'=>
             array(

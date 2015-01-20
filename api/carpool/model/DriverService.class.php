@@ -43,9 +43,7 @@ class DriverService
             throw new Exception('carpool.param invalid gps');
         }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy) {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }
+        
         $condition = array(
             'and' => array(
                 array(

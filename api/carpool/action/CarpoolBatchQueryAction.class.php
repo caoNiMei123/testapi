@@ -5,10 +5,7 @@ class CarpoolBatchQueryAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        $this->exist('user_name', "carpool.auth");
-        $this->exist('user_id', "carpool.auth");
-        $this->exist('user_type', "carpool.auth");
-        $this->exist('check_token', "carpool.auth");
+        $this->check_uinfo();
         $this->exist('list');
         
         

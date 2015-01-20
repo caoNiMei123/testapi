@@ -69,7 +69,7 @@ class DBProxy
                 $this->dbname, $rs, $sm );
 			$newDBHandle = $man->getDB();
 			if ( empty( $newDBHandle ) ) {
-				return false;
+				throw new Exception('carpool.internal connect to the DB failed');
 			} else {
                 $newDBHandle->charset( $this->charset );
 			    $this->dbHandle = $newDBHandle;

@@ -61,10 +61,6 @@ class FeedbackService
         
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
         
         $ret = $db_proxy->insert(self::TABLE_COMLAIN_INFO, $row);
         if (false === $ret)

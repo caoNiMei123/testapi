@@ -103,12 +103,11 @@ class CarpoolBaseAction extends LogicBaseAction
         }
         
         // 打出所有参数日志
-        CLog::debug('debug request param [request_param: %s]', 
-        			print_r($this->requests, true));
+        CLog::debug('debug request param [request_param: %s]', print_r($this->requests, true));
         
         if (CarpoolConfig::$debug){
             $this->requests['check_token'] = true;
-            return true;
+            return;
         }
         if (!isset($this->requests['sstoken']) || !isset($this->requests['timestamp']) ) 
         {
@@ -129,7 +128,7 @@ class CarpoolBaseAction extends LogicBaseAction
     
         CLog::trace('general params [%s]', $gen_param_str);
         
-        return true;
+        return;
     }
     public function exist($key , $message='carpool.param')
     {   
@@ -138,6 +137,14 @@ class CarpoolBaseAction extends LogicBaseAction
             throw new Exception("$message $key not exist");
         }
 
+    }
+    public function check_uinfo()
+    {   
+        $this->exist('user_name', "carpool.auth");
+        $this->exist('user_id', "carpool.auth");
+        $this->exist('user_type', "carpool.auth");
+        $this->exist('check_token', "carpool.auth");
+        
     }
 }
 

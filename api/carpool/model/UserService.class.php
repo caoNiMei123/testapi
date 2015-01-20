@@ -103,10 +103,7 @@ class UserService
         
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
+        
         $ret = $db_proxy->startTransaction();
         if (false === $ret)
         {
@@ -187,11 +184,7 @@ class UserService
 
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
-
+        
 
         //目前reg 只支持手机， auth只支持邮箱
         switch($reason){
@@ -332,12 +325,7 @@ class UserService
         }
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
-
-
+        
         $ret = $db_proxy->update('user_info', array('and'=>
             array(array('user_id' =>  array('=' => $user_id)), 
             array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
@@ -357,10 +345,7 @@ class UserService
 
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.secstr secstr error');
-        }   
+        
 
         $condition = array(
             'and' => array(
@@ -430,11 +415,7 @@ class UserService
         
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
-
+        
         $condition = array(
             'and' => array(
                 array(
@@ -519,11 +500,6 @@ class UserService
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
-
         
         $now = time(NULL);
         $row = array(               
@@ -594,10 +570,6 @@ class UserService
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
 
         $condition = array(
             'and' => array(
@@ -702,10 +674,7 @@ class UserService
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        if (false === $db_proxy)
-        {
-            throw new Exception('carpool.internal connect to the DB failed');
-        }   
+        
         $update = substr($update, 1);
 
         //需要更新为未审核
