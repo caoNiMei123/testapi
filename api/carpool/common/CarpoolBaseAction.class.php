@@ -110,18 +110,14 @@ class CarpoolBaseAction extends LogicBaseAction
             $this->requests['check_token'] = true;
             return true;
         }
-        
+        if (!isset($this->requests['sstoken']) || !isset($this->requests['timestamp']) ) 
+        {
+            return;
+        }
         // 5. check timestamp 
-        $timestamp = $this->requests['timestamp'];
-        $ret = Utils::check_int($timestamp);
-        if (false === $ret) {
-            throw new Exception("carpool.param invalid timestamp");
-        }
+        $timestamp = intval($this->requests['timestamp']);
+        
         // 6. check sstoken
-
-        if (!isset($this->requests['sstoken'])) {
-            throw new Exception("carpool.param invalid sstoken");    
-        }
         $raw = $this->requests['sstoken'];
         $sign = hash_hmac('sha1', md5($_COOKIE['CPUINFO'].$timestamp.$devuid),CarpoolConfig::$userSK );
         
