@@ -798,6 +798,10 @@ class CarpoolService
         //直接按照矩形返回， 后面订单多可再做一次半径筛选
         foreach($ret as $key => &$value)
         {
+            if($value['ctime'] + CarpoolConfig::CARPOOL_ORDER_TIMEOUT < time(NULL)){
+                unset($ret[$key]);
+                continue;
+            }
             unset($value['user_id']);
             unset($value['user_status']);        
             unset($value['driver_id']);    
@@ -816,6 +820,7 @@ class CarpoolService
             unset($value['src_longitude']);  
             unset($value['dest_latitude']);  
             unset($value['dest_longitude']);  
+            $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
         CLog::trace("nearby list succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return array(
