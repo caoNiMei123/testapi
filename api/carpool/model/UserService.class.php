@@ -200,8 +200,8 @@ class UserService
                 //签名检查
                 $raw = $arr_opt['sign'];
                 $timestamp = $arr_req['timestamp'];
-                Utils::check_null($raw);
-                Utils::check_null($timestamp);
+                Utils::check_null('sign', $raw);
+                Utils::check_null('timestamp', $timestamp);
                 $devuid = $arr_req['devuid'];
                 
                 $sign = hash_hmac('sha1', md5($account.$timestamp.$devuid),CarpoolConfig::$tokenSK );
