@@ -207,7 +207,7 @@ class UserService
                 $sign = hash_hmac('sha1', md5($account.$timestamp.$devuid),CarpoolConfig::$tokenSK );
                 if($raw != $sign || (time(NULL) - $timestamp) > CarpoolConfig::TOKEN_TIMEOUT)
                 {
-                    throw new Exception('carpool.param sign error');
+                    throw new Exception('carpool.param sign error , except: '.$sign);
                 }
                 
                 $sec_str = Utils::generate_rand_str(6, '1234567890');
