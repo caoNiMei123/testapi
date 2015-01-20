@@ -20,6 +20,8 @@ class CarpoolConfig
     public static $userSK = 'A8ec24caf34ef7227cx6c67d29ffd3fb';
     
     public static $cookieSK = 'B7ec24caf34ef7a27cx6c67d29efd3fb';
+    
+    public static $tokenSK = 'Ocech4caf3eefjk27ck7c67d79e3d34g';
 
     public static $s3SK = 'C7ec24caf34ef7a27dx6c97d20e1dxea';
     
@@ -51,7 +53,9 @@ class CarpoolConfig
 
     // head最大长度
     const USER_MAX_HEAD_LENGTH = 51200;//50k
-    
+   
+    const TOKEN_TIMEOUT = 60;
+   
     // cookie超时时间
     const USER_COOKIE_EXPIRE_TIME = 2592000;
     

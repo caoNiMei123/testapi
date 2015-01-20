@@ -11,29 +11,27 @@ class UserGetTokenAction extends CarpoolBaseAction
         $arr_req = array();
         $arr_opt = array();
 
-        if (isset($this->requests['type']))
-        {
-            $arr_opt['type'] = intval($this->requests['type']);
-        }
+        
+        $arr_opt['type'] = intval($this->requests['type']);
+        $arr_opt['reason'] = intval($this->requests['reason']);
 
-        if (isset($this->requests['reason']))
+        if (isset($this->requests['reason']) && intval($this->requests['reason']) == UserService::REASONTYPE_PASSENGER_AUTH)
         {
-            $arr_opt['reason'] = intval($this->requests['reason']);
-            if($arr_opt['reason'] == UserService::REASONTYPE_PASSENGER_AUTH)
+            
+            if (!isset($this->requests['user_name']) || !isset($this->requests['user_id']) || !isset($this->requests['user_type']))
             {
-                if (!isset($this->requests['user_name']) || !isset($this->requests['user_id']) || !isset($this->requests['user_type']))
-                {
-                    throw new Exception("carpool.auth user is not login");
-                }
-                $arr_opt['user_name'] = $this->requests['user_name'];
-                $arr_opt['user_id'] = $this->requests['user_id'];
-
+                throw new Exception("carpool.auth user is not login");
             }
+            $arr_opt['user_name'] = $this->requests['user_name'];
+            $arr_opt['user_id'] = $this->requests['user_id'];
+
+            
         }     
 
-
+        $arr_opt['sign'] = intval($this->requests['sign']);
+        $arr_req['timestamp'] = intval($this->requests['timestamp']);
         $arr_req['account'] = $this->requests['account'];       
-
+        $arr_req['devuid'] = $this->requests['devuid'];
         $user_service = UserService::getInstance();
         $arr_response = $user_service->get_token($arr_req, $arr_opt);
     }

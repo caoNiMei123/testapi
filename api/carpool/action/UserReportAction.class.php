@@ -8,6 +8,7 @@ class UserReportAction extends CarpoolBaseAction
         $this->exist('user_name', "carpool.auth");
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
+        $this->exist('check_token', "carpool.auth");
         $this->exist('client_id');
         
         // 2. 取参数，分成必选和可选

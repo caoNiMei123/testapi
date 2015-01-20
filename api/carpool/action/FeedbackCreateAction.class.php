@@ -8,6 +8,7 @@ class FeedbackCreateAction extends CarpoolBaseAction
         $this->exist('user_name', "carpool.auth");
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
+        $this->exist('check_token', "carpool.auth");
         $this->exist('type');
         $this->exist('detail');
         

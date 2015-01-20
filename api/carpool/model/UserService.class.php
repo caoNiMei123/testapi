@@ -173,6 +173,9 @@ class UserService
         $type = isset($arr_opt['type'])? $arr_opt['type']:self::TOKENTYPE_PHONE;
         $reason = isset($arr_opt['reason'])? $arr_opt['reason']:self::REASONTYPE_REG;
 
+
+
+
         if($type != self::TOKENTYPE_PHONE && $type != self::TOKENTYPE_EMAIL)
         {
             throw new Exception('carpool.param invalid type' );
@@ -193,11 +196,20 @@ class UserService
         //目前reg 只支持手机， auth只支持邮箱
         switch($reason){
             case self::REASONTYPE_REG:
-                $ret = Utils::is_valid_phone($account);
-                if (false == $ret)
+                Utils::is_valid_phone($account);
+                //签名检查
+                $raw = $arr_opt['sign'];
+                $timestamp = $arr_req['timestamp'];
+                Utils::check_null($raw);
+                Utils::check_null($timestamp);
+                $devuid = $arr_req['devuid'];
+                
+                $sign = hash_hmac('sha1', md5($account.$timestamp.$devuid),CarpoolConfig::$tokenSK );
+                if($raw != $sign || (time(NULL) - $timestamp) > CarpoolConfig::TOKEN_TIMEOUT)
                 {
-                    throw new Exception('carpool.param invalid account [account: ' . $account . ']');
+                    throw new Exception('carpool.param sign error');
                 }
+                
                 $sec_str = Utils::generate_rand_str(6, '1234567890');
                 $row = array(               
                     'account'     => $account,
@@ -658,11 +670,11 @@ class UserService
 
         if(!is_null($arr_opt['sex']))
         {
-            $sec = intval($arr_opt['sex']);
+            $sex = intval($arr_opt['sex']);
             Utils::check_int($sex, 0, 1);    
             $update .= ",sex = $sex";
         }
-        
+
         if(!is_null($arr_opt['car_num']))
         {
             if(self::USERTYPE_DRIVER  !== $user_type)

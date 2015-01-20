@@ -51,11 +51,14 @@ class CarpoolBaseAction extends LogicBaseAction
                 $gen_param_str .= ', logid: ' . $logid;
             }
         }
+
         if (!CarpoolConfig::$debug) {
             unset($this->requests['user_id']);
             unset($this->requests['user_name']);
             unset($this->requests['user_type']);
+            unset($this->requests['check_token']);
         }
+
         // 4. 校验cookie字段
         
         // 此处只仅仅校验cookie中的字段，不做用户登录等验证，因为不同的api不一定都要求用户必须登录
@@ -104,15 +107,17 @@ class CarpoolBaseAction extends LogicBaseAction
         			print_r($this->requests, true));
         
         if (CarpoolConfig::$debug){
+            $this->requests['check_token'] = true;
             return true;
         }
+        
         // 5. check timestamp 
         $timestamp = $this->requests['timestamp'];
         $ret = Utils::check_int($timestamp);
         if (false === $ret) {
             throw new Exception("carpool.param invalid timestamp");
         }
-        // 6. check sestoken
+        // 6. check sstoken
 
         if (!isset($this->requests['sstoken'])) {
             throw new Exception("carpool.param invalid sstoken");    
@@ -120,16 +125,11 @@ class CarpoolBaseAction extends LogicBaseAction
         $raw = $this->requests['sstoken'];
         $sign = hash_hmac('sha1', md5($_COOKIE['CPUINFO'].$timestamp.$devuid),CarpoolConfig::$userSK );
         
-        if (isset($this->requests['sstoken'])) {
-            $sestoken = $this->requests['sstoken'];
-            $ret = Utils::check_string($sestoken, 1, 64);
-            if (false === $ret) {
-                CLog::warning('invalid sestoken [sestoken: %s]', $sestoken);    
-            }
-            else {
-                $gen_param_str .= ', sestoken: ' . $sestoken;
-            }
+        if($raw == $sign || (time(NULL) - $timestamp) < CarpoolConfig::TOKEN_TIMEOUT)
+        {
+            $this->requests['check_token']  = true;
         }
+        
     
         CLog::trace('general params [%s]', $gen_param_str);
         

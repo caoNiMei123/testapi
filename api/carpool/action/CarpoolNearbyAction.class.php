@@ -1,6 +1,6 @@
 <?php
 
-class CarpoolFinishAction extends CarpoolBaseAction
+class CarpoolNearbyAction extends CarpoolBaseAction
 {   
     public function doPost()
     {
@@ -9,23 +9,21 @@ class CarpoolFinishAction extends CarpoolBaseAction
         $this->exist('user_id', "carpool.auth");
         $this->exist('user_type', "carpool.auth");
         $this->exist('check_token', "carpool.auth");
-        $this->exist('pid');
-        $this->exist('mileage');
-        $this->exist('devuid');
+        $this->exist('gps');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();
         $arr_opt = array();
         
-        $arr_req['pid'] = $this->requests['pid'];
+        $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
-        $arr_req['user_name'] = $this->requests['user_name'];
-        $arr_req['devuid'] = $this->requests['devuid'];
-        $arr_req['mileage'] = $this->requests['mileage'];
+        $arr_req['gps'] = intval($this->requests['gps']);
         
         $carpool_service = CarpoolService::getInstance();
-        $arr_response = $carpool_service->finish($arr_req, $arr_opt);       
+        $arr_response = $carpool_service->nearby($arr_req, $arr_opt);  
+        $this->set('list', $arr_response['list']);
+        
         
     }
     
