@@ -107,11 +107,11 @@ class CarpoolBaseAction extends LogicBaseAction
         
         if (CarpoolConfig::$debug){
             $this->requests['check_token'] = true;
-            return;
+            return true;
         }
         if (!isset($this->requests['sstoken']) || !isset($this->requests['timestamp']) ) 
         {
-            return;
+            return true;
         }
         // 5. check timestamp 
         $timestamp = intval($this->requests['timestamp']);
@@ -128,7 +128,7 @@ class CarpoolBaseAction extends LogicBaseAction
     
         CLog::trace('general params [%s]', $gen_param_str);
         
-        return;
+        return true;
     }
     public function exist($key , $message='carpool.param')
     {   
