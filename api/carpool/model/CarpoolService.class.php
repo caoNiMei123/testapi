@@ -734,7 +734,8 @@ class CarpoolService
 
         $user_id = $arr_req['user_id'] ;
         $user_type = $arr_req['user_type'] ;
-        $gps_arr = explode(',', $gps);        
+
+        $gps_arr = explode(',', $arr_req['gps']);        
 
         if(!is_array($gps_arr) || count($gps_arr) !=2 ) {
             throw new Exception('carpool.param invalid gps');
