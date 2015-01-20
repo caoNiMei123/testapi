@@ -18,7 +18,7 @@ class CarpoolNearbyAction extends CarpoolBaseAction
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
         $arr_req['user_type'] = intval($this->requests['user_type']);
-        $arr_req['gps'] = intval($this->requests['gps']);
+        $arr_req['gps'] = $this->requests['gps'];
         
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->nearby($arr_req, $arr_opt);  
