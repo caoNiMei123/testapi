@@ -1,6 +1,6 @@
 <?php
 
-class DistanceComputer
+class DistanceCompute
 {
 	const EARTH_RADIUS = 6371.01; // 地球平均半径，单位：km
 	
