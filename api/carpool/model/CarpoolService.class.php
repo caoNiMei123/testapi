@@ -808,6 +808,14 @@ class CarpoolService
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
             unset($value['status']); 
+            $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
+            $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
+            
+            unset($value['driver_phone']);
+            unset($value['src_latitude']);  
+            unset($value['src_longitude']);  
+            unset($value['dest_latitude']);  
+            unset($value['dest_longitude']);  
         }
         CLog::trace("nearby list succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return array(
