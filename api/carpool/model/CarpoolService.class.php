@@ -728,6 +728,138 @@ class CarpoolService
             'has_more' => $has_more,
         );
     }   
+
+    public function nearby($arr_req, $arr_opt)
+    {
+
+        $user_id = $arr_req['user_id'] ;
+        $user_type = $arr_req['user_type'] ;
+        $gps_arr = explode(',', $gps);        
+
+        if(!is_array($gps_arr) || count($gps_arr) !=2 ) {
+            throw new Exception('carpool.param invalid gps');
+        }
+
+        $coordinate_object = CoordinateService::getInstance();
+        $arr_range = $coordinate_object->get_bound($gps_arr[0], $gps_arr[1],NotifyConfig::$NotifyRectangleRange);  
+
+        $condition = array(
+            'and' => array(
+                array(
+                        'latitude' => array(
+                                '>' => $arr_range['min_latitude'],
+                        ),
+                ),
+                array(
+                        'latitude' => array(
+                                '<' => $arr_range['max_latitude'],
+                        ),
+                ),
+                array(
+                        'longitude' => array(
+                                '>' => $arr_range['min_longitude'],
+                        ),
+                ),
+                array(
+                        'longitude' => array(
+                                '<' => $arr_range['max_longitude'],
+                        ),
+                ),
+                array(
+                        'status' => array(
+                                '=' => self::CARPOOL_STATUS_CREATE,
+                        ),
+                ),
+            ),
+        );
+
+        $start = 0 ;
+        $limit = 100 ;
+        
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        if (false === $db_proxy) 
+        {
+            throw new Exception('carpool.internal connect to the DB failed');
+        }       
+        $ret = true;
+        if ($user_type ==  UserService::USERTYPE_DRIVER) 
+        {
+            $ret = $db_proxy->select('pickride_info', '*',
+                array(
+                    'and'=>                   
+                        array(
+                            array('driver_id' =>  array('=' => $user_id)),  
+                            array('or' =>  
+                                array(
+                                    array('status' =>array('<>' => self::CARPOOL_STATUS_CREATE)),
+                                    array('ctime' =>array('>' => time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),
+                                )        
+                            )
+                        )                                                  
+                    
+                ),
+                array( 'start' => $start, 'limit' => $limit + 1, 'order_by' => array('ctime' => 'desc'))
+            );          
+        }
+        else 
+        {
+            $ret = $db_proxy->select('pickride_info', '*',
+                array(
+                    'and'=>                   
+                        array(
+                            array('user_id' =>  array('=' => $user_id)),  
+                            array('or' =>  
+                                array(
+                                    array('status' =>array('<>' => self::CARPOOL_STATUS_CREATE)),
+                                    array('ctime' =>array('>' => time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),
+                                )        
+                            )
+                        )
+                ),
+                array( 'start' => $start, 'limit' => $limit + 1, 'order_by' => array('ctime' => 'desc'))
+            );          
+        }  
+
+        if (false === $ret)
+        {
+            throw new Exception('carpool.internal select DB failed');
+        }
+        $has_more = 0;
+        if (count($ret) > $limit) 
+        {
+            $has_more = 1;
+            $ret = array_slice($ret,0, $limit);
+        }
+        foreach($ret as $key => &$value)
+        {
+            unset($value['user_id']);    
+            unset($value['driver_id']);    
+            unset($value['id']);    
+            unset($value['passenger_id']);              
+            unset($value['seat']);                    
+            $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
+            $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
+            if ($user_type ==  UserService::USERTYPE_PASSENGER) 
+            {
+                $value['phone'] = $value['driver_phone'];                
+            }
+            unset($value['driver_phone']);
+            unset($value['src_latitude']);  
+            unset($value['src_longitude']);  
+            unset($value['dest_latitude']);  
+            unset($value['dest_longitude']);  
+            unset($value['driver_dev_id']);  
+            unset($value['passenger_dev_id']); 
+
+        }
+        CLog::trace("order list succ [account: %s, user_id : %d ]", $user_name, $user_id);
+        return array(
+            'list'     => $ret,
+            'has_more' => $has_more,
+        );
+    }   
+
+
     public function query($arr_req, $arr_opt)
     {
 
