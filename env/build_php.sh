@@ -46,6 +46,17 @@ chmod +x install-sh
 ./configure --prefix=${PHP_LIB_PREFIX}/curl
 make && make install
 
+#openssl
+cd ${PHP_LIB}/
+tar xfz openssl-1.0.1e.tar.gz
+cd ${PHP_LIB}/openssl-1.0.1e
+./config --prefix=${PHP_LIB_PREFIX}/openssl shared threads -fPIC
+make && make install
+
+
+
+
+
 cd $dirname
 #copy php source file to output
 mkdir -p output
@@ -56,7 +67,7 @@ tar xfz php-${PHP_VERSION}.tar.gz
 
 #开始编译php
 cd php-${PHP_VERSION}
-conf="--prefix=${PHP_PREFIX} --with-config-file-path=${PHP_PREFIX}/etc --enable-pcntl --enable-sockets --with-zlib --enable-soap --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-iconv --enable-mbstring=utf8 --with-xmlrpc --enable-fpm --with-curl=${PHP_LIB_PREFIX}/curl --with-mcrypt=${PHP_LIB_PREFIX}/libmcrypt"
+conf="--prefix=${PHP_PREFIX} --with-config-file-path=${PHP_PREFIX}/etc --enable-pcntl --enable-sockets --with-zlib --enable-soap --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-iconv --enable-mbstring=utf8 --with-xmlrpc --enable-fpm --with-curl=${PHP_LIB_PREFIX}/curl --with-mcrypt=${PHP_LIB_PREFIX}/libmcrypt --with-openssl=${PHP_LIB_PREFIX}/openssl"
 #echo $conf
 #exit
 ./configure $conf
