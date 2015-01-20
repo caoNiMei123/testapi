@@ -740,8 +740,8 @@ class CarpoolService
             throw new Exception('carpool.param invalid gps');
         }
 
-        $coordinate_object = CoordinateService::getInstance();
-        $arr_range = $coordinate_object->get_bound($gps_arr[0], $gps_arr[1],NotifyConfig::$NotifyRectangleRange);  
+        $distance_instance = DistanceCompute::getInstance();
+        $arr_range = $distance_instance->get_bound($gps_arr[0], $gps_arr[1],NotifyConfig::$NotifyRectangleRange);  
 
         $condition = array(
             'and' => array(
@@ -773,89 +773,44 @@ class CarpoolService
             ),
         );
 
-        $start = 0 ;
-        $limit = 100 ;
+        $append_condition = array(
+            'start' => 0, 
+            'limit' => NotifyConfig::DRIVER_LIMIT,
+            'order_by' => array('ctime' => 'desc')
+        );
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         if (false === $db_proxy) 
         {
             throw new Exception('carpool.internal connect to the DB failed');
         }       
-        $ret = true;
-        if ($user_type ==  UserService::USERTYPE_DRIVER) 
-        {
-            $ret = $db_proxy->select('pickride_info', '*',
-                array(
-                    'and'=>                   
-                        array(
-                            array('driver_id' =>  array('=' => $user_id)),  
-                            array('or' =>  
-                                array(
-                                    array('status' =>array('<>' => self::CARPOOL_STATUS_CREATE)),
-                                    array('ctime' =>array('>' => time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),
-                                )        
-                            )
-                        )                                                  
-                    
-                ),
-                array( 'start' => $start, 'limit' => $limit + 1, 'order_by' => array('ctime' => 'desc'))
-            );          
-        }
-        else 
-        {
-            $ret = $db_proxy->select('pickride_info', '*',
-                array(
-                    'and'=>                   
-                        array(
-                            array('user_id' =>  array('=' => $user_id)),  
-                            array('or' =>  
-                                array(
-                                    array('status' =>array('<>' => self::CARPOOL_STATUS_CREATE)),
-                                    array('ctime' =>array('>' => time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),
-                                )        
-                            )
-                        )
-                ),
-                array( 'start' => $start, 'limit' => $limit + 1, 'order_by' => array('ctime' => 'desc'))
-            );          
-        }  
 
-        if (false === $ret)
+        
+        $ret = $db_proxy->select('pickride_info', '*', $condition, $append_condition);
+        
+        if (false === $ret || count($ret) == 0)
         {
-            throw new Exception('carpool.internal select DB failed');
+            return array(
+                'list' => array(),
+            );
         }
-        $has_more = 0;
-        if (count($ret) > $limit) 
-        {
-            $has_more = 1;
-            $ret = array_slice($ret,0, $limit);
-        }
+        //直接按照矩形返回， 后面订单多可再做一次半径筛选
         foreach($ret as $key => &$value)
         {
-            unset($value['user_id']);    
+            unset($value['user_id']);
+            unset($value['user_status']);        
             unset($value['driver_id']);    
+            unset($value['driver_phone']);    
             unset($value['id']);    
             unset($value['passenger_id']);              
-            unset($value['seat']);                    
-            $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
-            $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
-            if ($user_type ==  UserService::USERTYPE_PASSENGER) 
-            {
-                $value['phone'] = $value['driver_phone'];                
-            }
-            unset($value['driver_phone']);
-            unset($value['src_latitude']);  
-            unset($value['src_longitude']);  
-            unset($value['dest_latitude']);  
-            unset($value['dest_longitude']);  
+            unset($value['mileage']);                              
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
-
+            unset($value['status']); 
         }
-        CLog::trace("order list succ [account: %s, user_id : %d ]", $user_name, $user_id);
+        CLog::trace("nearby list succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return array(
             'list'     => $ret,
-            'has_more' => $has_more,
         );
     }   
 
