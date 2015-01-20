@@ -61,6 +61,7 @@ class PublicLibManager
 		'ConnectionMan'		    => PUBLIC_PATH .'/connectpool/ConnectionMan.class.php',
 		
 		'Utils'				    => PUBLIC_PATH .'/utils/Utils.class.php',
+        'DistanceCompute'       => PUBLIC_PATH .'/utils/DistanceCompute.class.php',
 		'FCrypt'			    => PUBLIC_PATH .'/utils/FCrypt.class.php',
 		'ResourceFactory'	    => PUBLIC_PATH .'/utils/ResourceFactory.class.php',
 		'Ucrypt'				=> PUBLIC_PATH . '/utils/Ucrypt.class.php',

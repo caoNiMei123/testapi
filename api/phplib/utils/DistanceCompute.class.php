@@ -1,6 +1,6 @@
 <?php
 
-class CoordinateService
+class DistanceComputer
 {
 	const EARTH_RADIUS = 6371.01; // 地球平均半径，单位：km
 	
@@ -13,7 +13,7 @@ class CoordinateService
 	{
 		if (!isset(self::$instance))
 		{
-			self::$instance = new CoordinateService();
+			self::$instance = new DistanceCompute();
 		}
 		return self::$instance;
 	}
