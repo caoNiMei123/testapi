@@ -50,6 +50,7 @@ CREATE TABLE `pickride_info` (
     UNIQUE KEY `pid_key` (`pid`),
     KEY `user_key` (`user_id`, `status`),
     KEY `driver_key` (`driver_id`, `status`)
+    KEY `distance_key` (`src_latitude`,`src_longitude`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='拼车表' ;
 
 CREATE TABLE `driver_info` (
