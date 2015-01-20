@@ -776,7 +776,7 @@ class CarpoolService
 
         $append_condition = array(
             'start' => 0, 
-            'limit' => NotifyConfig::DRIVER_LIMIT,
+            'limit' => 100,
             'order_by' => array('ctime' => 'desc')
         );
         
