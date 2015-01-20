@@ -747,22 +747,22 @@ class CarpoolService
         $condition = array(
             'and' => array(
                 array(
-                        'latitude' => array(
+                        'src_latitude' => array(
                                 '>' => $arr_range['min_latitude'],
                         ),
                 ),
                 array(
-                        'latitude' => array(
+                        'src_latitude' => array(
                                 '<' => $arr_range['max_latitude'],
                         ),
                 ),
                 array(
-                        'longitude' => array(
+                        'src_longitude' => array(
                                 '>' => $arr_range['min_longitude'],
                         ),
                 ),
                 array(
-                        'longitude' => array(
+                        'src_longitude' => array(
                                 '<' => $arr_range['max_longitude'],
                         ),
                 ),
