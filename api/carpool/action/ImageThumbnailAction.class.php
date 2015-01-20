@@ -21,6 +21,7 @@ class ImageThumbnailAction extends CarpoolBaseAction
 
         $image_service = ImageService::getInstance();
         $arr_response = $image_service->thumbnail($arr_req, $arr_opt);
+        header("Content-Type: image/jpeg");
         echo $arr_response;
         exit;
         
