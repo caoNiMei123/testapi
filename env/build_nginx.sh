@@ -18,7 +18,6 @@ cp -r $SRC_PATH/nginx/nginx_http_vcode_module ./tmp/
 cd tmp
 tar -xvzf ./pcre-8.33.tar.gz 
 tar -xvzf ./openssl-1.0.1j.tar.gz
-tar -xvzf ./echo-nginx-module-0.46.tar.gz 
 tar -xvzf ./headers-more-nginx-module-0.22.tar.gz 
 tar -xvzf ./ngx_devel_kit-0.2.18.tar.gz
 tar -xvzf ./nginx_http_vcode_module.tar.gz
@@ -35,6 +34,7 @@ OPTS_WITH="--with-ipv6 \
         --with-http_gunzip_module \
         --with-http_gzip_static_module \
         --with-http_stub_status_module \
+        --with-http_image_filter_module \
         --with-pcre=$PCRE_SRC \
         --with-pcre-jit \
         --with-cc-opt=-Wno-error \
@@ -49,14 +49,12 @@ OPTS_WITHOUT="--without-http_userid_module \
 
 HEADERS_MORE_MOD_SRC="$MOD_SRC_PATH/headers-more-nginx-module-0.22"
 NDK_MOD_SRC="$MOD_SRC_PATH/ngx_devel_kit-0.2.18"
-ECHO_MOD_SRC="$MOD_SRC_PATH/echo-nginx-module-0.46"
 VCODE_MOD_SRC="$MOD_SRC_PATH/nginx_http_vcode_module" 
 
 
 #front modules
 # 2014-12-08: add lua-module, bns-module and lua_upstream-module to front ngx by linxg
 OPTS_ADD_MODULE="--add-module=$HEADERS_MORE_MOD_SRC \
-        --add-module=$ECHO_MOD_SRC        \
         --add-module=$VCODE_MOD_SRC \
         --add-module=$NDK_MOD_SRC \
         --add-module=$ECHO_MOD_SRC"
