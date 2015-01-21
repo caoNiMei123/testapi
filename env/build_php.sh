@@ -72,7 +72,7 @@ conf="--prefix=${PHP_PREFIX} --with-config-file-path=${PHP_PREFIX}/etc --enable-
 #exit
 ./configure $conf
 #exit;
-make && make install
+make ZEND_EXTRA_LIBS='-liconv' && make install
 #拷贝编译好的so文件
 mkdir -p ${PHP_PREFIX}/lib/php/extensions/no-debug-non-zts-20100525
 cp ${PHP_SO}/* ${PHP_PREFIX}/lib/php/extensions/no-debug-non-zts-20100525/
