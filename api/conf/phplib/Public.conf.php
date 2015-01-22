@@ -76,6 +76,7 @@ class PublicLibManager
 
         'EmailProxy'            => PUBLIC_PATH . '/email/EmailProxy.class.php',
         'EmailConfig'           => PUBLIC_CONF_PATH.'/../carpool/EmailConfig.class.php',
+        'VersionConfig'           => PUBLIC_CONF_PATH.'/../carpool/VersionConfig.class.php',
         
         'SmsProxy'              => PUBLIC_PATH . '/sms/SmsProxy.class.php',
         

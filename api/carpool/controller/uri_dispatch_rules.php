@@ -129,6 +129,15 @@ ActionControllerConfig::$config['hash_mapping'] = array(
         
         'dispatch'=>'openapi2',
     ),
+    '/rest/2.0/carpool/sys' => array(
+        'method_hash' => array(
+            'getlatestversion' => array(
+                'SysGetLatestVersionAction',
+            ),
+        ),
+        
+        'dispatch'=>'openapi2',
+    ),
 );
 
 
