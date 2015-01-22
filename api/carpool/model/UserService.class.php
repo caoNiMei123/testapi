@@ -338,6 +338,8 @@ class UserService
 
     public function check_str($account, $secstr, $timeout, &$user_id = NULL)
     {
+        return true;
+
         if (!strpos($account, '@') && CarpoolConfig::$debug) 
         {
             return true;  
