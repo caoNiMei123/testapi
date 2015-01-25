@@ -209,3 +209,4 @@ $GLOBALS['LOG']  = array(
 // ������CLoggerʹ��
 require_once BASEPATH.'core/Logger.class.php';
 require_once BASEPATH.'core/CodeIgniter.php';
+define("PHPLIB_PATH",dirname(__file__).'phplib/');
