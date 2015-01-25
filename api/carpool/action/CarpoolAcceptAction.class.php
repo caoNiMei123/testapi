@@ -20,7 +20,7 @@ class CarpoolAcceptAction extends CarpoolBaseAction
         
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->accept($arr_req, $arr_opt);       
-        
+        $this->set('price', $arr_response['price']);
     }
     
     public function doGet() {

@@ -332,7 +332,7 @@ class CarpoolService
             throw new Exception('carpool.internal start transaction fail');
         }
         $now =time(NULL);
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'phone', 'passenger_dev_id'),array('and'=>           
+        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'phone', 'user_status' ,'passenger_dev_id'),array('and'=>           
             array(array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)), 
             array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
             array('pid' =>  array('=' => $pid)),                         
@@ -350,7 +350,8 @@ class CarpoolService
         }
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
-        $passenger_dev_id = $arr_response[0]['passenger_dev_id'];        
+        $passenger_dev_id = $arr_response[0]['passenger_dev_id'];    
+        $passenger_status = intval($arr_response[0]['user_status']);    
       
         $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
@@ -415,7 +416,19 @@ class CarpoolService
         CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
                     $user_name, $user_id, $pid, $passenger_phone);
 
-        return true;
+
+        if ($passenger_status == UserService::USERSTATUS_AUTHORIZED) 
+        {
+            $price = CarpoolConfig::ORDER_PRICE_VIP;
+        }
+        else
+        {
+            $price = CarpoolConfig::ORDER_PRICE_NORMAL;
+        }
+        
+        return array(
+            'price' => $price,
+        );
     }   
 
     public function finish($arr_req, $arr_opt)
