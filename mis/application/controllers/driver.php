@@ -34,7 +34,7 @@ class Driver extends MY_Controller {
     }
     public function set(){
         $this->load->model("carpool_model"); 
-        $this->carpool_model->set_driver(intval($_POST['user_id']), intval($_POST['status']));
+        $this->carpool_model->set_driver($_POST['phone'], intval($_POST['user_id']), intval($_POST['status']));
         echo json_encode(array(
             'errno' => 0,
             'errmsg'=> '',
