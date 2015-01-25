@@ -33,7 +33,7 @@ class Passenger extends MY_Controller {
     
     public function set(){
         $this->load->model("carpool_model"); 
-        $this->carpool_model->set_passenger(intval($_POST['user_id']));
+        $this->carpool_model->set_passenger(intval($_POST['user_id']), intval($_POST['status']));
         echo json_encode(array(
             'errno' => 0,
             'errmsg'=> '',
