@@ -1,7 +1,7 @@
 <script type="text/javascript"> 
-    function Click(obj, st)
+    function Click(ph ,obj, st)
     {
-        $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{user_id:obj, status:st},function(data){
+        $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{phone:ph,user_id:obj, status:st},function(data){
             location.reload(true);
             return;
         });
@@ -31,8 +31,8 @@
                 
             </div>   
             <div class="button" style="margin-bottom: 0px;">               
-                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['user_id'];?>,2)" value="通过" class="btn btn-success"> 
-                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['user_id'];?>,3)" value="拒绝" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2)" value="通过" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,3)" value="拒绝" class="btn btn-success"> 
             </div>             
         </div>  
     <?php endforeach;?>

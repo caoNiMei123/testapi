@@ -39,8 +39,19 @@ class Carpool_Model extends CI_Model{
         $query = $this->db->query("update user_info  set user_status =2 where email like \"%@$email\"");
         return 0;
     }
-    public function set_driver($user_id, $status){
+    public function set_driver($phone, $user_id, $status){
         $query = $this->db->query("update user_info  set driver_status =$status where user_id = $user_id");
+        //给用户发短信, to do
+        if($status == 2)
+        {
+
+            $msg = "success";
+        }
+        else
+        {
+            $msg = "fail";
+        }
+        SmsPorxy::getInstance()->push_to_single($phone, $msg);
         return 0;
     }
 
