@@ -42,7 +42,7 @@ class SmsPorxy
             'p1' => $msg,
             'type'=>'json',
         );
-        $response = $this->httpProxy->initRequest( self::SMS_URL, array() )->post( $params);
+        $response = $http_proxy->initRequest( self::SMS_URL, array() )->post( $params);
         if (!$response) {
             return false;
         } 
