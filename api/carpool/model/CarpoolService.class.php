@@ -851,12 +851,33 @@ class CarpoolService
         unset($ret['dest_longitude']);   
         if($user_id == $ret['user_id'])
         {
+            //乘客端
             $ret['phone'] = $ret['driver_phone'];
             $uk = UserService::api_encode_uid(intval($ret['driver_id'])); 
+
+            $condition = array(
+                'and' => array(
+                    array(
+                        'user_id' => array(
+                            '=' => intval($ret['driver_id']),
+                        ),
+                    ),   
+                ),
+            );        
             unset($ret['user_status']);                      
         }else
         {
+            //司机端
             $uk = UserService::api_encode_uid(intval($ret['user_id'])); 
+            $condition = array(
+                'and' => array(
+                    array(
+                        'user_id' => array(
+                            '=' => intval($ret['user_id']),
+                        ),
+                    ),   
+                ),
+            );       
             $ret['user_status'] = intval($ret['user_status']);          
         }
          
@@ -883,6 +904,18 @@ class CarpoolService
         unset($ret['passenger_dev_id']);
 
         $ret['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
+
+        
+        $arr_response = $db_proxy->select('user_info', array('name', 'phone'), $condition);
+        if (false === $arr_response || !is_array($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        if (0 == count($arr_response)) 
+        {
+            throw new Exception('carpool.not_found uid not exist');
+        }
+        $ret['name'] = $arr_response[0]['name'];
         CLog::trace("order query succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return $ret;
     }   
