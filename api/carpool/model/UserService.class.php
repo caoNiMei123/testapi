@@ -271,10 +271,6 @@ class UserService
         switch($reason){
             case self::REASONTYPE_REG:
                 //发短信
-                if (CarpoolConfig::$debug) 
-                {
-                    return true;  
-                }
                 SmsPorxy::getInstance()->push_to_single($account, $sec_str);
             break;
             case self::REASONTYPE_PASSENGER_AUTH:
