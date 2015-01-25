@@ -92,7 +92,7 @@ class CarpoolService
             throw new Exception('carpool.invalid_user user_id not exist');
         }
         $user_status = intval($arr_response[0]['user_status']);
-        if($user_status == UserService::USERSTATUS_CHECK)
+        if($user_status != UserService::USERSTATUS_AUTHORIZED)
         {
             $user_status = UserService::USERSTATUS_INIT;
         }

@@ -13,7 +13,7 @@ class UserService
     const USERSTATUS_INIT = 0; //初始态
     const USERSTATUS_CHECK = 1;//乘客处于验证态;
     const USERSTATUS_AUTHORIZED = 2;//已经验证;
-    
+    const USERSTATUS_FAIL = 3;//审核失败;
     
     const TOKENTYPE_PHONE=1;
     const TOKENTYPE_EMAIL=2;

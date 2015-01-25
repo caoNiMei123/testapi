@@ -5,12 +5,12 @@ class SysGetLatestVersionAction extends CarpoolBaseAction
     public function doPost()
     {
         // 1. 基本检查，必选参数是否存在
-        $this->check_uinfo();
+        $this->exist('type');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();
         $arr_opt = array();
-        $user_type = intval($this->requests['user_type']);
+        $user_type = intval($this->requests['type']);
         if($user_type = UserService::USERTYPE_DRIVER)
         {
             $version_array = VersionConfig::$driver_version;
