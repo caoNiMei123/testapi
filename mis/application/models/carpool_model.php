@@ -1,26 +1,26 @@
 <?php
 class Carpool_Model extends CI_Model{
-	
-	public function __construct(){
-		parent::__construct();
-		$this->load->database();
-	}
-	
-	public function get_feedback($start, $limit){
-		$res = array();
-		$query = $this->db->query("select * from complain_info  where status = 0 order by ctime desc limit $start, $limit ");
-		foreach ($query->result_array() as $row)$res[]=$row;		
-        return $res; 	
-	}
-	public function set_feedback($id){
-		$query = $this->db->query("update complain_info  set status =1 where id = $id");
-		return 0;
-	}
-	public function get_driver($start, $limit){
-		$res = array();		
-		$query = $this->db->query("select * from user_info where user_type = 1 and driver_status = 0  order by ctime desc limit $start, $limit");
-		foreach ($query->result_array() as $row)$res[]=$row;		
-        return $res; 	
+    
+    public function __construct(){
+        parent::__construct();
+        $this->load->database();
+    }
+    
+    public function get_feedback($start, $limit){
+        $res = array();
+        $query = $this->db->query("select * from complain_info  where status = 0 order by ctime desc limit $start, $limit ");
+        foreach ($query->result_array() as $row)$res[]=$row;        
+        return $res;    
+    }
+    public function set_feedback($id){
+        $query = $this->db->query("update complain_info  set status =1 where id = $id");
+        return 0;
+    }
+    public function get_driver($start, $limit){
+        $res = array();     
+        $query = $this->db->query("select * from user_info where user_type = 1 and driver_status = 0  order by ctime desc limit $start, $limit");
+        foreach ($query->result_array() as $row)$res[]=$row;        
+        return $res;    
 
     }
 
@@ -31,37 +31,37 @@ class Carpool_Model extends CI_Model{
         return $res;    
 
     }
-    public function set_passenger($user_id){
-        $query = $this->db->query("update user_info  set user_status =2 where user_id = $user_id");
+    public function set_passenger($user_id, $status){
+        $query = $this->db->query("update user_info  set user_status =$status where user_id = $user_id");
         return 0;
     }
     public function batch_set_passenger($email){
         $query = $this->db->query("update user_info  set user_status =2 where email like \"%@$email\"");
         return 0;
     }
-    public function set_driver($user_id){
-		$query = $this->db->query("update user_info  set driver_status =2 where user_id = $user_id");
-		return 0;
-	}
+    public function set_driver($user_id, $status){
+        $query = $this->db->query("update user_info  set driver_status =$status where user_id = $user_id");
+        return 0;
+    }
 
-	public function get_order_list($start, $end){
-		$res = array();		
-		$query = $this->db->query("select day, hour, item_1 from log_info where day >= $start and day <= $end ");
-		foreach ($query->result_array() as $row)$res[]=$row;		
+    public function get_order_list($start, $end){
+        $res = array();     
+        $query = $this->db->query("select day, hour, item_1 from log_info where day >= $start and day <= $end ");
+        foreach ($query->result_array() as $row)$res[]=$row;        
         return $res; 
     }
 
     public function get_succ_order_list($start, $end){
-		$res = array();		
-		$query = $this->db->query("select day, hour, item_2 from log_info where day >= $start and day <= $end ");
-		foreach ($query->result_array() as $row)$res[]=$row;		
+        $res = array();     
+        $query = $this->db->query("select day, hour, item_2 from log_info where day >= $start and day <= $end ");
+        foreach ($query->result_array() as $row)$res[]=$row;        
         return $res; 
     }
 
     public function get_timeout_order_list($start, $end){
-		$res = array();		
-		$query = $this->db->query("select day, hour, item_3 from log_info where day >= $start and day <= $end ");
-		foreach ($query->result_array() as $row)$res[]=$row;		
+        $res = array();     
+        $query = $this->db->query("select day, hour, item_3 from log_info where day >= $start and day <= $end ");
+        foreach ($query->result_array() as $row)$res[]=$row;        
         return $res; 
     }
 

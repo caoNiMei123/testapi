@@ -4,17 +4,17 @@
 
  */
 class Passenger extends MY_Controller {
-	
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	public function index(){
-		$this->set_position(__CLASS__, __FUNCTION__);
-		$this->data['js'][] = "js/jquery.typist";
-		$this->load->view('include/header',$this->data);
-		$this->load->view('passenger/list');   
-		$this->load->view('include/footer');		
+    
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    public function index(){
+        $this->set_position(__CLASS__, __FUNCTION__);
+        $this->data['js'][] = "js/jquery.typist";
+        $this->load->view('include/header',$this->data);
+        $this->load->view('passenger/list');   
+        $this->load->view('include/footer');        
         if(!isset($_GET['page'])) {
             $page = 0;
         }else{
@@ -22,7 +22,7 @@ class Passenger extends MY_Controller {
         }
         
         $this->get_list( $page * 10, 10);
-	}
+    }
     public function get_list($start , $limit){
        $this->load->model("carpool_model"); 
        $list = $this->carpool_model->get_passenger($start , $limit);
@@ -30,7 +30,7 @@ class Passenger extends MY_Controller {
        $data["page"] = $start/10;
        $this->load->view('passenger/passenger',$data);
     }
-	
+    
     public function set(){
         $this->load->model("carpool_model"); 
         $this->carpool_model->set_passenger(intval($_POST['user_id']));
@@ -51,7 +51,7 @@ class Passenger extends MY_Controller {
         return;
     }
 
-	public function log(){
-		
-	}
+    public function log(){
+        
+    }
 }
