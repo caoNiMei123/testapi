@@ -1,6 +1,6 @@
 <?php
-require_once PHPLIB_PATH."/httpproxy/HttpProxy.class.php";
-require_once PHPLIB_PATH."/sms/SmsProxy.class.php";
+require_once PHPLIB_PATH."/offline/httpproxy/HttpProxy.class.php";
+require_once PHPLIB_PATH."/offline/sms/SmsProxy.class.php";
 class Carpool_Model extends CI_Model{
     
     public function __construct(){
