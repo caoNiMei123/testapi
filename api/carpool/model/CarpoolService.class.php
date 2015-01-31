@@ -785,18 +785,18 @@ class CarpoolService
             );
         }
         //直接按照矩形返回， 后面订单多可再做一次半径筛选
+        $arr_user_list =  array();
         foreach($ret as $key => &$value)
         {
             if($value['ctime'] + CarpoolConfig::CARPOOL_ORDER_TIMEOUT < time(NULL)){
                 unset($ret[$key]);
                 continue;
             }
-            unset($value['user_id']);
+            $arr_user_list[] = intval($value['user_id']);
             unset($value['user_status']);        
             unset($value['driver_id']);    
             unset($value['driver_phone']);    
             unset($value['id']);    
-            unset($value['passenger_id']);              
             unset($value['mileage']);                              
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
@@ -813,6 +813,35 @@ class CarpoolService
             unset($value['dest_latitude']);  
             unset($value['dest_longitude']);  
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
+        }
+
+        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'user_status', 'head_bucket','head_object' ),array('and'=>array(
+            array('user_id' =>  array('in' => $arr_user_list)),
+                ))
+        );
+        if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        $user_map = array();
+        foreach($arr_response as $key => $value)
+        {
+            $user_map[intval($value['user_id'])] = $value;
+        }
+        foreach($ret as $key => &$value)
+        {
+            if(!isset($user_map[intval($value['user_id'])]))
+            {
+                continue;
+            }
+            $info = $user_map[intval($value['user_id'])];
+            $value['name'] = $info['name'];
+            $value['sex'] = intval($info['sex']);
+            $value['user_status'] = intval($info['user_status']);
+            $uk = UserService::api_encode_uid(intval($value['user_id'])); 
+            $now = time(NULL);
+            $value['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
+            unset($value['user_id']);
         }
         CLog::trace("nearby list succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return array(
