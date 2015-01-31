@@ -738,7 +738,6 @@ class CarpoolService
 
         $distance_instance = DistanceCompute::getInstance();
         $arr_range = $distance_instance->get_bound($gps_arr[0], $gps_arr[1],NotifyConfig::$NotifyRectangleRange);  
-
         $condition = array(
             'and' => array(
                 array(
@@ -768,7 +767,6 @@ class CarpoolService
                 ),
             ),
         );
-
         $append_condition = array(
             'start' => 0, 
             'limit' => 100,
@@ -802,7 +800,10 @@ class CarpoolService
             unset($value['mileage']);                              
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
-            unset($value['status']); 
+            if ($value['status'] == self::CARPOOL_STATUS_CREATE && $value['ctime'] < time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT) 
+            {
+                $value['status'] = self::CARPOOL_STATUS_TIMEOUT;
+            }   
             $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
             $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
             
