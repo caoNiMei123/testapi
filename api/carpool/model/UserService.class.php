@@ -38,7 +38,6 @@ class UserService
     {
             
     }
-    //to do ， 两种身份需要uid一致
 
     public function register($arr_req, $arr_opt)
     {
