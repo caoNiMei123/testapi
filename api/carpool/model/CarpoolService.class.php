@@ -44,8 +44,6 @@ class CarpoolService
         $mileage = $arr_req['mileage'] ; 
 
         $detail = isset($arr_opt['detail'])?$arr_opt['detail']:'';
-
-        Utils::check_int($type, 1, 2); 
         
         Utils::check_string($src, 1, 256); 
         
