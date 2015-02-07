@@ -2,7 +2,7 @@
 
 class IPCConfig
 {
-    $domain_info = array(
+    public static $domain_info = array(
         'machine' => '/tmp/tmp_socket',
         'connect_timeout' => 1000,
         'timeout' => 10000,
