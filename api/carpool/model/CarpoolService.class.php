@@ -120,7 +120,9 @@ class CarpoolService
         {
             $db_proxy->rollback();
             if($db_proxy->getErrorCode() == 1062)
+            {
                 throw new Exception('carpool.duplicate pid alrealdy created');
+            }
             else    
             {
                 throw new Exception('carpool.internal insert to the DB failed [err_code: ]' .
