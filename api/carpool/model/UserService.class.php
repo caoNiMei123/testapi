@@ -419,7 +419,7 @@ class UserService
         {
             Utils::check_string($arr_opt['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
             $car_engine_num = $arr_opt['car_engine_num'];   
-            $update .= "car_engine_num = '$car_engine_num'";
+            $update .= ", car_engine_num = '$car_engine_num'";
             $driver_check = true;
         }
         Utils::check_string($update , 1);
