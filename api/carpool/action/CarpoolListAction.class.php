@@ -6,7 +6,7 @@ class CarpoolListAction extends CarpoolBaseAction
     {
         // 1. 基本检查，必选参数是否存在
         $this->check_uinfo();
-        
+        $this->exist('type');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();
@@ -14,7 +14,7 @@ class CarpoolListAction extends CarpoolBaseAction
         
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
-        $arr_req['user_type'] = intval($this->requests['user_type']);
+        $arr_req['type'] = intval($this->requests['type']);
         $arr_opt['start'] = $this->requests['start'];
         $arr_opt['limit'] = $this->requests['limit'];
         $arr_opt['status'] = $this->requests['status'];

@@ -41,6 +41,9 @@ class CarpoolService
         $dest = $arr_req['dest'] ;
         $src_gps = $arr_req['src_gps'] ;
         $dest_gps = $arr_req['dest_gps'] ; 
+        $mileage = $arr_req['mileage'] ; 
+
+        $desc = isset($arr_opt['desc'])?$arr_opt['desc']:'';
 
         Utils::check_int($type, 1, 2); 
         
@@ -51,6 +54,8 @@ class CarpoolService
         Utils::check_string($src_gps, 1, 256); 
         
         Utils::check_string($dest_gps, 1, 256); 
+
+        Utils::check_string($desc, 0, 256); 
         
         $src_gps_arr = explode(',', $src_gps);
         $dest_gps_arr = explode(',', $dest_gps);
@@ -67,35 +72,6 @@ class CarpoolService
         $pid = Utils::sign63(time(NULL).$user_id.$src_gps.$dest_gps.rand());
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        
-        $condition = array(
-            'and' => array(
-                array(
-                    'user_id' => array(
-                        '=' => $user_id,
-                    ),
-                ),
-                array(
-                    'user_type' => array(
-                        '<>' => UserService::USERTYPE_DRIVER,
-                    ),
-                ),
-            ),
-        );
-        $arr_response = $db_proxy->select(UserService::TABLE_USER_INFO, array('user_status', 'driver_status','user_type'), $condition);
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) 
-        {
-            throw new Exception('carpool.invalid_user user_id not exist');
-        }
-        $user_status = intval($arr_response[0]['user_status']);
-        if($user_status != UserService::USERSTATUS_AUTHORIZED)
-        {
-            $user_status = UserService::USERSTATUS_INIT;
-        }
 
         $ret = $db_proxy->startTransaction();
         if (false === $ret)
@@ -124,7 +100,6 @@ class CarpoolService
         $row = array(
             'pid' => $pid,
             'user_id'       => $user_id,
-            'user_status'   => $user_status,
             'passenger_dev_id'      => $devuid,            
             'phone'       => intval($user_name),
             'src'           => $src,
@@ -135,6 +110,7 @@ class CarpoolService
             'dest_latitude' => $dest_gps_arr[0],                                        
             'ctime'         => $now,
             'mtime'         => $now,
+            'mileage'       => $mileage,
         ); 
         
         //$db_proxy->startTransaction();
@@ -153,27 +129,50 @@ class CarpoolService
         $db_proxy->commit();
         $arr_response = array(
             'pid' => $pid,  
-            'timeout' =>CarpoolConfig::CARPOOL_ORDER_TIMEOUT,        
+            'timeout' =>CarpoolConfig::CARPOOL_ORDER_TIMEOUT,  
+            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,      
         );
         
         //抛起一个异步任务, 写task表
-        $row = array(
-            'pid' => $pid,
-            'user_id'       => $user_id,
-            'phone'           => $user_name,                                       
-            'ctime'         => $now,
-            'mtime'         => $now,
+
+        $task = json_encode(
+            array(
+                'pid' => $pid,
+                'user_id'       => $user_id,
+                'phone'         => $user_name,                                       
+                'ctime'         => $now,
+                'mtime'         => $now,
+                'price'         => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,  
+                'mileage'       => $mileage, 
+                'src'           => $src,
+                'dest'          => $dest,
+                'src_gps'       => $arr_req['src_gps'],
+                'dest_gps'      => $arr_req['dest_gps'],     
+                'timeout'       =>CarpoolConfig::CARPOOL_ORDER_TIMEOUT,      
+            )    
         ); 
         
-        //$db_proxy->startTransaction();
-        $ret = $db_proxy->insert('task_info_'.$pid%16, $row);
-        if (false === $ret)
-        {            
-            throw new Exception('carpool.internal insert to the DB failed');
-        }       
+        $php_ipc = new PHPIpcSender(IPCConfig::$domain_info);
+
+        $ret = $php_ipc->call($task);
+        if(false === $ret)
+        {
+            CLog::fatal("call ipc failed pid : %d", $pid);
+        }
+
+
         CLog::trace("order create succ [account: %s, user_id : %d, pid : %s]", $user_name, $user_id, $pid);
         return $arr_response;
     }   
+
+    public function getPrice($arr_req, $arr_opt)
+    {
+        return array(
+            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $arr_req['mileage'] / 1000,
+        );
+
+    }
+
     public function cancel($arr_req, $arr_opt)
     {
         $user_name = $arr_req['user_name'] ;
@@ -208,7 +207,7 @@ class CarpoolService
         $to_uid = 0;
         $to_phone = 0; 
         $to_devuid = '';
-        if ($user_type == UserService::USERTYPE_PASSENGER) 
+        if ($user_id == intval($arr_response[0]['user_id']) 
         {
             //乘客逻辑 
             if ($status != self::CARPOOL_STATUS_CREATE && $status != self::CARPOOL_STATUS_ACCEPTED) 
@@ -226,7 +225,14 @@ class CarpoolService
         }
         else 
         {
-            //司机逻辑             
+            //司机逻辑        
+
+            //如果也不是司机 ，直接拒绝
+            if($user_id != intval($arr_response[0]['driver_id'])
+            {
+                throw new Exception('carpool.param status not allowed');
+            }
+                 
             if ($status != self::CARPOOL_STATUS_ACCEPTED) 
             {
                 throw new Exception('carpool.order_status status not allowed');
@@ -278,15 +284,6 @@ class CarpoolService
             PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
         }       
 
-        //修改任务表
-        $ret = $db_proxy->update('task_info_'.$pid%16, array('and'=>
-            array(array('pid' => array('=' => $pid)),
-                //array('status' =>  array('=' => )),              
-        )), 'status=3, mtime ='.time(NULL));
-        if (false === $ret)
-        {            
-            throw new Exception('carpool.internal update task info failed');
-        }       
         CLog::trace("order cancel succ [account: %s, user_id : %d, pid : %s]", $user_name, $user_id, $pid);
 
         return true;
@@ -300,30 +297,45 @@ class CarpoolService
         $user_id = $arr_req['user_id'] ;        
         $pid = $arr_req['pid'];
         $devuid = $arr_req['devuid'];
-        $user_type = $arr_req['user_type'];
-        if($user_type != UserService::USERTYPE_DRIVER)
-        {
-            throw new Exception('carpool.invalid_driver not a driver');
-        }
+        
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
 
         //先检查司机有没有资格接单
-        $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>           
+
+        $condition = array(
+            'and' => array(
+                array(
+                    'user_id' => array(
+                        '=' => $user_id,
+                    ),
+                    'status' => array(
+                        '=' => UserService::USERSTATUS_AUTHORIZED,
+                    ),
+                ),             
+
+            ),
+        );
+        
+        $arr_response = $db_proxy->select('user_info', 'user_id', $condition);
+        if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+        {
+            throw new Exception('carpool.invalid_driver not a driver');
+        }
+
+
+        $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>   
             array(array('user_id' =>  array('=' => $user_id)), 
             array('status' =>  array('=' => 0)),
-            array('mtime' =>  array('>' => time(NULL) - CarpoolConfig::CARPOOL_DRIVER_REPORT_TIMEOUT)),                             
-        )));        
-        if (false === $arr_response || !is_array($arr_response) )
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (count($arr_response) == 0)
-        {
-            throw new Exception('carpool.invalid_driver no gps found');
-        }
-        $latitude = $arr_response[0]['latitude'];
-        $longitude = $arr_response[0]['longitude'];
+            //array('mtime' =>  array('>' => time(NULL) - CarpoolConfig::CARPOOL_DRIVER_REPORT_TIMEOUT)), 
+        )));  
 
+        if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+        {
+            throw new Exception('carpool.invalid_driver not a driver');
+        }
+
+        $latitude = $arr_response[0]['latitude'];
+        $longitude = $arr_response[0]['longitude'];      
 
         //开事务处理订单流程
         $ret = $db_proxy->startTransaction();
@@ -332,28 +344,13 @@ class CarpoolService
             throw new Exception('carpool.internal start transaction fail');
         }
         $now =time(NULL);
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'phone', 'user_status' ,'passenger_dev_id'),array('and'=>           
-            array(array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)), 
-            array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
-            array('pid' =>  array('=' => $pid)),                         
-        )));
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) 
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.not_found pid not exist [sql: ' . 
-                                $db_proxy->getLastSQL() . ']');
-        }
+        
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
         $passenger_dev_id = $arr_response[0]['passenger_dev_id'];    
         $passenger_status = intval($arr_response[0]['user_status']);    
       
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'passenger_dev_id'),array('and'=>           
+        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('mileage', 'pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
             array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),                          
         )));        
@@ -368,12 +365,13 @@ class CarpoolService
             throw new Exception('carpool.duplicate another pid doing');
         }
 
-        
+        $mileage = intval($arr_response[0]['mileage']);
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
                 array('user_id' =>  array('!=' => $user_id)),  
-                array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)),              
+                array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
+                array(array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),              
         )), 'driver_id='.$user_id.',driver_phone = '.intval($user_name).',mtime ='.time(NULL).',status ='.self::CARPOOL_STATUS_ACCEPTED. ", driver_dev_id = '$devuid'");
         if (false === $ret) 
         {
@@ -383,7 +381,7 @@ class CarpoolService
         if ($ret != 1) 
         {
             $db_proxy->rollback();
-            throw new Exception('carpool.param this pid not exists');
+            throw new Exception('carpool.not_found this pid not exists');
         }
         $db_proxy->commit();
         $msg = json_encode(array(
@@ -415,19 +413,9 @@ class CarpoolService
         
         CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
                     $user_name, $user_id, $pid, $passenger_phone);
-
-
-        if ($passenger_status == UserService::USERSTATUS_AUTHORIZED) 
-        {
-            $price = CarpoolConfig::ORDER_PRICE_VIP;
-        }
-        else
-        {
-            $price = CarpoolConfig::ORDER_PRICE_NORMAL;
-        }
         
         return array(
-            'price' => $price,
+            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,
         );
     }   
 
@@ -436,9 +424,7 @@ class CarpoolService
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;        
         $pid = $arr_req['pid'] ;
-        $mileage = intval($arr_req['mileage']) ;
-        $devuid = $arr_req['devuid'];
-        $user_type = $arr_req['user_type'];            
+        $devuid = $arr_req['devuid'];      
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         
@@ -449,10 +435,10 @@ class CarpoolService
             throw new Exception('carpool.internal start transaction fail');
         }
         $now =time(NULL);
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'user_status', 'phone', 'driver_dev_id', 'passenger_dev_id'),array('and'=>           
+        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'mileage', 'phone', 'driver_dev_id', 'passenger_dev_id'),array('and'=>           
             array(array('pid' => array('=' => $pid)),
             array('driver_id' =>  array('=' => $user_id)),  
-            array('status' =>  array('=' => self::CARPOOL_STATUS_ABOARD)),                                        
+            array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),                                        
         )));        
         if (false === $arr_response || !is_array($arr_response) )
         {
@@ -464,6 +450,7 @@ class CarpoolService
             $db_proxy->rollback();
             throw new Exception('carpool.not_found no pid found');
         }
+        $mileage = intval($arr_response[0]['mileage']);
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
         $passenger_status = intval($arr_response[0]['user_status']);
@@ -471,7 +458,7 @@ class CarpoolService
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
             array('driver_id' =>  array('=' => $user_id)),  
-            array('status' =>  array('=' => self::CARPOOL_STATUS_ABOARD)),              
+            array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),              
         )), 'driver_id='.$user_id.',mtime ='.time(NULL).',status
         ='.self::CARPOOL_STATUS_DONE.',mileage ='. $mileage);
         if (false === $ret)
@@ -485,22 +472,15 @@ class CarpoolService
             throw new Exception('carpool.not_found this pid not exists');
         }       
         $db_proxy->commit();
-        $price = 0;
-        if ($passenger_status == UserService::USERSTATUS_AUTHORIZED) 
-        {
-            $price = CarpoolConfig::ORDER_PRICE_VIP * $mileage / 1000;
-        }
-        else
-        {
-            $price = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
-        }
+        $price = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
      
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['finish_order'],
             'msg_content' => array(
                 'pid' => $pid,        
                 'phone' => $user_name,   
-                'price' => $price,     
+                'price' => $price,   
+                'mileage' => $mileage,  
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
@@ -525,98 +505,13 @@ class CarpoolService
 
         return true;
     }   
-
-
-    public function aboard($arr_req, $arr_opt)
-    {               
-        $user_name = $arr_req['user_name'] ;
-        $user_id = $arr_req['user_id'] ;        
-        $pid = $arr_req['pid'] ;
-        $devuid = $arr_req['devuid'];
-        $user_type = $arr_req['user_type'];            
-        
-        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        
-        //开事务处理订单流程
-        $ret = $db_proxy->startTransaction();
-        if (false === $ret)
-        {
-            throw new Exception('carpool.internal start transaction fail');
-        }
-        $now =time(NULL);
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('pid', 'user_id', 'phone', 'driver_dev_id', 'passenger_dev_id'),array('and'=>           
-            array(array('pid' => array('=' => $pid)),
-            array('driver_id' =>  array('=' => $user_id)),  
-            array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),                                        
-        )));        
-        if (false === $arr_response || !is_array($arr_response) )
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (count($arr_response) == 0)
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.not_found no pid found');
-        }
-        $passenger_id = intval($arr_response[0]['user_id']);
-        $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
-        
-        $ret = $db_proxy->update('pickride_info', array('and'=>
-            array(array('pid' => array('=' => $pid)),
-            array('driver_id' =>  array('=' => $user_id)),  
-            array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),              
-        )), 'driver_id='.$user_id.',mtime ='.time(NULL).',status ='.self::CARPOOL_STATUS_ABOARD);
-        if (false === $ret)
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.internal insert to the DB failed');
-        }
-        if ($ret != 1) 
-        {
-            $db_proxy->rollback();
-            throw new Exception('carpool.not_found this pid not exists');
-        }       
-        $db_proxy->commit();
-        $msg = json_encode(array(
-            'msg_type' => CarpoolConfig::$arrPushType['aboard_order'],
-            'msg_content' => array(
-                'pid' => $pid,        
-                'phone' => $user_name,        
-            ),
-            'msg_ctime' => time(NULL),
-            'msg_expire' => 60,
-        ));
-        
-        $arr_msg = array(
-            'trans_type' => 1,
-            'trans_content' => $msg,
-        );
-        $arr_user = array(
-            array(
-                'user_id' => $passenger_id,
-                'device_id' => $passenger_dev_id,
-            ),
-        );
-        
-        //通知 乘客订单结束
-        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
-        
-        CLog::trace("order aboard succ [account: %s, user_id : %d, pid : %s]", 
-                    $user_name, $user_id, $pid);
-
-        return true;
-    }   
-
-
-
     
     
     public function getList($arr_req, $arr_opt)
     {
 
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
+        $user_type = $arr_req['type'] ;
         $start = $arr_opt['start'] ;
         $limit = $arr_opt['limit'] ;
         $status = $arr_opt['status'] ;
@@ -715,6 +610,8 @@ class CarpoolService
             unset($value['dest_longitude']);  
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
+            $value['mileage'] = intval($ret['mileage']);
+            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
 
         }
         CLog::trace("order list succ [account: %s, user_id : %d ]", $user_name, $user_id);
@@ -727,8 +624,7 @@ class CarpoolService
     public function nearby($arr_req, $arr_opt)
     {
 
-        $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
+        $user_id = $arr_req['user_id']; 
 
         $gps_arr = explode(',', $arr_req['gps']);        
 
@@ -793,17 +689,11 @@ class CarpoolService
                 continue;
             }
             $arr_user_list[] = intval($value['user_id']);
-            unset($value['user_status']);        
             unset($value['driver_id']);    
             unset($value['driver_phone']);    
-            unset($value['id']);    
-            unset($value['mileage']);                              
+            unset($value['id']);                  
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
-            if ($value['status'] == self::CARPOOL_STATUS_CREATE && $value['ctime'] < time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT) 
-            {
-                $value['status'] = self::CARPOOL_STATUS_TIMEOUT;
-            }   
             $value['src_gps'] = $value['src_latitude']. ','.$value['src_longitude'];
             $value['dest_gps'] = $value['dest_latitude']. ','.$value['dest_longitude'];
             
@@ -812,6 +702,8 @@ class CarpoolService
             unset($value['src_longitude']);  
             unset($value['dest_latitude']);  
             unset($value['dest_longitude']);  
+            $value['mileage'] = intval($ret['mileage']);
+            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
 
@@ -837,7 +729,6 @@ class CarpoolService
             $info = $user_map[intval($value['user_id'])];
             $value['name'] = $info['name'];
             $value['sex'] = intval($info['sex']);
-            $value['user_status'] = intval($info['user_status']);
             $uk = UserService::api_encode_uid(intval($value['user_id'])); 
             $now = time(NULL);
             $value['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
@@ -854,7 +745,7 @@ class CarpoolService
     {
 
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
+        $user_type = $arr_req['type'] ;
         $pid = $arr_req['pid'] ;
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
@@ -893,9 +784,9 @@ class CarpoolService
                         ),
                     ),   
                 ),
-            );        
-            unset($ret['user_status']);                      
-        }else
+            );                   
+        }
+        else
         {
             //司机端
             $uk = UserService::api_encode_uid(intval($ret['user_id'])); 
@@ -907,8 +798,7 @@ class CarpoolService
                         ),
                     ),   
                 ),
-            );       
-            $ret['user_status'] = intval($ret['user_status']);          
+            );            
         }
          
         $now = time(NULL);  
@@ -925,7 +815,8 @@ class CarpoolService
         }
         $ret['status'] = intval($ret['status']);
         $ret['phone'] = intval($ret['phone']);
-
+        $ret['mileage'] = intval($ret['mileage']);
+        $ret['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
 
         unset($ret['driver_phone']);
         unset($ret['driver_id']);        
@@ -1012,6 +903,8 @@ class CarpoolService
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
             unset($value['driver_dev_id']);
             unset($value['passenger_dev_id']);
+            $value['mileage'] = intval($ret['mileage']);
+            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
 
         }
         

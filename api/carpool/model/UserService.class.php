@@ -43,93 +43,54 @@ class UserService
     {
         $account = $arr_req['account'];
         Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        
-        $type = isset($arr_opt['type'])? $arr_opt['type']:self::TOKENTYPE_PHONE;
-        $reason = isset($arr_opt['reason'])? $arr_opt['reason']:self::REASONTYPE_REG;
-
-
-
-
-        if($type != self::TOKENTYPE_PHONE && $type != self::TOKENTYPE_EMAIL)
-        {
-            throw new Exception('carpool.param invalid type' );
-        }
-        if($reason != self::REASONTYPE_REG && $reason != self::REASONTYPE_PASSENGER_AUTH)
-        {
-            throw new Exception('carpool.param invalid reason' );
-        }
 
         // 3. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         
 
         //目前reg 只支持手机， auth只支持邮箱
-        switch($reason){
-            case self::REASONTYPE_REG:
-                Utils::is_valid_phone($account);
-                //签名检查
-                $raw = $arr_opt['sign'];
-                $timestamp = $arr_req['timestamp'];
-                Utils::check_null('sign', $raw);
-                Utils::check_null('timestamp', $timestamp);
-                $devuid = $arr_req['devuid'];
+        
+        Utils::is_valid_phone($account);
+        //签名检查
+        $raw = $arr_opt['sign'];
+        $timestamp = $arr_req['timestamp'];
+        Utils::check_null('sign', $raw);
+        Utils::check_null('timestamp', $timestamp);
+        $devuid = $arr_req['devuid'];
                 
-                $sign = hash_hmac('sha1', md5($account.$timestamp.$devuid),CarpoolConfig::$tokenSK );
-                if($raw != $sign || (time(NULL) - $timestamp) > CarpoolConfig::TOKEN_TIMEOUT)
-                {
-                    throw new Exception('carpool.param sign error , except: '.$sign);
-                }
+        $sign = hash_hmac('sha1', md5($account.$timestamp.$devuid),CarpoolConfig::$tokenSK );
+        if($raw != $sign || (time(NULL) - $timestamp) > CarpoolConfig::TOKEN_TIMEOUT)
+        {
+            throw new Exception('carpool.param sign error , except: '.$sign);
+        }
                 
-                $sec_str = Utils::generate_rand_str(6, '1234567890');
-                $row = array(               
-                    'account'     => $account,
-                    'secstr'    => $sec_str,                
-                    'ctime'     => time(NULL),
-                    'type'      => self::TOKENTYPE_PHONE, 
-                );
-                $timeout = CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT;
-                $condition = array(
-                    'and' => array(
-                        array(
-                            'account' => array(
-                                '=' => $account,
-                            ),
-                        ),
-                        array(
-                            'ctime' => array(
-                                '<' => time(NULL) + $timeout,
-                            ),
-                        ),
+        $sec_str = Utils::generate_rand_str(6, '1234567890');
+        $row = array(               
+            'account'     => $account,
+            'secstr'    => $sec_str,                
+            'ctime'     => time(NULL),
+            'type'      => self::TOKENTYPE_PHONE, 
+        );
+        $timeout = CarpoolConfig::CARPOOL_SECSTR_PHONE_TIMEOUT;
+        $condition = array(
+            'and' => array(
+                array(
+                    'account' => array(
+                        '=' => $account,
                     ),
-                );        
-                $arr_response = $db_proxy->select(self::TABLE_SECSTR_INFO, array('id'), $condition);
-                if (false === $arr_response || !is_array($arr_response))
-                {
-                    throw new Exception('carpool.internal select from the DB failed');
-                }
-                if (0 != count($arr_response)) {
-                    throw new Exception('carpool.duplicate already has a sectr');
-                }
-
-                break;
-            case self::REASONTYPE_PASSENGER_AUTH:
-                $ret = Utils::is_valid_email($account);
-                $user_id = $arr_opt['user_id'];
-                if (false == $ret)
-                {
-                    throw new Exception('carpool.param invalid account [account: ' . $account . ']');
-                }
-                $sec_str = Utils::generate_rand_str(100, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890');
-                $row = array(               
-                    'account'     => $account,
-                    'secstr'    => $sec_str,                
-                    'ctime'     => time(NULL),
-                    'type'      => self::TOKENTYPE_EMAIL, 
-                    'user_id'   => $user_id,
-                );
-                $timeout = CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT;
-                break;
-        }            
+                ),
+                array(
+                    'ctime' => array(
+                                '<' => time(NULL) + $timeout,
+                    ),
+                ),
+            ),
+        );        
+        $arr_response = $db_proxy->select(self::TABLE_SECSTR_INFO, array('id'), $condition);
+        if (false === $arr_response || !is_array($arr_response) || 0 != count($arr_response))
+        {
+            throw new Exception('carpool.internal select from the DB failed');
+        } 
         
         $ret = $db_proxy->insert(self::TABLE_SECSTR_INFO, $row);
         if (false === $ret)
@@ -145,69 +106,14 @@ class UserService
                                 $error_code . ', error_msg: ' . $error_msg . ']');
         }
 
-        switch($reason){
-            case self::REASONTYPE_REG:
-                //发短信
-                SmsPorxy::getInstance()->push_to_single($account, $sec_str);
-            break;
-            case self::REASONTYPE_PASSENGER_AUTH:
-                $mail_profix = substr($account, strrpos($account, '@')+1);
-
-                if(in_array($mail_profix,EmailConfig::$white_list))
-                {
-
-                    //发邮件， 这个时候不用给用户设置申请态， 因为他自己可以auth
-                    EmailProxy::getInstance()->auth($account, CarpoolConfig::$domain."/rest/2.0/carpool/user?method=auth&type=$type&reason=$reason&account=$account&secstr=$sec_str&ctype=1&devuid=1");
-                }
-                else
-                {
-
-                    $ret = $db_proxy->update('user_info', array('and'=>
-                        array(array('user_id' =>  array('=' => $arr_opt['user_id'])), 
-                            array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
-                            array('user_status' =>  array('<>' => self::USERSTATUS_AUTHORIZED)),                                  
-                        )), 'user_status='.self::USERSTATUS_CHECK); 
-
-                    if (false === $ret) {
-                        throw new Exception('carpool.internal update DB failed');
-                    }
-                }
-                
-                
-            break;
-        }    
-        
+    
+        //发短信
+        SmsPorxy::getInstance()->push_to_single($account, $sec_str);
         CLog::trace("get token succ [account: %s, secstr : %s]", $account, $sec_str);            
     }
 
 
-    public function auth($arr_req, $arr_opt)
-    {
-        $account = $arr_req['account'];
-        $secstr = $arr_req['secstr'];
-        Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);
-        
-
-        $user_id = 0;
-        self::check_str($account, $secstr, CarpoolConfig::CARPOOL_SECSTR_EMAIL_TIMEOUT, $user_id);
-        
-        // secstr 反查不出uid， 直接返回， 不更新用户状态
-        if(0 == $user_id)
-        {
-            return true;
-        }
-        // 3. 访问数据库
-        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        
-        $ret = $db_proxy->update('user_info', array('and'=>
-            array(array('user_id' =>  array('=' => $user_id)), 
-            array('user_type' => array('=' => self::USERTYPE_PASSENGER)),
-                array('user_status' =>  array('<>' => self::USERSTATUS_AUTHORIZED)),                                  
-        )), 'user_status ='.self::USERSTATUS_AUTHORIZED);  
-          
-        
-        CLog::trace("user auth succ [account: %s, secstr : %s]", $account, $sec_str);            
-    }
+   
 
     public function check_str($account, $secstr, $timeout, &$user_id = NULL)
     {
@@ -301,7 +207,7 @@ class UserService
             ),
         );
         
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type', 'user_status', 'driver_status'), $condition);
+        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('user_id','user_type', 'status'), $condition);
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -452,8 +358,7 @@ class UserService
         $arr_return['car_type'] = $arr_response[0]['car_type'];
         $arr_return['car_engine_num'] = $arr_response[0]['car_engine_num'];
         $arr_return['car_num'] = $arr_response[0]['car_num'];
-        $arr_return['user_status'] = intval($arr_response[0]['user_status']);
-        $arr_return['driver_status'] = intval($arr_response[0]['driver_status']);
+        $arr_return['status'] = intval($arr_response[0]['status']);
         
         $now = time(NULL);  
         $uk = self::api_encode_uid($user_id);      
@@ -516,7 +421,18 @@ class UserService
         //需要更新为未审核
         if($driver_check)
         {
-            $update .= ", driver_status = ". self::USERSTATUS_INIT;   
+            $arr_response = $db_proxy->select(self::TABLE_USER_INFO, 'status', array('and' => array(array('user_id' => array('=' => $user_id,),),),));
+            if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+            {
+                throw new Exception('carpool.internal select from the DB failed');
+            }
+
+            if(intval($arr_response[0]['status']) == self::USERSTATUS_AUTHORIZED)
+            {
+                throw new Exception('carpool.duplicate already authorized');
+            }
+
+            $update .= ", status = ". self::USERSTATUS_CHECK;   
         }
 
         

@@ -7,6 +7,7 @@ class CarpoolQueryAction extends CarpoolBaseAction
         // 1. 基本检查，必选参数是否存在
         $this->check_uinfo();
         $this->exist('pid');
+        $this->exist('type');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();
@@ -14,7 +15,7 @@ class CarpoolQueryAction extends CarpoolBaseAction
         
         $arr_req['pid'] = $this->requests['pid'];
         $arr_req['user_id'] = $this->requests['user_id'];
-        $arr_req['user_type'] = intval($this->requests['user_type']);
+        $arr_req['type'] = intval($this->requests['type']);
         $arr_req['user_name'] = $this->requests['user_name'];
         
         $carpool_service = CarpoolService::getInstance();

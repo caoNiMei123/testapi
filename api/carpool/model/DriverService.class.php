@@ -43,33 +43,6 @@ class DriverService
             throw new Exception('carpool.param invalid gps');
         }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        
-        /*$condition = array(
-            'and' => array(
-                array(
-                    'user_id' => array(
-                        '=' => $user_id,
-                    ),
-                ),          
-
-            ),
-        );
-        
-        $arr_response = $db_proxy->select(self::TABLE_USER_INFO, array('phone', 'driver_status'), $condition);
-        if (false === $arr_response || !is_array($arr_response))
-        {
-            throw new Exception('carpool.internal select from the DB failed');
-        }
-        if (0 == count($arr_response)) {
-            throw new Exception('carpool.param user_id not exist');
-        }
-        //司机没认证，不更新他的表
-        if($arr_response[0]['driver_status'] != UserService::USERSTATUS_AUTHORIZED)
-        {
-            CLog::trace("the driver is not authenticated [user_id: %s, gps: %s]",
-                        $user_id, $gps);
-            return true;
-        }*/
 
         $now = time(NULL);
         $row = array(

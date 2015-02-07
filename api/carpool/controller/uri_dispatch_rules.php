@@ -69,8 +69,8 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'accept' => array(
                 'CarpoolAcceptAction',
             ),
-            'aboard' => array(
-                'CarpoolAboardAction',
+            'get_price' => array(
+                'CarpoolGetPriceAction',
             ),
             'finish' => array(
                 'CarpoolFinishAction',

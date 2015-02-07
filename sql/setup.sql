@@ -16,9 +16,10 @@ CREATE TABLE `user_info` (
     `head_object` varchar(100) default '',
     `ctime` int not NULL,
     `mtime` int not NULL,
+    `pcount` int default 0,
+    `dcount` int default 0,
     `status` tinyint default 0,
     PRIMARY KEY (`user_id`),
-    UNIQUE KEY `user_key` (`user_id`, `user_type`, `status`),
     UNIQUE KEY `phone_index` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT = 10000 COMMENT='用户表' ;
 
@@ -26,10 +27,10 @@ CREATE TABLE `pickride_info` (
     `id` int  NOT NULL AUTO_INCREMENT,
     `pid` bigint  unsigned NOT NULL,
     `user_id` bigint  unsigned,
-    `user_status` tinyint DEFAULT 0,
     `driver_dev_id` varchar(64) NOT NULL,
     `passenger_dev_id` varchar(64) NOT NULL,
     `phone` bigint(20) DEFAULT NULL,
+    `desc` varchar(256) default '',
     `src` varchar(256),
     `dest` varchar(256),
     `src_latitude` decimal(10, 6),
