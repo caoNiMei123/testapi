@@ -44,7 +44,7 @@ class DriverService
         }
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         
-        $condition = array(
+        /*$condition = array(
             'and' => array(
                 array(
                     'user_id' => array(
@@ -69,7 +69,7 @@ class DriverService
             CLog::trace("the driver is not authenticated [user_id: %s, gps: %s]",
                         $user_id, $gps);
             return true;
-        }
+        }*/
 
         $now = time(NULL);
         $row = array(

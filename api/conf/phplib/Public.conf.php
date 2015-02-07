@@ -87,6 +87,8 @@ class PublicLibManager
         
         'PushPorxy'             => PUBLIC_PATH . '/push/PushProxy.class.php',
         'PushProxyConfig'       => PUBLIC_CONF_PATH . '/PushProxyConfig.class.php',
+
+        'IPCConfig'             => PUBLIC_CONF_PATH . '/IPCConfig.class.php',
         
         'IGeTui'                => PUBLIC_PATH . '/push/lib/IGt.Push.php',
         

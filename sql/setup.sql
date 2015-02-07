@@ -6,23 +6,20 @@ CREATE TABLE `user_info` (
     `user_id` bigint  unsigned  NOT NULL AUTO_INCREMENT,
     `name` varchar(50) default '',
     `phone`  bigint not null,
-    `email`  varchar(100) default '', 
     `sex`  tinyint default 0, 
     `car_type` varchar(50) default '',
     `seat` tinyint default 0,
     `detail` varchar(1024) default '',
     `car_num` varchar(50) default '',
     `car_engine_num` varchar(50) default '',
-    `user_type`  int not NULL,
     `head_bucket` varchar(50) default '',
     `head_object` varchar(100) default '',
     `ctime` int not NULL,
     `mtime` int not NULL,
-    `user_status` tinyint default 0,
-    `driver_status` tinyint default 0,
+    `status` tinyint default 0,
     PRIMARY KEY (`user_id`),
-    UNIQUE KEY `user_key` (`user_id`, `user_type`, `user_status`, `driver_status`),
-    UNIQUE KEY `phone_index` (`phone`, `user_type`)
+    UNIQUE KEY `user_key` (`user_id`, `user_type`, `status`),
+    UNIQUE KEY `phone_index` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT = 10000 COMMENT='用户表' ;
 
 CREATE TABLE `pickride_info` (
@@ -110,35 +107,6 @@ CREATE TABLE `client_version_info` (
     UNIQUE KEY `version_key` (`ctype`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版本信息表' ;
 
-
-
-CREATE TABLE `task_info_0` (
-    `id` bigint  NOT NULL AUTO_INCREMENT,
-    `pid` bigint  unsigned NOT NULL,
-    `user_id` bigint  unsigned,
-    `phone`  bigint,
-    `ctime` int not NULL, 
-    `mtime` int not NULL, 
-    `status` tinyint DEFAULT 0,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `pid_key` (`pid`, `status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务表' ;
-
-CREATE TABLE `task_info_1` like `task_info_0`;
-CREATE TABLE `task_info_2` like `task_info_0`;
-CREATE TABLE `task_info_3` like `task_info_0`;
-CREATE TABLE `task_info_4` like `task_info_0`;
-CREATE TABLE `task_info_5` like `task_info_0`;
-CREATE TABLE `task_info_6` like `task_info_0`;
-CREATE TABLE `task_info_7` like `task_info_0`;
-CREATE TABLE `task_info_8` like `task_info_0`;
-CREATE TABLE `task_info_9` like `task_info_0`;
-CREATE TABLE `task_info_10` like `task_info_0`;
-CREATE TABLE `task_info_11` like `task_info_0`;
-CREATE TABLE `task_info_12` like `task_info_0`;
-CREATE TABLE `task_info_13` like `task_info_0`;
-CREATE TABLE `task_info_14` like `task_info_0`;
-CREATE TABLE `task_info_15` like `task_info_0`;
 
 CREATE TABLE `complain_info` (
     `id` int  NOT NULL AUTO_INCREMENT,    

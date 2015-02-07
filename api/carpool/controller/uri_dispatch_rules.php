@@ -28,9 +28,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
     // 情况3，还需要根据method再进行一次hash匹配
     '/rest/2.0/carpool/user' => array(
         'method_hash' => array(
-            'reg' => array(
+            /*'reg' => array(
                 'UserRegisterAction',
-            ),
+            ),*/
 
             'query' => array(
                 'UserQueryAction',
