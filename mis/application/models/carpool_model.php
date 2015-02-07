@@ -20,29 +20,14 @@ class Carpool_Model extends CI_Model{
     }
     public function get_driver($start, $limit){
         $res = array();     
-        $query = $this->db->query("select * from user_info where user_type = 1 and driver_status = 0  order by ctime desc limit $start, $limit");
+        $query = $this->db->query("select * from user_info where status = 1  order by ctime desc limit $start, $limit");
         foreach ($query->result_array() as $row)$res[]=$row;        
         return $res;    
 
     }
 
-    public function get_passenger($start, $limit){
-        $res = array();     
-        $query = $this->db->query("select * from user_info where user_type = 2 and user_status = 1  order by ctime desc limit $start, $limit");
-        foreach ($query->result_array() as $row)$res[]=$row;        
-        return $res;    
-
-    }
-    public function set_passenger($user_id, $status){
-        $query = $this->db->query("update user_info  set user_status =$status where user_id = $user_id");
-        return 0;
-    }
-    public function batch_set_passenger($email){
-        $query = $this->db->query("update user_info  set user_status =2 where email like \"%@$email\"");
-        return 0;
-    }
     public function set_driver($phone, $user_id, $status){
-        $query = $this->db->query("update user_info  set driver_status =$status where user_id = $user_id");
+        $query = $this->db->query("update user_info  set status =$status where user_id = $user_id");
         //给用户发短信, to do
         if($status == 2)
         {
