@@ -111,6 +111,7 @@ class CarpoolService
             'ctime'         => $now,
             'mtime'         => $now,
             'mileage'       => $mileage,
+            'desc'          => $desc,
         ); 
         
         //$db_proxy->startTransaction();
@@ -207,7 +208,7 @@ class CarpoolService
         $to_uid = 0;
         $to_phone = 0; 
         $to_devuid = '';
-        if ($user_id == intval($arr_response[0]['user_id']) 
+        if ($user_id == intval($arr_response[0]['user_id'])) 
         {
             //乘客逻辑 
             if ($status != self::CARPOOL_STATUS_CREATE && $status != self::CARPOOL_STATUS_ACCEPTED) 
