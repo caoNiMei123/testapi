@@ -53,7 +53,7 @@ class CarpoolService
         
         Utils::check_string($dest_gps, 1, 256); 
 
-        Utils::check_string($desc, 0, 256); 
+        Utils::check_string($detail, 0, 256); 
         
         $src_gps_arr = explode(',', $src_gps);
         $dest_gps_arr = explode(',', $dest_gps);
