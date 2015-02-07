@@ -404,6 +404,17 @@ class UserService
             $update .= ",car_num = '$car_num'";
             $driver_check = true;
         }
+
+        if(!is_null($arr_opt['car_type']))
+        {
+                
+            Utils::check_string($arr_opt['car_type'], 1, CarpoolConfig::USER_MAX_CAR_TYPE_LENGTH);         
+            $car_type = $arr_opt['car_type'];
+            $update .= ",car_type = '$car_type'";
+            $driver_check = true;
+        }
+
+
         if(!is_null($arr_opt['car_engine_num']))
         {
             Utils::check_string($arr_opt['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
