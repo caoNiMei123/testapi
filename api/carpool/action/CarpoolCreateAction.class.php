@@ -26,7 +26,7 @@ class CarpoolCreateAction extends CarpoolBaseAction
         $arr_req['devuid'] = $this->requests['devuid'];
         $arr_req['mileage'] = $this->requests['mileage'];
 
-        $arr_opt['desc'] = $this->requests['desc'];
+        $arr_opt['detail'] = $this->requests['detail'];
 
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->create($arr_req, $arr_opt);       

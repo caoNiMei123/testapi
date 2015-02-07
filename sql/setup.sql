@@ -30,7 +30,7 @@ CREATE TABLE `pickride_info` (
     `driver_dev_id` varchar(64) NOT NULL,
     `passenger_dev_id` varchar(64) NOT NULL,
     `phone` bigint(20) DEFAULT NULL,
-    `desc` varchar(256) default '',
+    `detail` varchar(256) default '',
     `src` varchar(256),
     `dest` varchar(256),
     `src_latitude` decimal(10, 6),
@@ -42,12 +42,12 @@ CREATE TABLE `pickride_info` (
     `mtime` int not NULL,
     `driver_id` bigint  unsigned default 0,
     `driver_phone` bigint(20) DEFAULT 0,
-	`mileage` bigint  unsigned default 0,
+    `mileage` bigint  unsigned default 0,
     `status` tinyint DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `pid_key` (`pid`),
     KEY `user_key` (`user_id`, `status`),
-    KEY `driver_key` (`driver_id`, `status`)
+    KEY `driver_key` (`driver_id`, `status`),
     KEY `distance_key` (`src_latitude`,`src_longitude`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='拼车表' ;
 
@@ -68,17 +68,17 @@ CREATE TABLE `driver_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='司机信息表' ;
 
 CREATE TABLE `device_info` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint  unsigned  NOT NULL,
-  `client_id` varchar(64)  NOT NULL, # 推送id
-  `dev_id` varchar(64)  NOT NULL,    # 设备id
-  `dev_id_sign` bigint  unsigned not NULL, # dev_id签名
-  `status` tinyint default 0, #0表示在线 1表示离线 
-  `ctime` int not NULL, 
-  `mtime` int not NULL, 
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `udid_key` (`user_id`, `dev_id_sign`),
-  INDEX `uid_index` (`user_id`)
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `user_id` bigint  unsigned  NOT NULL,
+    `client_id` varchar(64)  NOT NULL, # 推送id
+    `dev_id` varchar(64)  NOT NULL,    # 设备id
+    `dev_id_sign` bigint  unsigned not NULL, # dev_id签名
+    `status` tinyint default 0, #0表示在线 1表示离线 
+    `ctime` int not NULL, 
+    `mtime` int not NULL, 
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `udid_key` (`user_id`, `dev_id_sign`),
+    INDEX `uid_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='设备表';
 
 

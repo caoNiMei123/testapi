@@ -43,7 +43,7 @@ class CarpoolService
         $dest_gps = $arr_req['dest_gps'] ; 
         $mileage = $arr_req['mileage'] ; 
 
-        $desc = isset($arr_opt['desc'])?$arr_opt['desc']:'';
+        $detail = isset($arr_opt['detail'])?$arr_opt['detail']:'';
 
         Utils::check_int($type, 1, 2); 
         
@@ -111,7 +111,7 @@ class CarpoolService
             'ctime'         => $now,
             'mtime'         => $now,
             'mileage'       => $mileage,
-            'desc'          => $desc,
+            'detail'          => $detail,
         ); 
         
         //$db_proxy->startTransaction();
