@@ -229,7 +229,7 @@ class CarpoolService
             //司机逻辑        
 
             //如果也不是司机 ，直接拒绝
-            if($user_id != intval($arr_response[0]['driver_id'])
+            if($user_id != intval($arr_response[0]['driver_id']))
             {
                 throw new Exception('carpool.param status not allowed');
             }
