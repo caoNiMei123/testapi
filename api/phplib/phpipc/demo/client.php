@@ -1,5 +1,6 @@
 <?php
     require "./sender.php";
+
     $sender = new PHPIpcSender(array(
         'machine' => '/tmp/tmp_socket',
         'connect_timeout' => 1000,
@@ -7,7 +8,7 @@
     ));
     $seed = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ';
     $seed_len = strlen($seed);
-    
+
     while(true){
         $word = '';
         //随机种子更唯一

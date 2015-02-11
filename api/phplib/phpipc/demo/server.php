@@ -8,5 +8,6 @@
     while(true){
         $result = $receiver->get_task();
         var_dump($result);
+	exit(0);
     }
 ?>

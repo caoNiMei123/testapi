@@ -15,6 +15,7 @@ class PHPIpcReceiver
     {
         $this->_arr_conf = $arr_conf;
     }
+    
     //如果没有任务会阻塞
     public function get_task()
     {
@@ -26,42 +27,84 @@ class PHPIpcReceiver
         if(is_resource($this->_socket) === false)
         {
             unlink($this->_arr_conf['machine']);
+            
             $this->_socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
             if(is_resource($this->_socket) === false)
             {
+            	$socket_errno = socket_last_error();
+            	CLog::warning("socket_create failed [errno: %s, errstr: %s]", 
+            				  $socket_errno,  socket_strerror($socket_errno));
                 return false;
             }
+            
             if (!socket_set_option($this->_socket, SOL_SOCKET, SO_REUSEADDR, 1))
             {
                 return false;
-            }   
-            if (socket_bind($this->_socket, $this->_arr_conf['machine']) === false)
+            }
+			
+            // 设置socket接收数据超时时间
+            $arr_recv_timeout = array(
+            	'sec' => 0,
+            	'usec' => IPCConfig::$domain_info['receive_timeout'],
+            );
+            if (!socket_set_option($this->_socket, SOL_SOCKET, SO_RCVTIMEO, $arr_recv_timeout)))
             {
                 return false;
-            }   
+            }
+            
+            if (socket_bind($this->_socket, $this->_arr_conf['machine']) === false)
+            {
+            	$socket_errno = socket_last_error();
+            	CLog::warning("socket_bind failed [errno: %s, errstr: %s]", 
+            				  $socket_errno,  socket_strerror($socket_errno));
+                return false;
+            }
+            
+			if (!socket_listen($this->_socket, 0))
+            {
+            	$socket_errno = socket_last_error();
+            	CLog::warning("socket_listen failed [errno: %s, errstr: %s]", 
+            				  $socket_errno,  socket_strerror($socket_errno));
+                return false;
+            }
         }
         $timeout = 10 * 1000 * 1000;
         if (isset($this->_arr_conf['timeout'])) 
         {
             $timeout = $this->_arr_conf['timeout'] * 1000;
         }
-
-        
-        while (true)
-        {   
-            while (socket_listen($this->_socket, 0))
-            {
-                $socket_connection = socket_accept($this->_socket);
-                $result = $this->_fetch_msg($socket_connection, $timeout);                    
-                if($result !== false)
-                {
-                    $this->_send_res($socket_connection, 0);
-                    return $result;
-                }
-                $this->_send_res($socket_connection, -1);
-            } 
+		
+        // accept socket直至accept成功或socket接收数据超时
+        $socket_connection = socket_accept($this->_socket);
+        if (false == $socket_connection)
+        {
+        	$ret = NULL;
+        	$socket_errno = socket_last_error();
+        	if (11 == $socket_errno) // socket接收数据超时
+        	{
+        		$ret = array();
+        	}
+        	else
+        	{
+        		$ret = false;
+            	CLog::warning("socket_accept failed [errno: %s, errstr: %s]", 
+            				  $socket_errno,  socket_strerror($socket_errno));
+        	}
+        	
+        	return $ret;
         }
-       
+        
+        // accept请求成功，获取请求数据
+		$arr_result = $this->_fetch_msg($socket_connection, $timeout);               
+		if ($arr_result !== false)
+		{
+			$this->_send_res($socket_connection, 0);
+			return $arr_result;
+		}
+		
+		$this->_send_res($socket_connection, -1);
+
+		return false;       
     }
 
     private function _fetch_msg(&$sock, $timeout)
@@ -69,7 +112,9 @@ class PHPIpcReceiver
         $byte_left = 16;
         $start = gettimeofday();
         $received = 0;
+        $arr_receive = array();
         $receive_data = "";
+        
         while ($byte_left > 0) {
             $tmp_receive_data = socket_read($sock, $byte_left);
             $received  = strlen($tmp_receive_data);
@@ -90,6 +135,7 @@ class PHPIpcReceiver
             $current = gettimeofday();
             $us_gone = ($current['sec'] - $start['sec']) * 1000000 + ($current['usec'] - $start['usec']);
             if ($us_gone > $timeout) {
+            	CLog::warning("read none data before timeout");
                 socket_close($sock);
                 return false;
             }
@@ -124,9 +170,12 @@ class PHPIpcReceiver
                 socket_close($sock);
                 return false;
             }
-    
         }
-        return $receive_data;
+        
+        $arr_receive['header'] = $head_arr;
+        $arr_receive['body'] = $receive_data;
+        
+        return $arr_receive;
 
         
     }
@@ -142,8 +191,6 @@ class PHPIpcReceiver
         $struct .= pack("I",$errno);        
         $sent = socket_write($sock, $struct, strlen($struct));        
         socket_close($sock);
-        return $receive_data;        
-
     }
 
 };
