@@ -43,7 +43,7 @@ function execute($arr_task_info)
 				$arr_task_info['src'],$arr_task_info['dest'], 
 				$arr_task_info['src_gps'],$arr_task_info['dest_gps'], 
 				$arr_task_info['timeout']);
-	
+				
 	NotifyWorker::doExecute($arr_task_info);
 }
 
@@ -153,11 +153,19 @@ function get_task($receiver)
 
 function producer($receiver, &$arr_task)
 {
-	// 判断任务队列长度
-	if (count($arr_task) > WorkerConfig::$taskQueueCapacity)
+	// 队列已满，停止服务
+	$task_num = count($arr_task);
+	
+	if ($task_num > WorkerConfig::$taskQueueCapacity)
 	{
-		CLog::warning("task queue is full");
+		CLog::fatal("task queue is full");
 		return;
+	}
+	
+	// 超过任务队列长度80%, 报警
+	if ($task_num > intval(WorkerConfig::$taskQueueCapacity * 0.8))
+	{
+		CLog::fatal("task queue capacity is more than 80%");
 	}
 	
 	$time_start = gettimeofday();
@@ -238,13 +246,15 @@ function cleaner(&$arr_pid)
 			}
 			else if ($pid < 0)
 			{
-				CLog::fatal("pcntl_waitpid() for process failed");
+				CLog::warning("pcntl_waitpid() for process failed");
 				break;
 			} 
 			else
 			{
 				$logid = $arr_pid[$pid];
 				unset($arr_pid[$pid]);
+				CLog::trace("pcntl_waitpid() for process succ");
+				
 				//$exitstatus = pcntl_wexitstatus($status);
 			}
 			

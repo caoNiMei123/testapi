@@ -122,7 +122,7 @@ class PHPIpcReceiver
         $receive_data = "";
         
         while ($byte_left > 0) {
-            $tmp_receive_data = socket_read($sock, $byte_left);
+            $tmp_receive_data = @socket_read($sock, $byte_left);
             $received  = strlen($tmp_receive_data);
             if (0 == $received) 
             {
@@ -154,7 +154,7 @@ class PHPIpcReceiver
         $byte_left = $head_arr['body_len'];
         $receive_data = '';
         while ($byte_left > 0) {
-            $tmp_receive_data = socket_read($sock, $byte_left);
+            $tmp_receive_data = @socket_read($sock, $byte_left);
             $received  = strlen($tmp_receive_data);           
             if (0 == $received) {
                 socket_close($sock);
@@ -196,7 +196,7 @@ class PHPIpcReceiver
         $struct .= pack("I",$magic_num);
         $struct .= pack("I",$reserved);
         $struct .= pack("I",$errno);        
-        $sent = socket_write($sock, $struct, strlen($struct));        
+        $sent = @socket_write($sock, $struct, strlen($struct));        
         socket_close($sock);
     }
 
