@@ -198,32 +198,32 @@ class PushProxyConfig
      * province: 省份，对应group成员是江西、浙江
      * tag：标签，这需要个推后台设置
      */
-    public static $arrPushGroupType = array(
-        'app'       => 1,
-        'ctype'     => 2,
-        'province'  => 3,
-        'tag'       => 4,
-    );
-    
-    // 个推appid
-    public static $arrPushAppid = array(
-        'driver' => 'HHMI2vcZJl63m2DImlFVF9',
-        'passenger' => '6N67PoCPHM6whyzs2QX4z5',
-    );
-    
-    // 个推appkey
-    public static $arrPushAppkey = array(
-        'driver' => 'cgXzilQeDbAWkifs4QW5g5',
-        'passenger' => 'B7ZXT5FW1c9mBK2QzYhII3',
-    );
-    
-    // 个推mastersecret
-    public static $arrPushMasterSecret = array(
-        'driver' => 'nUO3INZjtE6RoqX5VSPML1',
-        'passenger' => '1zQgZL1uSU81i9cCwOWWc3',
-    );
-    
-    // 个推host
+	public static $arrPushGroupType = array(
+		'app' 		=> 1,
+		'ctype' 	=> 2,
+		'province'	=> 3,
+		'tag'		=> 4,
+	);
+	
+	// 个推appid
+	public static $arrPushAppid = array(
+		'driver' => '6N67PoCPHM6whyzs2QX4z5',
+		'passenger' => '6N67PoCPHM6whyzs2QX4z5',
+	);
+	
+	// 个推appkey
+	public static $arrPushAppkey = array(
+		'driver' => 'B7ZXT5FW1c9mBK2QzYhII3',
+		'passenger' => 'B7ZXT5FW1c9mBK2QzYhII3',
+	);
+	
+	// 个推mastersecret
+	public static $arrPushMasterSecret = array(
+		'driver' => '1zQgZL1uSU81i9cCwOWWc3',
+		'passenger' => '1zQgZL1uSU81i9cCwOWWc3',
+	);
+	
+	// 个推host
     public static $host = 'http://sdk.open.api.igexin.com/apiex.htm';
     
     // 离线消息默认超时时间，单位秒

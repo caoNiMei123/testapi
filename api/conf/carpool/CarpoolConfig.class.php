@@ -35,7 +35,7 @@ class CarpoolConfig
         'ios'   => 4,
     );
     
-    public static $debug = true;
+    public static $debug = true; 
 
     public static $s3_bucket = 'real-pin'; 
     public static $s3_host = 'oss-cn-beijing-internal.aliyuncs.com';
