@@ -48,8 +48,7 @@ class PHPIpcSender
         				  $errno, $errstr, "unix://" . $this->_arr_conf['machine']);
             return false;
         } 
-     
-        $log_id = 0; 
+
         $magic_num = 0x1016;
         $reserved = 0;
         $body_len = strlen($json_body);   

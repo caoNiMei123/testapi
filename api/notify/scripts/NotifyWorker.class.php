@@ -2,10 +2,6 @@
 
 class NotifyWorker
 {
-	const TABLE_TASK_INFO_PREFIX = 'task_info_';
-	const TABLE_TASK_INFO_PARTITION = 16; // task_info的分表数
-	
-	const TABLE_PICKRIDE_INFO = 'pickride_info';
 	const TABLE_DRIVER_INFO = 'driver_info';
 	const TABLE_DEVICE_INFO = 'device_info';
 	
@@ -17,257 +13,39 @@ class NotifyWorker
     const CARPOOL_STATUS_DONE = 4;
     const CARPOOL_STATUS_TIMEOUT  = 5;
 	
-	public static function doExecute($cur_process_num, $total_process_num)
+	public static function doExecute($arr_task_info)
 	{
-		$pre_num = 0;
-		$begin_table_num = 0;
-		$end_table_num = 0;
+		$pid = $arr_task_info['pid'];
+		$user_id = $arr_task_info['user_id'];
+		$phone = $arr_task_info['phone'];
+		$pid_ctime = $arr_task_info['ctime'];
+		$timeout = $arr_task_info['timeout'];
 		
-		// 当分表数大于worker进程数时
-		if (self::TABLE_TASK_INFO_PARTITION >= $total_process_num)
+		$src = $arr_task_info['src'];
+		$dest = $arr_task_info['dest'];
+		
+		$src_gps = $arr_task_info['src_gps'];
+		$dest_gps = $arr_task_info['dest_gps'];
+		
+		$arr_ret = explode(',', $src_gps);
+		if (false === $arr_ret || 0 == count($arr_ret))
 		{
-			// 每个worker平均要处理的分表数
-			$pre_num = intval(self::TABLE_TASK_INFO_PARTITION / $total_process_num);
-			
-			// 除去平均分配后，剩余的分表数
-			$remain_num = self::TABLE_TASK_INFO_PARTITION % $total_process_num;
-			
-			$begin_table_num = $cur_process_num * $pre_num;
-			
-			// 若有剩余的分表，则让前$remain_num个worker进程，每个进程多增加1张表的任务处理
-			if ($remain_num > 0)
-			{
-				// 当有剩余分表时，要处理的起始分表需要做调整
-				if ($cur_process_num >= $remain_num)
-				{
-					$begin_table_num += $remain_num;
-				}
-				else
-				{
-					$begin_table_num += $cur_process_num;
-				}
-			}
-			
-			$end_table_num = $begin_table_num + $pre_num - 1;
-			
-			// 若有剩余分表，且进程是前$cur_process_num进程，需要多处理一张分表任务
-			if ($remain_num > 0 && $cur_process_num < $remain_num)
-			{
-				$end_table_num += 1;
-			}
-		}
-		else // 当worker进程数大于分表数，这种情况下，每个worker只能处理一张分表
-		{
-			// 每个分表平均被多少个worker处理
-			$pre_num = intval($total_process_num / self::TABLE_TASK_INFO_PARTITION);
-			$totoal_average_num = $pre_num * self::TABLE_TASK_INFO_PARTITION;
-			
-			// 对不能被平分的进程，循环的处理从0开始的每张表
-			if ($cur_process_num >= $totoal_average_num)
-			{
-				$begin_table_num = $cur_process_num % $totoal_average_num;
-			}
-			else
-			{
-				$begin_table_num = intval($cur_process_num / ($pre_num));
-			}
-			
-			// 起始表与结束表是同一张表
-			$end_table_num = $begin_table_num;
-		}
-		
-		/*
-		echo "-------------------------\n";
-		echo "cur_process_num: $cur_process_num\n";
-		echo "total_process_num: $total_process_num\n";
-		echo "pre_num: $pre_num\n";
-		echo "begin_table_num: $begin_table_num\n";
-		echo "end_table_num: $end_table_num\n";
-		echo "-------------------------\n";
-		*/
-		
-		CLog::trace("notify worker start [cur_process_num: %s, begin_table_num: %s, end_table_num: %s, totoal_process_num: %s]",
-					$cur_process_num, $begin_table_num, $end_table_num, $total_process_num);
-		
-		$task_num = 0;
-		
-		while($task_num < NotifyConfig::MAX_TASK_PROCESS_NUM)
-		{
-			$table_num = $begin_table_num;
-		
-			while($table_num <= $end_table_num)
-			{
-				$ret = self::do_notify($table_num);
-				if (NotifyConfig::$arProcessStatus['no_task'] == $ret)
-				{
-					usleep(NotifyConfig::WORKER_SLEEP_TIME);
-				}
-				
-				++$table_num;
-				++$task_num;
-			}
-		}
-	}
-	
-	public static function do_notify($table_num)
-	{
-		// 组织分表名
-		$table_task_info = self::TABLE_TASK_INFO_PREFIX . $table_num;
-		
-		//CLog::trace("proc tabl_name: %s", $table_task_info);
-		
-		$db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-		if (false === $db_proxy)
-		{
-			CLog::warning("call db failed");
+			CLog::warning("invalid src_gps [src_gps: %s]", $src_gps);
 			return;
 		}
 		
-		// 开启事物
-		$ret = $db_proxy->startTransaction();
-		if (false === $ret)
+		$src_latitude = $arr_ret[0];
+		$src_longitude = $arr_ret[1];
+		
+		$arr_ret = explode(',', $dest_gps);
+		if (false === $arr_ret || 0 == count($arr_ret))
 		{
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
+			CLog::warning("invalid dest_gps [dest_gps: %s]", $dest_gps);
 			return;
 		}
 		
-		
-		/*
-		 * todo: 
-		 * 1. 后续考虑用update替换行锁，获取last_insert_id
-		 * 2. 增加扫taks时，判断taks的超时，已经超时的任务就不用再推送了
-		 */
-		// 拉取创建的任务，并加行锁
-		$condition = array(
-			'and' => array(
-				array(
-					'status' => array(
-			 			'=' => NotifyConfig::$arrNotifyTaskStatus['new'],
-					),
-				),
-			),
-		);
-		$append_condition = array(
-			'start' => 0, 
-			'limit' => 1,
-		);
-		$arr_response = $db_proxy->selectForUpdate($table_task_info, 
-										 		   array('pid', 'user_id', 'phone'), 
-										 		   $condition,
-										 		   $append_condition);
-		if (false === $arr_response || 
-			!is_array($arr_response))
-		{
-			$db_proxy->rollback();
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		if (0 == count($arr_response))
-		{
-			//CLog::trace("no task to do [tabl_name: %s]", $table_task_info);
-			$db_proxy->rollback();
-			return NotifyConfig::$arProcessStatus['no_task'];
-		}
-
-		if (!isset($arr_response[0]['pid']))
-		{
-			$db_proxy->rollback();
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		$pid = $arr_response[0]['pid'];
-		$user_id = $arr_response[0]['user_id'];
-		$phone = $arr_response[0]['phone'];
-		
-		CLog::trace("get task succ [pid: %s, user_id: %s, phone: %s, task_name: %s]", 
-					$pid, $user_id, $phone, $table_task_info);
-		
-		// 获取任务成功，将任务的状态修改为处理中
-		$condition = array(
-			'and' => array(
-				array(
-					'pid' => array(
-			 			'=' => $pid,
-					),
-				),
-				array(
-					'status' => array(
-			 			'=' => NotifyConfig::$arrNotifyTaskStatus['new'],
-					),
-				),
-			),
-		);
-		$row = array(
-			'status' => NotifyConfig::$arrNotifyTaskStatus['processing'],
-		);
-		$ret = $db_proxy->update($table_task_info, $condition, $row);
-		if (false === $ret)
-		{
-			$db_proxy->rollback();
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		// 提交事物
-		$ret = $db_proxy->commit();
-		if (false === $ret)
-		{
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		// 查询pid对应的详细信息
-		$condition = array(
-			'and' => array(
-				array(
-					'pid' => array(
-			 			'=' => $pid,
-					),
-				),
-				array(
-					'status' => array(
-			 			'=' => self::CARPOOL_STATUS_CREATE,
-					),
-				),
-			),
-		);
-		$arr_response = $db_proxy->select(self::TABLE_PICKRIDE_INFO, 
-										  array('user_id', 'src', 'dest', 
-										  		'src_latitude', 'src_longitude', 
-										  		'dest_latitude', 'dest_longitude',
-										  		'ctime'), 
-										  $condition);
-		if (false === $arr_response || !is_array($arr_response))
-		{
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-
-		if (0 == count($arr_response))
-		{
-			CLog::trace("the pid does not exist [pid: %s]", $pid);
-			self::set_task_status($table_task_info, $pid, 
-								  NotifyConfig::$arrNotifyTaskStatus['error_invalid_pid']);
-			
-			return;
-		}
-		
-		$src = $arr_response[0]['src'];
-		$dest = $arr_response[0]['dest'];
-		$src_latitude = $arr_response[0]['src_latitude'];
-		$src_longitude = $arr_response[0]['src_longitude'];
-		$dest_latitude = $arr_response[0]['dest_latitude'];
-		$dest_longitude = $arr_response[0]['dest_longitude'];
-		$pid_ctime = $arr_response[0]['ctime'];
-		
-		CLog::debug("get pid info succ [src: %s, dest: %s, " . 
-					"src_latitude: %s, src_longitude: %s, " . 
-					"dest_latitude: %s, dest_longitude: %s, " .
-					"pid_ctime: %s]", 
-					$src, $dest, $src_latitude, $src_longitude, 
-					$dest_latitude, $dest_longitude, $pid_ctime);
+		$dest_latitude = $arr_ret[0];
+		$dest_longitude = $arr_ret[1];
 		
 		// 确定出发地附近的范围
 		$coordinate_object = CoordinateService::getInstance();
@@ -284,7 +62,14 @@ class NotifyWorker
 					"src_min_longitude: %s, src_max_longitude: %s]",
 					$src_min_latitude, $src_max_latitude,
 					$src_min_longitude, $src_max_longitude);
-					
+		
+		$db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+		if (false === $db_proxy)
+		{
+			CLog::warning("call db failed");
+			return;
+		}
+		
 		// 查询driver_info表
 		$expire_time = time() - NotifyConfig::$notifyTimeout;
 		$condition = array(
@@ -337,11 +122,8 @@ class NotifyWorker
 		{
 			CLog::warning("no driver around [src_latitude: %s, src_longitude: %s, sql: %s]",
 						  $src_latitude, $src_longitude, $db_proxy->getLastSQL());
-						  
-			self::set_task_status($table_task_info, $pid, 
-								  NotifyConfig::$arrNotifyTaskStatus['error_no_driver']);
 								  
-			return NotifyConfig::$arProcessStatus['no_driver'];
+			return;
 		}
 
 		$driver_num = count($arr_response);
@@ -403,38 +185,6 @@ class NotifyWorker
 		
 		CLog::debug("the driver user_id is [driver_user_id: %s]", json_encode($arr_driver_user));
 
-		/*
-		// 查询司机对应的消息推送ID
-		$condition = array(
-			'and' => array(
-				array(
-					'user_id' => array(
-			 			'in' => $arr_driver_user,
-					),
-				),
-			),
-		);
-		$append_condition = array(
-			'start' => 0, 
-			'limit' => count($arr_driver_user),
-		);
-		$arr_response = $db_proxy->select(self::TABLE_DEVICE_INFO, 
-										  array('user_id', 'client_id'), 
-										  $condition,
-										  $append_condition);
-		if (false === $arr_response || 
-			!is_array($arr_response))
-		{
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		if (0 == count($arr_response))
-		{
-			CLog::warning("get drvier client_id failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		*/
 		
 		// 组织消息，开始推送
 		$arr_content = array(
@@ -450,7 +200,7 @@ class NotifyWorker
 				'timeout' => CarpoolConfig::CARPOOL_ORDER_TIMEOUT,
 			),
 			'msg_ctime' => time(),
-			'msg_expire' => NotifyConfig::$notifyMsgTimeout,
+			'msg_expire' => $timeout,
 		);
 		$arr_msg = array(
 			'trans_type' => 1,
@@ -468,46 +218,10 @@ class NotifyWorker
 		if (false === $ret)
 		{
 			CLog::warning("notify failed [pid: %s]", $pid);
-			
-			self::set_task_status($table_task_info, $pid, 
-								  NotifyConfig::$arrNotifyTaskStatus['error_push']);
 			return;
 		}
 		
 		CLog::trace("notify succ [pid: %s, driver_num: %s]", $pid, count($arr_driver_user));
-	}
-	
-	public static function set_task_status($table_name, $pid, $status)
-	{
-		$db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-		if (false === $db_proxy)
-		{
-			CLog::warning("call db failed");
-			return;
-		}
-		
-		// 获取任务成功，将任务的状态修改为处理中
-		$condition = array(
-			'and' => array(
-				array(
-					'pid' => array(
-			 			'=' => $pid,
-					),
-				),
-			),
-		);
-		$row = array(
-			'status' => $status,
-		);
-		$ret = $db_proxy->update($table_name, $condition, $row);
-		if (false === $ret)
-		{
-			CLog::warning("call db failed [sql: %s]", $db_proxy->getLastSQL());
-			return;
-		}
-		
-		CLog::debug("set_task_status succ [table_name: %s, pid: %s, status: %s]",
-					$table_name, $pid, $status);
 	}
 	
 	public static function _test_push()

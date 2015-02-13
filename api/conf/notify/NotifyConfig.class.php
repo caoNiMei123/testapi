@@ -2,24 +2,11 @@
 
 
 class NotifyConfig
-{
-	// 最多处理的task个数，超过这个个数，该进程就退出
-	const MAX_TASK_PROCESS_NUM = 10000;
-	
-	// 没有任务时的休眠时间，单位: 毫秒
-	const WORKER_SLEEP_TIME = 10000;
-	
+{	
 	const DRIVER_LIMIT = 50;
 	
-	public static $notifyTimeout = 1; // 单位: 秒
+	public static $notifyTimeout = 300; // 单位: 秒
 	
-	public static $notifyMsgTimeout = 100; // 单位：秒
-	
-	public static $arProcessStatus = array(
-        'no_task'   => 0,
-		'no_driver' => 1,
-    );
-    
     // 单位：公里
     public static $NotifyRectangleRange = 7;
     

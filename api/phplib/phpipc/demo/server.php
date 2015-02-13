@@ -4,10 +4,13 @@
         'machine' => '/tmp/tmp_socket',
         'connect_timeout' => 1000,
         'timeout' => 10000,
+    	'receive_timeout' => 10000, // socket接收数据超时，单位: 微秒
     ));
     while(true){
         $result = $receiver->get_task();
-        var_dump($result);
-	exit(0);
+        if (!empty($result))
+        {
+        	var_dump($result);	
+        }
     }
 ?>

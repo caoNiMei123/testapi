@@ -8,7 +8,26 @@
     ));
     $seed = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ';
     $seed_len = strlen($seed);
-
+	
+    $task_info = array(
+    	'pid' => 123,
+    	'user_id' => 456,
+    	'phone' => 13412345678,
+    	'ctime' => 123,
+    	'mtime' => 456,
+    	'price' => 111,
+    	'mileage' => 444,
+    	'src' => "beijing",
+    	'dest' => 'changping',
+    	'src_gps' => '',
+    	'dest_gps' => '',
+    	'timeout' => 1234,
+    );
+    echo "xxxxxxxxxx";
+    $result = $sender->call(json_encode($task_info), 12345);
+    var_dump($result);
+    
+    /*
     while(true){
         $word = '';
         //随机种子更唯一
@@ -19,5 +38,6 @@
         $result = $sender->call($word);
         var_dump($result);
         
-    }    
+    }   
+    */
 ?>

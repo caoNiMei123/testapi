@@ -15,15 +15,14 @@ class PHPIpcReceiver
     {
         $this->_arr_conf = $arr_conf;
     }
-    
-    //如果没有任务会阻塞
+
     public function get_task()
     {
         if (!isset($this->_arr_conf['machine'])) 
         {
             return false;
         }     
-
+		
         if(is_resource($this->_socket) === false)
         {
             unlink($this->_arr_conf['machine']);
@@ -45,9 +44,9 @@ class PHPIpcReceiver
             // 设置socket接收数据超时时间
             $arr_recv_timeout = array(
             	'sec' => 0,
-            	'usec' => IPCConfig::$domain_info['receive_timeout'],
+            	'usec' => $this->_arr_conf['receive_timeout']
             );
-            if (!socket_set_option($this->_socket, SOL_SOCKET, SO_RCVTIMEO, $arr_recv_timeout)))
+            if (!socket_set_option($this->_socket, SOL_SOCKET, SO_RCVTIMEO, $arr_recv_timeout))
             {
                 return false;
             }
@@ -68,14 +67,21 @@ class PHPIpcReceiver
                 return false;
             }
         }
+        
         $timeout = 10 * 1000 * 1000;
         if (isset($this->_arr_conf['timeout'])) 
         {
             $timeout = $this->_arr_conf['timeout'] * 1000;
         }
-		
-        // accept socket直至accept成功或socket接收数据超时
-        $socket_connection = socket_accept($this->_socket);
+        
+        /*
+         * accept socket直至accept成功或socket接收数据超时
+         * 注: socket_accept会疯狂的输出php error
+         * socket_accept(): unable to accept incoming connection [11]: Resource temporarily unavailable
+         * 故加上@，下面网页中提出使用stream_*取代socket_*函数簇，后续若要修改可参考.
+         * http://stackoverflow.com/questions/19339073/php-socket-accept-throws-warnings-in-non-blocking-mode
+         */
+        $socket_connection = @socket_accept($this->_socket);
         if (false == $socket_connection)
         {
         	$ret = NULL;
@@ -184,7 +190,8 @@ class PHPIpcReceiver
         $log_id = 0; 
         $magic_num = 0x1016;
         $reserved = 0;
-    
+    	
+        $struct = NULL;
         $struct .= pack("I",$log_id);
         $struct .= pack("I",$magic_num);
         $struct .= pack("I",$reserved);
