@@ -161,6 +161,7 @@ class CarpoolService
             CLog::fatal("call ipc failed pid : %d", $pid);
         }
 
+        CLog::debug("push task to worker : $task");
 
         CLog::trace("order create succ [account: %s, user_id : %d, pid : %s]", $user_name, $user_id, $pid);
         return $arr_response;
