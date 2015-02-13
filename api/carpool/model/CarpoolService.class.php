@@ -474,6 +474,25 @@ class CarpoolService
             throw new Exception('carpool.not_found this pid not exists');
         }       
         $db_proxy->commit();
+
+
+        //更新 乘客 和 司机的 成单量， 可以不放到事务里
+
+        $ret = $db_proxy->update('user_info', array('and'=>
+            array(
+                array('user_id' =>  
+                    array('=' => $user_id)),                                                             
+                )
+            ), 'dcount = dcount + 1'); 
+
+        $ret = $db_proxy->update('user_info', array('and'=>
+            array(
+                array('user_id' =>  
+                    array('=' => $passenger_id)),                                                             
+                )
+            ), 'pcount = pcount + 1'); 
+
+
         $price = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
      
         $msg = json_encode(array(
