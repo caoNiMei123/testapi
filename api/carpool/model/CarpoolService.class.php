@@ -155,7 +155,7 @@ class CarpoolService
         
         $php_ipc = new PHPIpcSender(IPCConfig::$domain_info);
 
-        $ret = $php_ipc->call($task);
+        $ret = $php_ipc->call($task, Clog::logId());
         if(false === $ret)
         {
             CLog::fatal("call ipc failed pid : %d", $pid);
