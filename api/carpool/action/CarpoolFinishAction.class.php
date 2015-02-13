@@ -7,7 +7,7 @@ class CarpoolFinishAction extends CarpoolBaseAction
         // 1. 基本检查，必选参数是否存在
         $this->check_uinfo();
         $this->exist('pid');
-        $this->exist('mileage');
+        //$this->exist('mileage');
         $this->exist('devuid');
         
         // 2. 取参数，分成必选和可选
