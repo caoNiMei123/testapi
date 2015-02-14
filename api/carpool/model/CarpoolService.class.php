@@ -727,7 +727,17 @@ class CarpoolService
             $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
-
+		
+        // added by zl 判断$arr_user_list是否为空
+        if (0 == count($arr_user_list))
+        {
+        	CLog::trace("user_list is null");
+            return array(
+                'list' => array(),
+            );
+        }
+        // added by zl
+        
         $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status', 'head_bucket','head_object' ),array('and'=>array(
             array('user_id' =>  array('in' => $arr_user_list)),
                 ))
