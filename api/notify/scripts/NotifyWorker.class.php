@@ -20,6 +20,8 @@ class NotifyWorker
 		$phone = $arr_task_info['phone'];
 		$pid_ctime = $arr_task_info['ctime'];
 		$timeout = $arr_task_info['timeout'];
+		$price = $arr_task_info['price'];
+		$mileage = $arr_task_info['mileage'];
 		
 		$src = $arr_task_info['src'];
 		$dest = $arr_task_info['dest'];
@@ -197,6 +199,8 @@ class NotifyWorker
 				'dest_gps' => $dest_latitude . ',' . $dest_longitude,
 				'pid' => $pid,
 				'ctime' => $pid_ctime,
+				'price' => $price,
+				'mileage' => $mileage, 
 				'timeout' => CarpoolConfig::CARPOOL_ORDER_TIMEOUT,
 			),
 			'msg_ctime' => time(),
