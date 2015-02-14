@@ -43,7 +43,7 @@ function execute($arr_task_info)
 				$arr_task_info['src'],$arr_task_info['dest'], 
 				$arr_task_info['src_gps'],$arr_task_info['dest_gps'], 
 				$arr_task_info['timeout']);
-				
+
 	NotifyWorker::doExecute($arr_task_info);
 }
 
@@ -219,7 +219,8 @@ function consumer(&$arr_task, &$arr_pid)
 				}
 				else // 父进程
 				{
-					// 记录pid对应的logid
+					// 先记录一个无意义的logid，后续如有需求再写
+					$logid = 1;
 					$arr_pid[$pid] = $logid;
 				}
 			}
@@ -239,25 +240,24 @@ function cleaner(&$arr_pid)
 		
 		while(true)
 		{
-			$pid = pcntl_waitpid(0, $status, WNOHANG);
-			if (0 == $pid)
-			{
-				//nothing to do
-			}
-			else if ($pid < 0)
-			{
-				CLog::warning("pcntl_waitpid() for process failed");
-				break;
-			} 
-			else
-			{
-				$logid = $arr_pid[$pid];
-				unset($arr_pid[$pid]);
-				CLog::trace("pcntl_waitpid() for process succ");
-				
-				//$exitstatus = pcntl_wexitstatus($status);
-			}
-			
+		  	foreach ($arr_pid as $pid => $logid)
+            {
+                $ret = pcntl_waitpid($pid, $status, WNOHANG);
+                if ($ret > 0) // 指定进程正常退出
+                {
+                	unset($arr_pid[$ret]);
+                	CLog::trace("pcntl_waitpid() for process succ");
+                }
+                else if (0 == $ret) // nohang无进程退出
+                {
+					continue;
+                }
+                else // 出错
+                {
+                	CLog::fatal("pcntl_waitpid() for process failed");
+                }
+            }
+ 
 		    // 计算执行的时间片
             if (is_time_up(WorkerConfig::WORKER_CLEAN_TIME, $time_start))
             {
