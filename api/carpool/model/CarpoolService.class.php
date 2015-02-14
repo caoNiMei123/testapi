@@ -350,7 +350,7 @@ class CarpoolService
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_phone = intval($arr_response[0]['phone']);
         $passenger_dev_id = $arr_response[0]['passenger_dev_id'];    
-        $passenger_status = intval($arr_response[0]['user_status']);    
+        $passenger_status = intval($arr_response[0]['status']);    
       
         $arr_response = $db_proxy->selectForUpdate('pickride_info', array('mileage', 'pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
@@ -455,7 +455,7 @@ class CarpoolService
         $mileage = intval($arr_response[0]['mileage']);
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
-        $passenger_status = intval($arr_response[0]['user_status']);
+        $passenger_status = intval($arr_response[0]['status']);
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
@@ -728,13 +728,14 @@ class CarpoolService
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
 
-        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'user_status', 'head_bucket','head_object' ),array('and'=>array(
+        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status', 'head_bucket','head_object' ),array('and'=>array(
             array('user_id' =>  array('in' => $arr_user_list)),
                 ))
         );
         if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
         {
-            throw new Exception('carpool.internal select from the DB failed');
+            throw new Exception('carpool.internal select from the DB failed [sql: ' . 
+            					$db_proxy->getLastSQL() . ']');
         }
         $user_map = array();
         foreach($arr_response as $key => $value)
