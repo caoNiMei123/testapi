@@ -177,11 +177,7 @@ class UserService
         // 1. 检查必选参数合法性
         $account = $arr_req['account'];
         Utils::check_string($account, 1, CarpoolConfig::USER_MAX_ACCOUNT_LENGTH);        
-        $type = $arr_req['type'];   
-        if (is_null($type)||($type != self::USERTYPE_DRIVER && $type !=self::USERTYPE_PASSENGER)) 
-        {
-            throw new Exception('carpool.param invalid type');
-        } 
+       
         $ret = Utils::is_valid_phone($account);
         if (false == $ret)
         {
@@ -238,10 +234,10 @@ class UserService
                 
         // 4. 设置cookie
         
-        $uinfo = self::_encrypt_uinfo($account, $user_id, $type);          
+        $uinfo = self::_encrypt_uinfo($account, $user_id, 0);          
         setcookie('CPUINFO', $uinfo, time() + CarpoolConfig::USER_COOKIE_EXPIRE_TIME);
         
-        CLog::trace("login succ [account: %s, user_id : %d, type : %d]", $account, $user_id, $type);
+        CLog::trace("login succ [account: %s, user_id : %d]", $account, $user_id);
     }   
        
     
@@ -250,7 +246,6 @@ class UserService
         // 1. 检查必选参数合法性
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
         $client_id = $arr_req['client_id'];
         $devuid = $arr_req['devuid'];
         Utils::check_string($client_id, 1, 64);
@@ -324,7 +319,6 @@ class UserService
         // 1. 检查必选参数合法性
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
         
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
@@ -377,7 +371,6 @@ class UserService
         // 1. 检查必选参数合法性
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
         
         $update = '';
         $driver_check = false;

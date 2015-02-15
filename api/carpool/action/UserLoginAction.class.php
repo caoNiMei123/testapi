@@ -7,7 +7,6 @@ class UserLoginAction extends CarpoolBaseAction
         // 1. 基本检查，必选参数是否存在
         $this->exist('account');
         $this->exist('secstr');
-        $this->exist('type');
         
         // 2. 取参数，分成必选和可选
         $arr_req = array();
@@ -15,7 +14,6 @@ class UserLoginAction extends CarpoolBaseAction
         
         $arr_req['account'] = $this->requests['account'];
         $arr_req['secstr'] = $this->requests['secstr'];     
-        $arr_req['type'] = $this->requests['type'];     
 
         $user_service = UserService::getInstance();
         $arr_response = $user_service->login($arr_req, $arr_opt);
