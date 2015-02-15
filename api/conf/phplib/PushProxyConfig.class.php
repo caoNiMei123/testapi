@@ -206,22 +206,13 @@ class PushProxyConfig
 	);
 	
 	// 个推appid
-	public static $arrPushAppid = array(
-		'driver' => '6N67PoCPHM6whyzs2QX4z5',
-		'passenger' => '6N67PoCPHM6whyzs2QX4z5',
-	);
+	public static $arrPushAppid = '6N67PoCPHM6whyzs2QX4z5';
 	
 	// 个推appkey
-	public static $arrPushAppkey = array(
-		'driver' => 'B7ZXT5FW1c9mBK2QzYhII3',
-		'passenger' => 'B7ZXT5FW1c9mBK2QzYhII3',
-	);
+	public static $arrPushAppkey = 'B7ZXT5FW1c9mBK2QzYhII3';
 	
 	// 个推mastersecret
-	public static $arrPushMasterSecret = array(
-		'driver' => '1zQgZL1uSU81i9cCwOWWc3',
-		'passenger' => '1zQgZL1uSU81i9cCwOWWc3',
-	);
+	public static $arrPushMasterSecret = '1zQgZL1uSU81i9cCwOWWc3';
 	
 	// 个推host
     public static $host = 'http://sdk.open.api.igexin.com/apiex.htm';

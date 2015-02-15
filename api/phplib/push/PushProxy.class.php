@@ -4,11 +4,9 @@ class PushPorxy
 {
     private static $instance = NULL;
     
-    private $arr_igt_obj = array();
+    private $igt_obj = array();
     
     const TABLE_DEVICE_INFO = 'device_info';
-    const USERTYPE_DRIVER = 1;
-    const USERTYPE_PASSENGER = 2;
     
     /**
      * @return PushPorxy
@@ -25,16 +23,11 @@ class PushPorxy
 
     protected function __construct()
     {
-        $this->arr_igt_obj['driver'] = new IGeTui(PushProxyConfig::$host,
-                                                  PushProxyConfig::$arrPushAppkey['driver'],
-                                                  PushProxyConfig::$arrPushMasterSecret['driver']);
-                                  
-        $this->arr_igt_obj['passenger'] = new IGeTui(PushProxyConfig::$host,
-                                                  PushProxyConfig::$arrPushAppkey['passenger'],
-                                                  PushProxyConfig::$arrPushMasterSecret['passenger']);
+        $this->igt_obj = new IGeTui(PushProxyConfig::$host,
+                                    PushProxyConfig::$arrPushAppkey,
+                                    PushProxyConfig::$arrPushMasterSecret);
         
-        $this->arr_igt_obj['passenger']->set_debug(PushProxyConfig::$pushDebugMode);
-        $this->arr_igt_obj['driver']->set_debug(PushProxyConfig::$pushDebugMode);                   
+        $this->igt_obj->set_debug(PushProxyConfig::$pushDebugMode);                
     }
     
     /*
@@ -49,24 +42,13 @@ class PushPorxy
     public function push_to_single($msg_type, 
                                    $arr_msg, 
                                    $arr_user,
-                                   $user_type,
                                    $is_offline = true, 
                                    $expire = PushProxyConfig::PUSH_OFFLINE_EXPIRE_TIME)
     {
         $user_id = $arr_user[0]['user_id'];
         $device_id = $arr_user[0]['device_id'];
-        $user_type_str = '';
-        
-        if (self::USERTYPE_DRIVER == $user_type)
-        {
-            $user_type_str = 'driver';
-        }
-        else
-        {
-            $user_type_str = 'passenger';
-        }
                 
-        $template = $this->_gene_msg($msg_type, $user_type_str, $arr_msg);
+        $template = $this->_gene_msg($msg_type, $arr_msg);
         if (NULL == $template)
         {
             return false;
@@ -104,11 +86,11 @@ class PushPorxy
         // 组织个推的target
         $target = new IGtTarget();
 
-        $target->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
+        $target->set_appId(PushProxyConfig::$arrPushAppid);
         $target->set_clientId($client_id);
         
         // 调用个推接口，推送消息
-        $arr_ret = $this->arr_igt_obj[$user_type_str]->pushMessageToSingle($message,$target);
+        $arr_ret = $this->igt_obj->pushMessageToSingle($message,$target);
         if (!isset($arr_ret['result']) ||
             'ok' !== $arr_ret['result'])
         {
@@ -124,7 +106,6 @@ class PushPorxy
      * @param  int    $msg_type; 参考PushProxyConfig::$arrPushMsgType
      * @param  array  $arr_msg; $msg_type决定消息内容，参考PushProxyConfig::$arrPushMsgNotify等
      * @param  array  $arr_user; 多个user_id和device_id的数组
-     * @param  int    $user_type; 司机还是乘客
      * @param  bool   $is_offline; 是否离线
      * @param  int    $expire; 离线时的超时时间
      * @return array  
@@ -132,21 +113,10 @@ class PushPorxy
     public function push_to_list($msg_type, 
                                  $arr_msg, 
                                  $arr_user, 
-                                 $user_type,
                                  $is_offline = true, 
                                  $expire = PushProxyConfig::PUSH_OFFLINE_EXPIRE_TIME)
     {
-        $user_type_str = '';
-        if (self::USERTYPE_DRIVER == $user_type)
-        {
-            $user_type_str = 'driver';
-        }
-        else
-        {
-            $user_type_str = 'passenger';
-        }
-        
-        $template = $this->_gene_msg($msg_type, $user_type_str, $arr_msg);
+        $template = $this->_gene_msg($msg_type, $arr_msg);
         if (NULL == $template)
         {
             return false;
@@ -169,7 +139,7 @@ class PushPorxy
             $message->set_offlineExpireTime($expire * 1000);
         }
         
-        $content_id = $this->arr_igt_obj[$user_type_str]->getContentId($message);
+        $content_id = $this->igt_obj->getContentId($message);
         if (empty($content_id))
         {
             CLog::warning("get content_id failed");
@@ -194,14 +164,14 @@ class PushPorxy
         foreach ($arr_info as $info)
         {
             $target = new IGtTarget();
-            $target->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
+            $target->set_appId(PushProxyConfig::$arrPushAppid);
             $target->set_clientId($info['client_id']);
             
             $arr_target[] = $target;
         }
         
         // 调用个推接口，推送消息
-        $arr_ret = $this->arr_igt_obj[$user_type_str]->pushMessageToList($content_id, $arr_target);
+        $arr_ret = $this->igt_obj->pushMessageToList($content_id, $arr_target);
         if (!isset($arr_ret['result']) ||
             'ok' !== $arr_ret['result'])
         {
@@ -285,7 +255,7 @@ class PushPorxy
     }
 
     
-    private function _gene_msg($msg_type, $user_type_str, $arr_msg)
+    private function _gene_msg($msg_type, $arr_msg)
     {
         $msg_template = NULL;
         switch ($msg_type)
@@ -325,8 +295,8 @@ class PushPorxy
             return NULL;
         }
 
-        $msg_template->set_appId(PushProxyConfig::$arrPushAppid[$user_type_str]);
-        $msg_template->set_appkey(PushProxyConfig::$arrPushAppkey[$user_type_str]);
+        $msg_template->set_appId(PushProxyConfig::$arrPushAppid);
+        $msg_template->set_appkey(PushProxyConfig::$arrPushAppkey);
         
         return $msg_template;
     }
