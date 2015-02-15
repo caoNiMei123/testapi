@@ -32,7 +32,6 @@ class DriverService
 
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
         $gps = $arr_req['gps'] ;
         $devuid = $arr_req['devuid'];
         

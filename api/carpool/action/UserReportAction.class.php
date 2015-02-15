@@ -14,7 +14,6 @@ class UserReportAction extends CarpoolBaseAction
         $arr_req['client_id'] = $this->requests['client_id'];
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
-        $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['devuid'] = $this->requests['devuid'];
 
         $user_service = UserService::getInstance();

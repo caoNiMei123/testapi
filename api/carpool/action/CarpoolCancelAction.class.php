@@ -14,7 +14,6 @@ class CarpoolCancelAction extends CarpoolBaseAction
         
         $arr_req['pid'] = $this->requests['pid'];
         $arr_req['user_id'] = $this->requests['user_id'];
-        $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['devuid'] = $this->requests['devuid'];
         

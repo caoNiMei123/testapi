@@ -18,7 +18,6 @@ class CarpoolCreateAction extends CarpoolBaseAction
         
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
-        $arr_req['user_type'] = intval($this->requests['user_type']);
         $arr_req['src'] = $this->requests['src'];
         $arr_req['dest'] = $this->requests['dest'];
         $arr_req['src_gps'] = $this->requests['src_gps'];

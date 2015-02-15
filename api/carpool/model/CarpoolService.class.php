@@ -36,7 +36,6 @@ class CarpoolService
         $devuid = $arr_req['devuid'] ;
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $type = $arr_req['user_type'] ;
         $src = $arr_req['src'] ;
         $dest = $arr_req['dest'] ;
         $src_gps = $arr_req['src_gps'] ;
@@ -179,7 +178,6 @@ class CarpoolService
     {
         $user_name = $arr_req['user_name'] ;
         $user_id = $arr_req['user_id'] ;
-        $user_type = intval($arr_req['user_type']) ;    
         $devuid = $arr_req['devuid'];
         $pid = $arr_req['pid'] ;
         
@@ -283,7 +281,7 @@ class CarpoolService
                 ),
             );
             
-            PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+            PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user);
         }       
 
         CLog::trace("order cancel succ [account: %s, user_id : %d, pid : %s]", $user_name, $user_id, $pid);
@@ -411,7 +409,7 @@ class CarpoolService
         );
         
         //通知 乘客我已经接单
-        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user);
         
         CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
                     $user_name, $user_id, $pid, $passenger_phone);
@@ -519,7 +517,7 @@ class CarpoolService
         );
         
         //通知 乘客订单结束
-        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user, $user_type);
+        PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user);
         
         CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", 
                     $user_name, $user_id, $pid);
@@ -876,7 +874,6 @@ class CarpoolService
     {
 
         $user_id = $arr_req['user_id'] ;
-        $user_type = $arr_req['user_type'] ;
         $list = $arr_req['list'] ;
         $arr_list = json_decode($list);
 
@@ -886,25 +883,15 @@ class CarpoolService
         }
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        //只支持司机
         
-        if($user_type == UserService::USERTYPE_DRIVER)
-        {
-            $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
-                array(
-                    array('pid' =>  array('in' => $arr_list)),
-                    //array('driver_id' =>  array('=' => $user_id)),
-                ),                          
-            ), array( 'start' => 0, 'limit' => CarpoolConfig::CARPOOL_PAGE_LIMIT));
-        }
-        else
-        {
-            $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
-                array(
-                    array('pid' =>  array('in' => $arr_list)),
-                    array('user_id' =>  array('=' => $user_id)),
-                ),                          
-            ));
-        }
+        $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
+            array(
+                array('pid' =>  array('in' => $arr_list)),
+                //array('driver_id' =>  array('=' => $user_id)),
+            ),                          
+        ), array( 'start' => 0, 'limit' => CarpoolConfig::CARPOOL_PAGE_LIMIT));
+        
         
         if (false === $arr_response || !is_array($arr_response))
         {
