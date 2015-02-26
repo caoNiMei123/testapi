@@ -27,10 +27,7 @@
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
                 <p><i class="icon-star">车型： <?php echo $item['car_type']."    ";?></i>
                 <i class="icon-star">车牌号： <?php echo $item['car_num']."    ";?></i>
-                <i class="icon-star">车架号： <?php echo $item['car_engine_num']?></i></p>
-                <p><img src="<?php echo $item['driver_url']?>"  alt="驾照" />
-                <img src="<?php echo $item['licence_url']?>"  alt="行驶证" /></p>
-                
+                <i class="icon-star">车架号： <?php echo $item['car_engine_num']?></i></p>          
             </div>   
             <div class="span5" >               
                 <img src="<?php echo $item['driver_url']?>"  alt="驾照" />
