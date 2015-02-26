@@ -6,6 +6,7 @@ class ImageUploadAction extends CarpoolBaseAction
     {
         // 1. 基本检查，必选参数是否存在
         $this->check_uinfo();
+        $this->exist('type');
     
         // 2. 取参数，分成必选和可选
         $arr_req = array();
@@ -13,6 +14,7 @@ class ImageUploadAction extends CarpoolBaseAction
         
         $arr_req['user_name'] = $this->requests['user_name'];
         $arr_req['user_id'] = $this->requests['user_id'];
+        $arr_req['type'] = $this->requests['type'];
         $arr_req['file'] = file_get_contents('php://input');
 
         $image_service = ImageService::getInstance();

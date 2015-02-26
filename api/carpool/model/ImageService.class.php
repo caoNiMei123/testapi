@@ -71,13 +71,31 @@ class ImageService
     {
         $user_id = $arr_req['user_id'];
         $file = $arr_req['file'];
+        $type = $arr_req['type'];
+        $head_bucket = '';
+        $head_object = '';
+        switch($type)
+        {
+        case 1:
+            $head_bucket = CarpoolConfig::$s3_bucket;
+            $head_object = 'head_' . $user_id;
+            break;
+        case 2:
+            $head_bucket = CarpoolConfig::$s3_bucket;
+            $head_object = 'driver_' . $user_id;
+            break;
+        case 3:
+            $head_bucket = CarpoolConfig::$s3_bucket;
+            $head_object = 'licence_' . $user_id;
+            break;
+        default:
+            throw new Exception('carpool.param type illegal');
+        }
         
         Utils::check_string($file, 1, CarpoolConfig::USER_MAX_HEAD_LENGTH);           
 
         $oss_sdk_service = new ALIOSS();
         $oss_sdk_service->set_host_name(CarpoolConfig::$s3_host);
-        $head_bucket = CarpoolConfig::$s3_bucket;
-        $head_object = 'head_' . $user_id;
         $upload_file_options = array(
             ALIOSS::OSS_CONTENT => $file,
             ALIOSS::OSS_LENGTH  => strlen($content), 
@@ -91,23 +109,6 @@ class ImageService
         if(!$response->isOk())
         {
             throw new Exception('carpool.internal upload s3 fail :'. $response->body);
-        }
-
-           
-        $head_bucket = CarpoolConfig::$s3_bucket;
-        $head_object = '';
-        $update .= "head_bucket = '$head_bucket', head_object = '$head_object'";
-
-        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
-        
-        $ret = $db_proxy->update('user_info', array('and'=>
-            array(
-                array('user_id' =>  
-                    array('=' => $user_id)),                                                             
-                )
-            ), $update); 
-        if (false === $ret) {
-            throw new Exception('carpool.internal update DB failed');
         }
     }
     

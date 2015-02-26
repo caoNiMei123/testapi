@@ -12,8 +12,6 @@ CREATE TABLE `user_info` (
     `detail` varchar(1024) default '',
     `car_num` varchar(50) default '',
     `car_engine_num` varchar(50) default '',
-    `head_bucket` varchar(50) default '',
-    `head_object` varchar(100) default '',
     `ctime` int not NULL,
     `mtime` int not NULL,
     `pcount` int default 0,
