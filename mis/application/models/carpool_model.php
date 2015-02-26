@@ -1,6 +1,7 @@
 <?php
 require_once PHPLIB_PATH."/httpproxy/HttpProxy.class.php";
 require_once PHPLIB_PATH."/sms/SmsProxy.class.php";
+require_once PHPLIB_PATH."/oss/sdk.class.php";
 class Carpool_Model extends CI_Model{
     
     public function __construct(){
@@ -21,7 +22,15 @@ class Carpool_Model extends CI_Model{
     public function get_driver($start, $limit){
         $res = array();     
         $query = $this->db->query("select * from user_info where status = 1  order by ctime desc limit $start, $limit");
-        foreach ($query->result_array() as $row)$res[]=$row;        
+        foreach ($query->result_array() as $row)$res[]=$row; 
+        $oss_sdk_service = new ALIOSS();
+        $oss_sdk_service->set_host_name('oss-cn-beijing-internal.aliyuncs.com');
+        foreach($res as $key => &$value)
+        {
+            $user_id = intval($value['user_id']);
+            $value['driver_url'] = $oss_sdk_service->get_sign_url('real-pin', 'driver_'.$user_id, 3600);
+            $value['licence_url'] = $oss_sdk_service->get_sign_url('real-pin', 'licence_'.$user_id, 3600);
+        }
         return $res;    
 
     }

@@ -31,7 +31,7 @@ class ImageService
         $uk = $arr_req['uk'] ;
         $timestamp = $arr_req['timestamp'] ;
         $sign = $arr_req['sign'] ;
-
+        $type = $arr_req['type'] ;
         
         if($sign != hash_hmac('sha1', "$uk:$timestamp", CarpoolConfig::$s3SK, false))
         {
@@ -43,7 +43,24 @@ class ImageService
         }
         $user_id = UserService::api_decode_uid($uk);
         $head_bucket = CarpoolConfig::$s3_bucket;   
-        $head_object = 'head_' . $user_id;
+
+        switch($type)
+        {
+        case 1:
+            $head_object = 'head_' . $user_id;
+            break;
+        case 2:
+            $head_object = 'driver_' . $user_id;
+            break;
+        case 3:
+            $head_object = 'licence_' . $user_id;
+            break;
+        default:
+            throw new Exception('carpool.param check type fail');
+            break;
+        }
+
+        
         
 
         $oss_sdk_service = new ALIOSS();

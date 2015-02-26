@@ -25,9 +25,11 @@
             <div class="span5">
                <p><i class="icon-time">创建时间： <?php echo date("Y-m-d",$item['ctime']);?></i></p>
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
-                <p><i class="icon-star">车型： <?php echo $item['car_type']."\t";?></i></p>
-                <i class="icon-star">车牌号： <?php echo $item['car_num']."\t";?></i></p>
+                <p><i class="icon-star">车型： <?php echo $item['car_type']."\t";?></i>
+                <i class="icon-star">车牌号： <?php echo $item['car_num']."\t";?></i>
                 <i class="icon-star">车架号： <?php echo $item['car_engine_num']?></i></p>
+                <p><img src="<?php echo $item['driver_url']?>"  alt="驾照" />
+                <img src="<?php echo $item['licence_url']?>"  alt="行驶证" /></p>
                 
             </div>   
             <div class="button" style="margin-bottom: 0px;">               
