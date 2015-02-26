@@ -4,7 +4,7 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=reg&devuid=1&ctype=1' -
 #login
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=login&devuid=1&ctype=1' -d 'account=18601165873' -d 'secstr=1234' -d 'type=2'
 #carpool create 
-curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=create&devuid=1&ctype=1' -d 'type=2' -d 'src=abcd' -d 'src_gps=117.131692,34.211964' -d 'dest=efgh' -d 'dest_gps=117.131692,34.211964' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045'
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=create&devuid=1&ctype=1' -d 'type=2' -d 'src=abcd' -d 'src_gps=117.131692,34.211964' -d 'dest=efgh' -d 'dest_gps=117.131692,34.211964' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' -d 'mileage=100'
 #carpool cancel
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/order?method=cancel&devuid=1&ctype=1' -d 'user_name=18601165873' -d 'user_type=2' -d 'user_id=10045' -d 'pid=14937130105680741056'
 #driver report
@@ -36,4 +36,4 @@ curl 'http://127.0.0.1:8089/rest/2.0/carpool/user?method=gettoken&devuid=1&ctype
 #feedback
 curl 'http://127.0.0.1:8089/rest/2.0/carpool/feedback?method=create&devuid=1&ctype=1' -d 'user_name=18601165872' -d 'user_type=1' -d 'user_id=10002' -d 'type=1' -d 'detail=abcdefg'
 #image upload
-curl 'http://127.0.0.1:8089/rest/2.0/carpool/image?method=upload&devuid=1&ctype=1&user_name=18601165872&user_type=1&user_id=10002' -d '111111111111111111111111111111111111111111111111111111111111'
+curl 'http://127.0.0.1:8089/rest/2.0/carpool/file?method=upload&devuid=1&ctype=1&user_name=18601165872&user_type=1&user_id=10001&type=1' -F  'filename=@./a.jpg'    
