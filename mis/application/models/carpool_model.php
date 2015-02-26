@@ -24,7 +24,7 @@ class Carpool_Model extends CI_Model{
         $query = $this->db->query("select * from user_info where status = 1  order by ctime desc limit $start, $limit");
         foreach ($query->result_array() as $row)$res[]=$row; 
         $oss_sdk_service = new ALIOSS();
-        $oss_sdk_service->set_host_name('oss-cn-beijing-internal.aliyuncs.com');
+        $oss_sdk_service->set_host_name('oss-cn-beijing.aliyuncs.com');
         foreach($res as $key => &$value)
         {
             $user_id = intval($value['user_id']);
