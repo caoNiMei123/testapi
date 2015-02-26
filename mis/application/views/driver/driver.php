@@ -30,8 +30,8 @@
                 <i class="icon-star">车架号： <?php echo $item['car_engine_num']?></i></p>          
             </div>   
             <div class="span5" >               
-                <img src="<?php echo $item['driver_url']?>"  alt="驾照" />
-                <img src="<?php echo $item['licence_url']?>"  alt="行驶证" />
+                <img src="<?php echo $item['driver_url']?>"  alt="驾照" style="width:200px;height:200px;"/>
+                <img src="<?php echo $item['licence_url']?>"  alt="行驶证" style="width:200px;height:200px;"/>
             </div>             
             <div class="button" style="margin-bottom: 0px;">               
                 <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2)" value="通过" class="btn btn-success"> 
