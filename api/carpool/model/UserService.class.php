@@ -416,7 +416,6 @@ class UserService
             $driver_check = true;
         }
         Utils::check_string($update , 1);
-        
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         

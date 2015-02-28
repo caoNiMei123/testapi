@@ -692,7 +692,6 @@ class CarpoolService
         
         
         $ret = $db_proxy->select('pickride_info', '*', $condition, $append_condition);
-        
         if (false === $ret || count($ret) == 0)
         {
             return array(
@@ -725,7 +724,6 @@ class CarpoolService
             $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
-        
         // added by zl 判断$arr_user_list是否为空
         if (0 == count($arr_user_list))
         {
@@ -746,9 +744,9 @@ class CarpoolService
                 $db_proxy->getLastSQL() . ']');
         }
         $user_map = array();
-        foreach($arr_response as $key => $value)
+        foreach($arr_response as $k => $v)
         {
-            $user_map[intval($value['user_id'])] = $value;
+            $user_map[intval($v['user_id'])] = $v;
         }
         foreach($ret as $key => &$value)
         {
