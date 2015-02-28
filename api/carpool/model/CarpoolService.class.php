@@ -137,12 +137,12 @@ class CarpoolService
         //查用户的性别，昵称信息    
         $name = '';
         $sex = 0;
-        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status'), array(
+        $arr_user_info = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status'), array(
             'and' => array(array('user_id' => array('=' => $user_id,),),),));
-        if (false !== $arr_response && is_array($arr_response) && 1 == count($arr_response))
+        if (false !== $arr_user_info && is_array($arr_user_info) && 1 == count($arr_user_info))
         {
-            $name = $arr_response[0]['name'];
-            $sex = intval($arr_response[0]['sex']);
+            $name = $arr_user_info[0]['name'];
+            $sex = intval($arr_user_info[0]['sex']);
         }
 
 
