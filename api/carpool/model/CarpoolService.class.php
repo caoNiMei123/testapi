@@ -133,13 +133,30 @@ class CarpoolService
             'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,      
         );
         
+
+        //查用户的性别，昵称信息    
+        $name = '';
+        $sex = 0;
+        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status'), array(
+            'and' => array(array('user_id' => array('=' => $user_id,),),),));
+        if (false !== $arr_response && is_array($arr_response) && 1 == count($arr_response))
+        {
+            $name = $arr_response[0]['name'];
+            $sex = intval($arr_response[0]['sex']);
+        }
+
+
+
         //抛起一个异步任务, 写task表
 
         $task = json_encode(
             array(
                 'pid' => $pid,
                 'user_id'       => $user_id,
-                'phone'         => $user_name,                                       
+                'head'          => CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
+                'phone'         => $user_name,   
+                'name'          => $name,
+                'sex'           => $sex,                                    
                 'ctime'         => $now,
                 'mtime'         => $now,
                 'price'         => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,  
