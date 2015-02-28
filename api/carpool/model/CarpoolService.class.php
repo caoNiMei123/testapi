@@ -153,7 +153,7 @@ class CarpoolService
             array(
                 'pid' => $pid,
                 'user_id'       => $user_id,
-                'head'          => CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
+                'head'          => CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false),
                 'phone'         => $user_name,   
                 'name'          => $name,
                 'sex'           => $sex,                                    
