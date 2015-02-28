@@ -322,6 +322,25 @@ class CarpoolService
             throw new Exception('carpool.invalid_driver not a driver');
         }
 
+        //查询订单状态
+        $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
+            array(array('pid' => array('=' => $pid)),
+                array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
+                array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),              
+        )));        
+        if (false === $arr_response || !is_array($arr_response))
+        {
+            $db_proxy->rollback();
+            throw new Exception('carpool.internal select from the DB failed');
+        }
+        if (0 == count($arr_response)) 
+        {
+            throw new Exception('carpool.param pid not exist');
+        }
+
+        $passenger_id = intval($arr_response[0]['user_id']);
+        $passenger_phone = intval($arr_response[0]['phone']);
+        $passenger_dev_id = $arr_response[0]['passenger_dev_id'];   
 
         $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>   
             array(array('user_id' =>  array('=' => $user_id)), 
@@ -344,11 +363,6 @@ class CarpoolService
             throw new Exception('carpool.internal start transaction fail');
         }
         $now =time(NULL);
-        
-        $passenger_id = intval($arr_response[0]['user_id']);
-        $passenger_phone = intval($arr_response[0]['phone']);
-        $passenger_dev_id = $arr_response[0]['passenger_dev_id'];    
-        $passenger_status = intval($arr_response[0]['status']);    
       
         $arr_response = $db_proxy->selectForUpdate('pickride_info', array('mileage', 'pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
@@ -453,7 +467,6 @@ class CarpoolService
         $mileage = intval($arr_response[0]['mileage']);
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
-        $passenger_status = intval($arr_response[0]['status']);
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
