@@ -759,6 +759,7 @@ class CarpoolService
             $info = $user_map[intval($value['user_id'])];
             $value['name'] = $info['name'];
             $value['sex'] = intval($info['sex']);
+            $value['status'] = intval($info['status']);
             $uk = UserService::api_encode_uid(intval($value['user_id'])); 
             $now = time(NULL);
             $value['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
