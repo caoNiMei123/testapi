@@ -725,25 +725,25 @@ class CarpoolService
             $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
-		
+        
         // added by zl 判断$arr_user_list是否为空
         if (0 == count($arr_user_list))
         {
-        	CLog::trace("user_list is null");
+            CLog::trace("user_list is null");
             return array(
                 'list' => array(),
             );
         }
         // added by zl
         
-        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status', 'head_bucket','head_object' ),array('and'=>array(
+        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status'),array('and'=>array(
             array('user_id' =>  array('in' => $arr_user_list)),
                 ))
         );
         if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed [sql: ' . 
-            					$db_proxy->getLastSQL() . ']');
+                $db_proxy->getLastSQL() . ']');
         }
         $user_map = array();
         foreach($arr_response as $key => $value)
