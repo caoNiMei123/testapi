@@ -213,7 +213,7 @@ class NotifyWorker
             'msg_expire' => $timeout,
         );
         $arr_msg = array(
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => json_encode($arr_content),
         );
         $user_type = 1; // 司机类型;
@@ -262,7 +262,7 @@ class NotifyWorker
             'msg_expire' => 444,
         );
         $arr_msg = array(
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => json_encode($arr_content),
         );
         $push_proxy_object->push_to_single(PushProxyConfig::$arrPushMsgType['trans'], 
@@ -277,7 +277,7 @@ class NotifyWorker
             'title' => '拼车通知',
             'text'  => '拼车内容',
             'logo'  => 'xxx.png',
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => 'fire in the hole',
             'is_ring'       => true,
             'is_vibrate'    => true,
@@ -292,7 +292,7 @@ class NotifyWorker
             'title' => '拼车通知',
             'text'  => '拼车内容',
             'logo'  => 'xxx.png',
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => 'fire in the hole',
             'is_ring'       => true,
             'is_vibrate'    => true,
@@ -320,7 +320,7 @@ class NotifyWorker
         */
         /*
         $arr_msg = array(
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => 'helleo hahah',
         );
         
