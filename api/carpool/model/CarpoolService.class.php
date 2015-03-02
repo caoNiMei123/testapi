@@ -288,7 +288,7 @@ class CarpoolService
             ));
             
             $arr_msg = array(
-                'trans_type' => 1,
+                'trans_type' => 2,
                 'trans_content' => $msg,
             );
             $arr_user = array(
@@ -440,7 +440,7 @@ class CarpoolService
         ));
         
         $arr_msg = array(
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => $msg,
         );
         $arr_user = array(
@@ -547,7 +547,7 @@ class CarpoolService
         ));
         
         $arr_msg = array(
-            'trans_type' => 1,
+            'trans_type' => 2,
             'trans_content' => $msg,
         );
         $arr_user = array(
