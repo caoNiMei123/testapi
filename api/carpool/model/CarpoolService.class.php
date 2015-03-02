@@ -333,11 +333,17 @@ class CarpoolService
             ),
         );
         
-        $arr_response = $db_proxy->select('user_info', 'user_id', $condition);
+        $arr_response = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'car_num', 'car_engine_num', 'car_type'), $condition);
         if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
         {
             throw new Exception('carpool.invalid_driver not a driver');
         }
+
+        $name = $arr_response[0]['name'];
+        $sex = $arr_response[0]['sex'];
+        $car_num = $arr_response[0]['car_num'];
+        $car_engine_num = $arr_response[0]['car_engine_num'];
+        $car_type = $arr_response[0]['car_type'];
 
         //查询订单状态
         $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
@@ -423,6 +429,11 @@ class CarpoolService
                 'user_id'=> $user_id,
                 'latitude'=>$latitude,
                 'longitude'=>$longitude,
+                'name' =>$name,
+                'sex' =>$sex,
+                'car_num' =>$car_num,
+                'car_engine_num' =>$car_engine_num,
+                'car_type' =>$car_type,
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
