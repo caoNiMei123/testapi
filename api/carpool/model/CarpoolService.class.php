@@ -426,9 +426,8 @@ class CarpoolService
             'msg_content' => array(
                 'pid' => $pid,
                 'phone' => $user_name,
-                'user_id'=> $user_id,
-                'latitude'=>$latitude,
-                'longitude'=>$longitude,
+                'uk'=> UserService::api_encode_uid($user_id),
+                'gps'=>"$latitude:$longitude",
                 'name' =>$name,
                 'sex' =>$sex,
                 'car_num' =>$car_num,
