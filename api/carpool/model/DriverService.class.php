@@ -97,7 +97,7 @@ class DriverService
             $user_id);
                     
         return array(
-            'gps' => "$latitude:$longitude",
+            'gps' => "$latitude,$longitude",
         );
 
     }
