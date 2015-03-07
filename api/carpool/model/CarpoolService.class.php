@@ -473,7 +473,7 @@ class CarpoolService
             'msg_desc'=>array(
                 'title'=>NotifyConfig::$arrMsg['accept_order']['title'],
                 'content'=>sprintf(NotifyConfig::$arrMsg['accept_order']['content'], $this->_get_full_name($name, $sex), $src),
-                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], $this->_get_full_name($name, $src), $src), 
+                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], $this->_get_full_name($name, $sex), $src), 
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
@@ -493,8 +493,8 @@ class CarpoolService
         //通知 乘客我已经接单
         PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user);
         
-        CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d ]", 
-                    $user_name, $user_id, $pid, $passenger_phone);
+        CLog::trace("order accept succ [account: %s, user_id : %d, pid : %d, passenger: %d, src: %s ]", 
+                    $user_name, $user_id, $pid, $passenger_phone, $src);
         
         return array(
             'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,
