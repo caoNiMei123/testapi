@@ -761,7 +761,7 @@ class CarpoolService
             unset($value['src_longitude']);  
             unset($value['dest_latitude']);  
             unset($value['dest_longitude']);  
-            $value['mileage'] = intval($ret['mileage']);
+            $value['mileage'] = intval($value['mileage']);
             $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
