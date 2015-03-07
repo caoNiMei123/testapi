@@ -182,8 +182,13 @@ class NotifyWorker
             $pos = 0;
             foreach($arr_response as $info)
             {
-                $arr_driver_user[$pos]['user_id'] = $info['user_id'];
-                $arr_driver_user[$pos]['device_id'] = $info['dev_id'];
+            	// 发单乘客不用被通知
+            	if ($user_id != $info['user_id'])
+            	{
+	                $arr_driver_user[$pos]['user_id'] = $info['user_id'];
+	                $arr_driver_user[$pos]['device_id'] = $info['dev_id'];
+            	}
+            	
                 ++$pos;
             }
         }
