@@ -38,8 +38,8 @@ class NotifyConfig
     public static $arrMsg  = array(
         'accept_order' => array(
             'title'=>'易拼车',
-            'content'=>"司机%s接单啦，请准时到达%s哦",
-            'ticker_text'=>"司机%s接单啦，请准时到达%s哦",
+            'content'=>"司机%s接单啦",
+            'ticker_text'=>"司机%s接单啦",
         ),
         'cancel_order_driver' => array(
             'title'=>'易拼车',
