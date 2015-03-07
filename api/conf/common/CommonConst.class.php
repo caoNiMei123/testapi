@@ -19,6 +19,9 @@ class CommonConst
     const EC_CM_ORDER_STATUS          = 8;
     const EC_CM_INVALID_DRIVER          = 9;
     const EC_CM_SERVER_REJECT          = 10;
+    const EC_CM_ORDER_CANCELED          = 11;
+    const EC_CM_ORDER_TIMEOUT          = 12;
+    const EC_CM_ORDER_STARTED          = 13;
 
     
     // UserService错误码

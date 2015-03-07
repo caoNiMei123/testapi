@@ -348,17 +348,33 @@ class CarpoolService
         //查询订单状态
         $arr_response = $db_proxy->select('pickride_info', '*',array('and'=>           
             array(array('pid' => array('=' => $pid)),
-                array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
-                array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),              
+                //array('status' =>  array('=' => self::CARPOOL_STATUS_CREATE)), 
+                //array('ctime' =>  array('>' => $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)),              
         )));        
         if (false === $arr_response || !is_array($arr_response))
         {
-            $db_proxy->rollback();
             throw new Exception('carpool.internal select from the DB failed');
         }
         if (0 == count($arr_response)) 
         {
             throw new Exception('carpool.param pid not exist');
+        }
+        switch(intval($arr_response[0]['status']))
+        {
+        case self::CARPOOL_STATUS_CREATE:
+            break;
+        case self::CARPOOL_STATUS_CANCELED:
+            throw new Exception('carpool.order_canceled order canceled');
+            break;
+        default:
+            throw new Exception('carpool.order_status order status');
+            break;
+
+        }
+        
+        if(intval($arr_response[0]['ctime']) < $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)
+        {
+            throw new Exception('carpool.order_timeout order timeout');
         }
 
         $passenger_id = intval($arr_response[0]['user_id']);
@@ -418,7 +434,7 @@ class CarpoolService
         if ($ret != 1) 
         {
             $db_proxy->rollback();
-            throw new Exception('carpool.not_found this pid not exists');
+            throw new Exception('carpool.order_started this pid not exists');
         }
         $db_proxy->commit();
         $msg = json_encode(array(

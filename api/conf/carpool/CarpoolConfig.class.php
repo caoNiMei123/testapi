@@ -15,6 +15,9 @@ class CarpoolConfig
         'carpool.invalid_driver' => array('errno'=>CommonConst::EC_CM_INVALID_DRIVER, 'httpCode'=>'400'),
         // UserService错误码
         'carpool.invalid_user' => array('errno'=>CommonConst::EC_USER_INVALID_USER, 'httpCode'=>'403'),
+        'carpool.order_timeout' => array('errno'=>CommonConst::EC_CM_ORDER_TIMEOUT, 'httpCode'=>'400'),
+        'carpool.order_canceled' => array('errno'=>CommonConst::EC_CM_ORDER_CANCELED, 'httpCode'=>'400'),
+        'carpool.order_started' => array('errno'=>CommonConst::EC_CM_ORDER_STARTED, 'httpCode'=>'400'),
     );
 
     public static $userSK = 'A8ec24caf34ef7227cx6c67d29ffd3fb';
