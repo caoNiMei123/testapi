@@ -298,8 +298,8 @@ class CarpoolService
                 ),
                 'msg_desc'=>array(
                     'title'=>NotifyConfig::$arrMsg[$msg_choose]['title'],
-                    'content'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['content'], this->_get_full_name($name, $sex)),
-                    'ticker_text'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['ticker_text'], this->_get_full_name($name, $sex)), 
+                    'content'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['content'], $this->_get_full_name($name, $sex)),
+                    'ticker_text'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['ticker_text'], $this->_get_full_name($name, $sex)), 
                 ),
                 'msg_ctime' => time(NULL),
                 'msg_expire' => 60,
@@ -472,8 +472,8 @@ class CarpoolService
             ),
             'msg_desc'=>array(
                 'title'=>NotifyConfig::$arrMsg['accept_order']['title'],
-                'content'=>sprintf(NotifyConfig::$arrMsg['accept_order']['content'], this->_get_full_name($name, $sex), $src),
-                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], this->_get_full_name($name, $sex), $src), 
+                'content'=>sprintf(NotifyConfig::$arrMsg['accept_order']['content'], $this->_get_full_name($name, $sex), $src),
+                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], $this->_get_full_name($name, $sex), $src), 
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
