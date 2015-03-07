@@ -845,37 +845,18 @@ class CarpoolService
             //乘客端
             $ret['phone'] = $ret['driver_phone'];
             $uk = UserService::api_encode_uid(intval($ret['driver_id'])); 
-
-            $condition = array(
-                'and' => array(
-                    array(
-                        'user_id' => array(
-                            '=' => intval($ret['driver_id']),
-                        ),
-                    ),   
-                ),
-            );                   
+            $to_uid = intval($ret['driver_id']);
+  
         }
         else
         {
             //司机端
             $uk = UserService::api_encode_uid(intval($ret['user_id'])); 
-            $condition = array(
-                'and' => array(
-                    array(
-                        'user_id' => array(
-                            '=' => intval($ret['user_id']),
-                        ),
-                    ),   
-                ),
-            );            
+            $to_uid = intval($ret['user_id']);
+            
         }
          
         $now = time(NULL);  
-        
-        $ret['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
-            .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
-        
         $ret['seat'] = intval($ret['seat']);
         $ret['ctime'] = intval($ret['ctime']);
         $ret['mtime'] = intval($ret['mtime']);
@@ -887,17 +868,21 @@ class CarpoolService
         $ret['phone'] = intval($ret['phone']);
         $ret['mileage'] = intval($ret['mileage']);
         $ret['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
-
+        $ret['name'] = '';
         unset($ret['driver_phone']);
         unset($ret['driver_id']);        
         unset($ret['user_id']);
         unset($ret['driver_dev_id']);
         unset($ret['passenger_dev_id']);
-
         $ret['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
 
+        if($to_uid ===0)
+        {
+            CLog::trace("order query succ [account: %s, user_id : %d ]", $user_name, $user_id);
+            return $ret;
+        }
         
-        $arr_response = $db_proxy->select('user_info', array('name', 'phone'), $condition);
+        $arr_response = $db_proxy->select('user_info', array('name', 'phone'), array('and' => array(array('user_id' => array('=' => $to_uid,),), ),));
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
