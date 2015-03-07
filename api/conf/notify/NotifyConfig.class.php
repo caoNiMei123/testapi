@@ -2,11 +2,11 @@
 
 
 class NotifyConfig
-{	
-	const DRIVER_LIMIT = 50;
-	
-	public static $notifyTimeout = 300; // 单位: 秒
-	
+{   
+    const DRIVER_LIMIT = 50;
+    
+    public static $notifyTimeout = 300; // 单位: 秒
+    
     // 单位：公里
     public static $NotifyRectangleRange = 7;
     
@@ -18,12 +18,12 @@ class NotifyConfig
     
     public static $arrNotifyTaskStatus = array(
         'new'   => 0,
-    	'processing' => 1,
-    	'succ'	=> 2,
-    	'cancel' => 3,
-    	'error_invalid_pid' => 4,
-    	'error_no_driver' => 5,
-    	'error_push' => 6,
+        'processing' => 1,
+        'succ'  => 2,
+        'cancel' => 3,
+        'error_invalid_pid' => 4,
+        'error_no_driver' => 5,
+        'error_push' => 6,
     );
     
     public static $arrPushType  = array(
@@ -33,19 +33,44 @@ class NotifyConfig
         'driver_location' => 4,
         'order_info' => 5,
     );
+
+
+    public static $arrMsg  = array(
+        'accept_order' => array(
+            'title'=>'易拼车',
+            'content'=>"司机%s接单啦，请准时到达%s哦",
+            'ticker_text'=>"司机%s接单啦，请准时到达%s哦",
+        ),
+        'cancel_order_driver' => array(
+            'title'=>'易拼车',
+            'content'=>"抱歉司机%s临时有事，取消了与您的拼车计划~~",
+            'ticker_text'=>"抱歉司机%s临时有事，取消了与您的拼车计划~~",
+        ),
+        'cancel_order_passenger' => array(
+            'title'=>'易拼车',
+            'content'=>"抱歉乘客%s临时有事，取消了与您的拼车计划~~",
+            'ticker_text'=>"抱歉乘客%s临时有事，取消了与您的拼车计划~~",
+        ),
+        'finish_order' => array(
+            'title'=>'易拼车',
+            'content'=>"恭喜完成从%s到%s的旅行，感谢您为北京蓝天做出的贡献",
+            'ticker_text'=>"恭喜完成从%s到%s的旅行，感谢您为北京蓝天做出的贡献",
+        ),
+    );
+
     
-	// 数据库server配置
-	public static $DBServer = array(
-		'host' => array(
-			array('rdsv63ujvaq3yma.mysql.rds.aliyuncs.com', 3306),
-			array('rdsv63ujvaq3yma.mysql.rds.aliyuncs.com', 3306), 
-		),
-		
-		'uname'    => 'pinche',
-		'password' => 'pinche',
-		'dbname'   => 'carpooldb',
-		'charset'  => 'utf8',
-	);
+    // 数据库server配置
+    public static $DBServer = array(
+        'host' => array(
+            array('rdsv63ujvaq3yma.mysql.rds.aliyuncs.com', 3306),
+            array('rdsv63ujvaq3yma.mysql.rds.aliyuncs.com', 3306), 
+        ),
+        
+        'uname'    => 'pinche',
+        'password' => 'pinche',
+        'dbname'   => 'carpooldb',
+        'charset'  => 'utf8',
+    );
 }
 
  

@@ -238,6 +238,7 @@ class CarpoolService
             $to_uid = intval($arr_response[0]['driver_id']);  
             $to_phone = $arr_response[0]['phone'];  
             $to_devuid = $arr_response[0]['driver_dev_id']; 
+            $msg_choose = 'cancel_order_passenger';
                 
         }
         else 
@@ -261,6 +262,7 @@ class CarpoolService
             $to_uid = intval($arr_response[0]['user_id']);
             $to_phone = $arr_response[0]['driver_phone'];
             $to_devuid = $arr_response[0]['passenger_dev_id']; 
+            $msg_choose = 'cancel_order_driver';
         }
            
         if (false === $ret) 
@@ -277,11 +279,27 @@ class CarpoolService
         // 订单已被司机接单，才需要发通知到司机
         if (0 != $to_uid)
         {
+            /查用户的性别，昵称信息    
+            $name = '';
+            $sex = 0;
+            
+            $arr_user_info = $db_proxy->select('user_info', array('user_id', 'name', 'sex', 'status'), array(
+                'and' => array(array('user_id' => array('=' => $user_id,),),),));
+            if (false !== $arr_user_info && is_array($arr_user_info) && 1 == count($arr_user_info))
+            {
+                $name = $arr_user_info[0]['name'];
+                $sex = intval($arr_user_info[0]['sex']);
+            }
             $msg = json_encode(array(
                 'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
                 'msg_content' => array(
                     'pid' => $pid,    
                     'phone' => $to_phone,               
+                ),
+                'msg_desc'=>array(
+                    'title'=>NotifyConfig::$arrMsg[$msg_choose]['title'],
+                    'content'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['content'], this->_get_full_name($name, $sex)),
+                    'ticker_text'=>sprintf(NotifyConfig::$arrMsg[$msg_choose]['ticker_text'], this->_get_full_name($name, $sex)), 
                 ),
                 'msg_ctime' => time(NULL),
                 'msg_expire' => 60,
@@ -419,6 +437,7 @@ class CarpoolService
         }
 
         $mileage = intval($arr_response[0]['mileage']);
+        $src = $arr_response[0]['src'];
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
@@ -437,6 +456,7 @@ class CarpoolService
             throw new Exception('carpool.order_started this pid not exists');
         }
         $db_proxy->commit();
+
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['accept_order'],
             'msg_content' => array(
@@ -449,6 +469,11 @@ class CarpoolService
                 'car_num' =>$car_num,
                 'car_engine_num' =>$car_engine_num,
                 'car_type' =>$car_type,
+            ),
+            'msg_desc'=>array(
+                'title'=>NotifyConfig::$arrMsg['accept_order']['title'],
+                'content'=>sprintf(NotifyConfig::$arrMsg['accept_order']['content'], this->_get_full_name($name, $sex), $src),
+                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], this->_get_full_name($name, $sex), $src), 
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
@@ -507,6 +532,8 @@ class CarpoolService
             $db_proxy->rollback();
             throw new Exception('carpool.not_found no pid found');
         }
+        $src = $arr_response[0]['src'];
+        $dest = $arr_response[0]['dest'];
         $mileage = intval($arr_response[0]['mileage']);
         $passenger_id = intval($arr_response[0]['user_id']);
         $passenger_dev_id = intval($arr_response[0]['passenger_dev_id']);
@@ -556,6 +583,11 @@ class CarpoolService
                 'phone' => $user_name,   
                 'price' => $price,   
                 'mileage' => $mileage,  
+            ),
+            'msg_desc'=>array(
+                'title'=>NotifyConfig::$arrMsg['finish_order']['title'],
+                'content'=>sprintf(NotifyConfig::$arrMsg['finish_order']['content'], $src, $dest),
+                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['finish_order']['ticker_text'], $src, $dest), 
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,
@@ -969,6 +1001,17 @@ class CarpoolService
         
         CLog::trace("order batch query succ [account: %s, user_id : %d ]", $user_name, $user_id);
         return array('list' => $arr_response);
+    }
+    private function _get_full_name($name, $sex)
+    {
+        if($sex = 0)
+        {
+            $name = $name."女士";
+        }
+        else{
+            $name = $name."先生";
+        }
+        return $name;
     }   
 }
 
