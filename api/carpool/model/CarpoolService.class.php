@@ -389,6 +389,8 @@ class CarpoolService
             break;
 
         }
+        $src = $arr_response[0]['src'];
+        $mileage = intval($arr_response[0]['mileage']);
         
         if(intval($arr_response[0]['ctime']) < $now - CarpoolConfig::CARPOOL_ORDER_TIMEOUT)
         {
@@ -436,8 +438,8 @@ class CarpoolService
             throw new Exception('carpool.duplicate another pid doing');
         }
 
-        $mileage = intval($arr_response[0]['mileage']);
-        $src = $arr_response[0]['src'];
+       
+        
         
         $ret = $db_proxy->update('pickride_info', array('and'=>
             array(array('pid' => array('=' => $pid)),
