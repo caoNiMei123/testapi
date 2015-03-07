@@ -98,6 +98,9 @@ ActionControllerConfig::$config['hash_mapping'] = array(
             'report' => array(
                 'DriverReportAction',
             ),
+            'get_location' => array(
+                'DriverGetLocationAction',
+            ),
         ),
         
         'dispatch'=>'openapi2',

@@ -73,6 +73,34 @@ class DriverService
         return true;
 
     }
+
+    public function get_location($arr_req, $arr_opt)
+    {
+
+        $uk = $arr_req['uk'] ;
+        $user_id = intval(UserService::api_decode_uid($uk)) ;
+        $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+        $arr_response = $db_proxy->select('driver_info', array('latitude', 'longitude'),array('and'=>   
+            array(array('user_id' =>  array('=' => $user_id)), 
+            array('status' =>  array('=' => 0)),
+        )));  
+
+        if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+        {
+            throw new Exception('carpool.invalid_driver not a driver');
+        }
+
+        $latitude = $arr_response[0]['latitude'];
+        $longitude = $arr_response[0]['longitude'];      
+        
+        CLog::trace("driver get location succ [user_id: %d]", 
+            $user_id);
+                    
+        return array(
+            'gps' => "$latitude:$longitude",
+        );
+
+    }
     
 }
 
