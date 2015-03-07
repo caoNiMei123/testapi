@@ -1,5 +1,5 @@
 <?php
-    require "./sender.php";
+    require "../sender.php";
 
     $sender = new PHPIpcSender(array(
         'machine' => '/tmp/tmp_socket',

@@ -1,5 +1,5 @@
 <?php
-    require "./receiver.php";
+    require "../receiver.php";
     $receiver = new PHPIpcReceiver(array(
         'machine' => '/tmp/tmp_socket',
         'connect_timeout' => 1000,
