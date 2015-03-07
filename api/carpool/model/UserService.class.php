@@ -361,6 +361,12 @@ class UserService
         $arr_return['head'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
             .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
 
+        arr_return['driver_url'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&type=2&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
+            .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false);
+            
+        arr_return['license_url'] = CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&type=3&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign="
+            .hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false); 
+
         CLog::trace("user query succ [account: %s]", $user_name);
                     
         return $arr_return;
