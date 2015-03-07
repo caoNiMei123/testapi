@@ -421,7 +421,7 @@ class CarpoolService
         }
         $now =time(NULL);
       
-        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('mileage', 'pid', 'passenger_dev_id'),array('and'=>           
+        $arr_response = $db_proxy->selectForUpdate('pickride_info', array('mileage', 'src', 'pid', 'passenger_dev_id'),array('and'=>           
             array(array('driver_id' =>  array('=' => $user_id)), 
             array('status' =>  array('=' => self::CARPOOL_STATUS_ACCEPTED)),                          
         )));        
@@ -473,7 +473,7 @@ class CarpoolService
             'msg_desc'=>array(
                 'title'=>NotifyConfig::$arrMsg['accept_order']['title'],
                 'content'=>sprintf(NotifyConfig::$arrMsg['accept_order']['content'], $this->_get_full_name($name, $sex), $src),
-                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], $this->_get_full_name($name, $sex), $src), 
+                'ticker_text'=>sprintf(NotifyConfig::$arrMsg['accept_order']['ticker_text'], $this->_get_full_name($name, $src), $src), 
             ),
             'msg_ctime' => time(NULL),
             'msg_expire' => 60,

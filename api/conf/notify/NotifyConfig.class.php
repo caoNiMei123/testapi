@@ -53,8 +53,8 @@ class NotifyConfig
         ),
         'finish_order' => array(
             'title'=>'易拼车',
-            'content'=>"恭喜完成从%s到%s的旅行，感谢您为北京蓝天做出的贡献",
-            'ticker_text'=>"恭喜完成从%s到%s的旅行，感谢您为北京蓝天做出的贡献",
+            'content'=>"恭喜您完成拼车，感谢您为北京蓝天做出的贡献",
+            'ticker_text'=>"恭喜您完成拼车，感谢您为北京蓝天做出的贡献",
         ),
     );
 
