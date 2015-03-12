@@ -16,7 +16,7 @@ class ImageThumbnailAction extends CarpoolBaseAction
         $arr_req['uk'] = intval($this->requests['uk']);
         $arr_req['timestamp'] = $this->requests['timestamp'];
         $arr_req['sign'] = $this->requests['sign'];
-        $arr_req['type'] = isset($this->requests['type'])?inval($this->requests['type']):1;
+        $arr_req['type'] = isset($this->requests['type'])?intval($this->requests['type']):1;
 
         $image_service = ImageService::getInstance();
         $arr_response = $image_service->thumbnail($arr_req, $arr_opt);
