@@ -879,6 +879,7 @@ class CarpoolService
         {
             throw new Exception('carpool.not_found pid not exist');
         }
+        
         $ret = $arr_response[0];
         unset($ret['id']);
         unset($ret['pid']);
@@ -894,10 +895,12 @@ class CarpoolService
         {
             $ret['status'] = self::CARPOOL_STATUS_TIMEOUT;
         }
-
+		
+        $is_driver = false;
         if($user_id == $ret['user_id'])
         {
             //乘客端
+            $is_driver = false;
             $ret['phone'] = $ret['driver_phone'];
             $uk = UserService::api_encode_uid(intval($ret['driver_id'])); 
             $to_uid = intval($ret['driver_id']);
@@ -905,6 +908,7 @@ class CarpoolService
         else
         {
             //司机端
+            $is_driver = true;
             $uk = UserService::api_encode_uid(intval($ret['user_id'])); 
             $to_uid = intval($ret['user_id']);
         }
@@ -946,7 +950,7 @@ class CarpoolService
         
 		// added by zhanglei18
 		//  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
-		if ($user_id == $ret['user_id'] &&
+		if (false === $is_driver &&
 			self::CARPOOL_STATUS_ACCEPTED == $ret['status'])
 		{
 			$ret['car_type'] = $arr_response[0]['car_type'];
