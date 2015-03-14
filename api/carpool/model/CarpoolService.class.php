@@ -916,7 +916,9 @@ class CarpoolService
         $ret['status'] = intval($ret['status']);
         $ret['phone'] = intval($ret['phone']);
         $ret['mileage'] = intval($ret['mileage']);
-        $ret['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
+        // modified by zhanglei18
+        $ret['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * $ret['$mileage'] / 1000;
+        // modified by zhanglei18
         $ret['name'] = '';
         unset($ret['driver_phone']);
         unset($ret['driver_id']);        
