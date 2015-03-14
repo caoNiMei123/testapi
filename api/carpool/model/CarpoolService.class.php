@@ -130,7 +130,7 @@ class CarpoolService
         $arr_response = array(
             'pid' => $pid,  
             'timeout' =>CarpoolConfig::CARPOOL_ORDER_TIMEOUT,  
-            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,      
+            'price' => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000),      
         );
         
 
@@ -159,7 +159,7 @@ class CarpoolService
                 'sex'           => $sex,                                    
                 'ctime'         => $now,
                 'mtime'         => $now,
-                'price'         => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,  
+                'price'         => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000),  
                 'mileage'       => $mileage, 
                 'src'           => $src,
                 'dest'          => $dest,
@@ -499,7 +499,7 @@ class CarpoolService
                     $user_name, $user_id, $pid, $passenger_phone, $src);
         
         return array(
-            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000,
+            'price' => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000),
         );
     }   
 
@@ -576,7 +576,7 @@ class CarpoolService
             ), 'pcount = pcount + 1'); 
 
 
-        $price = CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000;
+        $price = intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000);
      
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['finish_order'],
@@ -720,7 +720,7 @@ class CarpoolService
             unset($value['driver_dev_id']);  
             unset($value['passenger_dev_id']); 
             $value['mileage'] = intval($ret['mileage']);
-            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
+            $value['price'] = intval(CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000);
 
         }
         CLog::trace("order list succ [account: %s, user_id : %d ]", $user_name, $user_id);
@@ -811,7 +811,7 @@ class CarpoolService
             unset($value['dest_latitude']);  
             unset($value['dest_longitude']);  
             $value['mileage'] = intval($value['mileage']);
-            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
+            $value['price'] = intval(CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000);
             $value['timeout'] = CarpoolConfig::CARPOOL_ORDER_TIMEOUT;
         }
         // added by zl 判断$arr_user_list是否为空
@@ -1015,7 +1015,7 @@ class CarpoolService
             unset($value['driver_dev_id']);
             unset($value['passenger_dev_id']);
             $value['mileage'] = intval($ret['mileage']);
-            $value['price'] = CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000;
+            $value['price'] = intval(CarpoolConfig::ORDER_PRICE_NORMAL * intval($value['mileage'])/ 1000);
 
         }
         
