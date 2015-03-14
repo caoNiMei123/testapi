@@ -186,17 +186,17 @@ class CarpoolService
     public function getPrice($arr_req, $arr_opt)
     {
         return array(
-            'price' => CarpoolConfig::ORDER_PRICE_NORMAL * $arr_req['mileage'] / 1000,
+            'price' => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $arr_req['mileage'] / 1000),
         );
 
     }
 
     public function cancel($arr_req, $arr_opt)
     {
-        $user_name = $arr_req['user_name'] ;
-        $user_id = $arr_req['user_id'] ;
+        $user_name = $arr_req['user_name'];
+        $user_id = $arr_req['user_id'];
         $devuid = $arr_req['devuid'];
-        $pid = $arr_req['pid'] ;
+        $pid = $arr_req['pid'];
         
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
 
@@ -862,10 +862,9 @@ class CarpoolService
 
     public function query($arr_req, $arr_opt)
     {
-
         $user_id = $arr_req['user_id'] ;
         $user_type = $arr_req['type'] ;
-        $pid = $arr_req['pid'] ;
+        $pid = $arr_req['pid'];
 
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
         
@@ -887,32 +886,33 @@ class CarpoolService
         $ret['dest_gps'] = $ret['dest_latitude']. ','.$ret['dest_longitude'];
         unset($ret['src_latitude']);  
         unset($ret['src_longitude']);  
-        unset($ret['dest_latitude']);  
-        unset($ret['dest_longitude']);   
+        unset($ret['dest_latitude']);
+        unset($ret['dest_longitude']);
+        
+        // 判断订单状态
+        if ($ret['status'] == self::CARPOOL_STATUS_CREATE && $ret['ctime'] < time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT) 
+        {
+            $ret['status'] = self::CARPOOL_STATUS_TIMEOUT;
+        }
+
         if($user_id == $ret['user_id'])
         {
             //乘客端
             $ret['phone'] = $ret['driver_phone'];
             $uk = UserService::api_encode_uid(intval($ret['driver_id'])); 
             $to_uid = intval($ret['driver_id']);
-  
         }
         else
         {
             //司机端
             $uk = UserService::api_encode_uid(intval($ret['user_id'])); 
             $to_uid = intval($ret['user_id']);
-            
         }
          
         $now = time(NULL);  
         $ret['seat'] = intval($ret['seat']);
         $ret['ctime'] = intval($ret['ctime']);
         $ret['mtime'] = intval($ret['mtime']);
-        if ($ret['status'] == self::CARPOOL_STATUS_CREATE && $ret['ctime'] < time(NULL) - CarpoolConfig::CARPOOL_ORDER_TIMEOUT) 
-        {
-            $ret['status'] = self::CARPOOL_STATUS_TIMEOUT;
-        }
         $ret['status'] = intval($ret['status']);
         $ret['phone'] = intval($ret['phone']);
         $ret['mileage'] = intval($ret['mileage']);
@@ -930,11 +930,11 @@ class CarpoolService
 
         if($to_uid ===0)
         {
-            CLog::trace("order query succ [account: %s, user_id : %d ]", $user_name, $user_id);
+            CLog::trace("order query succ [user_id : %d ]", $user_id);
             return $ret;
         }
         
-        $arr_response = $db_proxy->select('user_info', array('name', 'phone'), array('and' => array(array('user_id' => array('=' => $to_uid,),), ),));
+        $arr_response = $db_proxy->select('user_info', array('name', 'phone', 'car_type', 'car_num'), array('and' => array(array('user_id' => array('=' => $to_uid,),), ),));
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
@@ -943,8 +943,19 @@ class CarpoolService
         {
             throw new Exception('carpool.not_found uid not exist');
         }
+        
+		// added by zhanglei18
+		//  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
+		if ($user_id == $ret['user_id'] &&
+			self::CARPOOL_STATUS_CREATE == $ret['status'])
+		{
+			$ret['car_type'] = $arr_response[0]['car_type'];
+			$ret['car_num'] = $arr_response[0]['car_num'];
+		}
+		// added by zhanglei18
+	
         $ret['name'] = $arr_response[0]['name'];
-        CLog::trace("order query succ [account: %s, user_id : %d ]", $user_name, $user_id);
+        CLog::trace("order query succ [user_id : %d ]", $user_id);
         return $ret;
     }   
     public function batch_query($arr_req, $arr_opt)
