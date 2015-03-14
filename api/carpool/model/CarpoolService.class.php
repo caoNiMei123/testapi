@@ -950,7 +950,7 @@ class CarpoolService
         
 		// added by zhanglei18
 		//  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
-		if (false === $is_driver &&
+		if (false == $is_driver &&
 			self::CARPOOL_STATUS_ACCEPTED == $ret['status'])
 		{
 			$ret['car_type'] = $arr_response[0]['car_type'];
