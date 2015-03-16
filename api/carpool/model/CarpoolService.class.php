@@ -145,7 +145,7 @@ class CarpoolService
             $sex = intval($arr_user_info[0]['sex']);
         }
 
-
+        $uk = UserService::api_encode_uid($user_id);
 
         //抛起一个异步任务, 写task表
 
@@ -895,7 +895,7 @@ class CarpoolService
         {
             $ret['status'] = self::CARPOOL_STATUS_TIMEOUT;
         }
-		
+        
         $is_driver = false;
         if($user_id == $ret['user_id'])
         {
@@ -948,16 +948,16 @@ class CarpoolService
             throw new Exception('carpool.not_found uid not exist');
         }
         
-		// added by zhanglei18
-		//  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
-		if (false == $is_driver &&
-			self::CARPOOL_STATUS_ACCEPTED == $ret['status'])
-		{
-			$ret['car_type'] = $arr_response[0]['car_type'];
-			$ret['car_num'] = $arr_response[0]['car_num'];
-		}
-		// added by zhanglei18
-	
+        // added by zhanglei18
+        //  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
+        if (false == $is_driver &&
+            self::CARPOOL_STATUS_ACCEPTED == $ret['status'])
+        {
+            $ret['car_type'] = $arr_response[0]['car_type'];
+            $ret['car_num'] = $arr_response[0]['car_num'];
+        }
+        // added by zhanglei18
+    
         $ret['name'] = $arr_response[0]['name'];
         CLog::trace("order query succ [user_id : %d ]", $user_id);
         return $ret;
