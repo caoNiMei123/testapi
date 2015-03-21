@@ -451,12 +451,19 @@ class UserService
                     array('=' => $user_id)),                                                             
                 )
             ), $update); 
-
-        if (false === $ret || 1 !== $ret ) {
-            throw new Exception('carpool.internal update DB failed');
+		
+        // added by zl
+        // 当数据库影响行数为0时，虽然没有修改，但也不能算错误
+        if (false === $ret) {
+        	// 增加错误日志
+        	$error_code = $db_proxy->getErrorCode();
+            $error_msg = $db_proxy->getErrorMsg();
+            $sql_str = $db_proxy->getLastSQL();
+            throw new Exception('carpool.internal update DB failed [' . 
+            					'err_code: ' . $error_code . ' error_msg: ' . 
+            					$error_msg . ' sql: ' . $sql_str);
         }
-
-
+        // added by zl
     }
 
 
