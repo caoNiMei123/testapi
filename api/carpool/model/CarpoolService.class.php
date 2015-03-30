@@ -130,7 +130,8 @@ class CarpoolService
         $arr_response = array(
             'pid' => $pid,  
             'timeout' =>CarpoolConfig::CARPOOL_ORDER_TIMEOUT,  
-            'price' => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000),      
+            'price' => intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000),
+            'ctime' => $now, 
         );
         
 
@@ -224,6 +225,7 @@ class CarpoolService
         $to_uid = 0;
         $to_phone = 0; 
         $to_devuid = '';
+        $msg_user_type = 0; // 标记取消消息的发起者
         if ($user_id == intval($arr_response[0]['user_id'])) 
         {
             //乘客逻辑 
@@ -239,7 +241,7 @@ class CarpoolService
             $to_phone = $arr_response[0]['phone'];  
             $to_devuid = $arr_response[0]['driver_dev_id']; 
             $msg_choose = 'cancel_order_passenger';
-                
+            $msg_user_type = 'passenger';
         }
         else 
         {
@@ -263,6 +265,7 @@ class CarpoolService
             $to_phone = $arr_response[0]['driver_phone'];
             $to_devuid = $arr_response[0]['passenger_dev_id']; 
             $msg_choose = 'cancel_order_driver';
+            $msg_user_type = 'driver';
         }
            
         if (false === $ret) 
@@ -292,6 +295,7 @@ class CarpoolService
             }
             $msg = json_encode(array(
                 'msg_type' => CarpoolConfig::$arrPushType['cancel_order'],
+                'msg_user_type' => $msg_user_type,
                 'msg_content' => array(
                     'pid' => $pid,    
                     'phone' => $to_phone,               
@@ -461,6 +465,7 @@ class CarpoolService
 
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['accept_order'],
+            'msg_user_type' => 'driver',
             'msg_content' => array(
                 'pid' => $pid,
                 'phone' => $user_name,
@@ -577,14 +582,21 @@ class CarpoolService
 
 
         $price = intval(CarpoolConfig::ORDER_PRICE_NORMAL * $mileage / 1000);
+
+        // added by zl
+        // 获取贡献荣誉描述
+        $honor_str = $this->_get_contribution_honor($mileage);
+        // added by zl 
      
         $msg = json_encode(array(
             'msg_type' => CarpoolConfig::$arrPushType['finish_order'],
+            'msg_user_type' => 'driver',
             'msg_content' => array(
                 'pid' => $pid,        
                 'phone' => $user_name,   
                 'price' => $price,   
                 'mileage' => $mileage,  
+                'honor' => $honor_str, 
             ),
             'msg_desc'=>array(
                 'title'=>NotifyConfig::$arrMsg['finish_order']['title'],
@@ -605,14 +617,14 @@ class CarpoolService
                 'device_id' => $passenger_dev_id,
             ),
         );
-        
+ 
         //通知 乘客订单结束
         PushPorxy::getInstance()->push_to_single(4, $arr_msg, $arr_user);
         
         CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", 
                     $user_name, $user_id, $pid);
 
-        return true;
+        return array('honor' => $honor_str);
     }   
     
     
@@ -920,10 +932,10 @@ class CarpoolService
         $ret['status'] = intval($ret['status']);
         $ret['phone'] = intval($ret['phone']);
         $ret['mileage'] = intval($ret['mileage']);
-        // modified by zhanglei18
+        // modified by zl
         $ret['price'] = intval(CarpoolConfig::ORDER_PRICE_NORMAL * $ret['mileage'] / 1000);
         $ret['uk'] = $uk;
-        // modified by zhanglei18
+        // modified by zl
         $ret['name'] = '';
         unset($ret['driver_phone']);
         unset($ret['driver_id']);        
@@ -948,7 +960,7 @@ class CarpoolService
             throw new Exception('carpool.not_found uid not exist');
         }
         
-        // added by zhanglei18
+        // added by zl
         //  若是乘客端，且当前订单处于进行中，那么需要返回car_type和car_num
         if (false == $is_driver &&
             self::CARPOOL_STATUS_ACCEPTED == $ret['status'])
@@ -956,7 +968,7 @@ class CarpoolService
             $ret['car_type'] = $arr_response[0]['car_type'];
             $ret['car_num'] = $arr_response[0]['car_num'];
         }
-        // added by zhanglei18
+        // added by zl
     
         $ret['name'] = $arr_response[0]['name'];
         CLog::trace("order query succ [user_id : %d ]", $user_id);
@@ -1024,7 +1036,7 @@ class CarpoolService
     }
     private function _get_full_name($name, $sex)
     {
-        if($sex = 0)
+        if($sex == 0)
         {
             $name = $name."女士";
         }
@@ -1033,6 +1045,12 @@ class CarpoolService
         }
         return $name;
     }   
+
+    private function _get_contribution_honor($mileage)
+    {
+        $honor_str = "感谢您为北京蓝天加蓝$mileage, 快分享给小伙伴吧!";
+        return $honor_str;
+    }
 }
 
 /* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */

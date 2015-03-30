@@ -32,6 +32,7 @@ class CarpoolCreateAction extends CarpoolBaseAction
         $this->set('pid', $arr_response['pid']);
         $this->set('timeout', $arr_response['timeout']);
         $this->set('price', $arr_response['price']);
+	$this->set('ctime', $arr_response['ctime']);
     }
     
     public function doGet()
