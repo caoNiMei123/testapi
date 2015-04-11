@@ -980,6 +980,10 @@ class CarpoolService
         // added by zl
     
         $ret['name'] = $arr_response[0]['name'];
+        $ret['sex'] = $arr_response[0]['sex'];
+        $uk = UserService::api_encode_uid($to_uid);
+        $now = time(NULL);
+        $ret['head'] =  CarpoolConfig::$domain."/rest/2.0/carpool/image?method=thumbnail&ctype=1&devuid=1&uk=$uk&timestamp=$now&sign=".hash_hmac('sha1', "$uk:$now", CarpoolConfig::$s3SK, false),
         CLog::trace("order query succ [user_id : %d ]", $user_id);
         return $ret;
     }   
