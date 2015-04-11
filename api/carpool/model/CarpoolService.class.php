@@ -459,7 +459,8 @@ class CarpoolService
         if ($ret != 1) 
         {
             $db_proxy->rollback();
-            throw new Exception('carpool.order_started this pid not exists');
+            throw new Exception('carpool.order_started this pid not exists [sql: ' . 
+            					$db_proxy->getLastSQL() . ']');
         }
         $db_proxy->commit();
 
