@@ -783,6 +783,14 @@ class CarpoolService
                                 '=' => self::CARPOOL_STATUS_CREATE,
                         ),
                 ),
+                // added by zl
+                // 过滤在自己发的订单
+                array(
+                        'user_id' => array(
+                                '!=' => $user_id,
+                        ),
+                ),
+                // added by zl
             ),
         );
         $append_condition = array(
