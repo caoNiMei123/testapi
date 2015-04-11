@@ -385,7 +385,7 @@ class CarpoolService
         {
         case self::CARPOOL_STATUS_CREATE:
             break;
-        case self::CARPOOL_STATUS_CANCELED:
+        case self::CARPOOL_STATUS_CANCLED:
             throw new Exception('carpool.order_canceled order canceled');
             break;
         default:
