@@ -959,7 +959,7 @@ class CarpoolService
             return $ret;
         }
         
-        $arr_response = $db_proxy->select('user_info', array('name', 'phone', 'car_type', 'car_num'), array('and' => array(array('user_id' => array('=' => $to_uid,),), ),));
+        $arr_response = $db_proxy->select('user_info', array('name', 'phone', 'sex','car_type', 'car_num'), array('and' => array(array('user_id' => array('=' => $to_uid,),), ),));
         if (false === $arr_response || !is_array($arr_response))
         {
             throw new Exception('carpool.internal select from the DB failed');
