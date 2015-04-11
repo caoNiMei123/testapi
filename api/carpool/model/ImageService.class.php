@@ -91,6 +91,7 @@ class ImageService
         $type = $arr_req['type'];
         $head_bucket = '';
         $head_object = '';
+        $need_update = false;
         switch($type)
         {
         case 1:
@@ -100,10 +101,12 @@ class ImageService
         case 2:
             $head_bucket = CarpoolConfig::$s3_bucket;
             $head_object = 'driver_' . $user_id;
+            $need_update = true;
             break;
         case 3:
             $head_bucket = CarpoolConfig::$s3_bucket;
             $head_object = 'licence_' . $user_id;
+            $need_update = true;
             break;
         default:
             throw new Exception('carpool.param type illegal');
@@ -127,6 +130,31 @@ class ImageService
         {
             throw new Exception('carpool.internal upload s3 fail :'. $response->body);
         }
+        if($need_update)
+        {
+            $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
+            $arr_response = $db_proxy->select(UserService::TABLE_USER_INFO, 'status', array('and' => array(array('user_id' => array('=' => $user_id,),),),));
+            if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
+            {
+                throw new Exception('carpool.internal select from the DB failed');
+            }
+
+            if(intval($arr_response[0]['status']) == UserService::USERSTATUS_AUTHORIZED)
+            {
+                throw new Exception('carpool.duplicate already authorized');
+            }
+
+            $update .= ", status = ". UserService::USERSTATUS_CHECK;  
+            $ret = $db_proxy->update('user_info', array('and'=>
+            array(
+                array('user_id' =>  
+                    array('=' => $user_id)),                                                             
+                )
+            ), $update);  
+        }
+
+        
+        
     }
     
 }

@@ -451,7 +451,7 @@ class UserService
                     array('=' => $user_id)),                                                             
                 )
             ), $update); 
-		
+
         // added by zl
         // 当数据库影响行数为0时，虽然没有修改，但也不能算错误
         if (false === $ret) {
