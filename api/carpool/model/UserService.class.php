@@ -395,32 +395,8 @@ class UserService
             $update .= ",sex = $sex";
         }
 
-        if(!is_null($arr_opt['car_num']))
-        {
-                
-            Utils::check_string($arr_opt['car_num'], 1, CarpoolConfig::USER_MAX_CAR_NUM_LENGTH);         
-            $car_num = $arr_opt['car_num'];
-            $update .= ",car_num = '$car_num'";
-            $driver_check = true;
-        }
 
-        if(!is_null($arr_opt['car_type']))
-        {
-                
-            Utils::check_string($arr_opt['car_type'], 1, CarpoolConfig::USER_MAX_CAR_TYPE_LENGTH);         
-            $car_type = $arr_opt['car_type'];
-            $update .= ",car_type = '$car_type'";
-            $driver_check = true;
-        }
-
-
-        if(!is_null($arr_opt['car_engine_num']))
-        {
-            Utils::check_string($arr_opt['car_engine_num'], 1, CarpoolConfig::USER_MAX_CAR_ENGINE_NUM_LENGTH);
-            $car_engine_num = $arr_opt['car_engine_num'];   
-            $update .= ", car_engine_num = '$car_engine_num'";
-            $driver_check = true;
-        }
+        
         Utils::check_string($update , 1);
         // 2. 访问数据库
         $db_proxy = DBProxy::getInstance()->setDB(DBConfig::$carpoolDB);
@@ -428,21 +404,6 @@ class UserService
         $update = substr($update, 1);
 
         //需要更新为未审核
-        if($driver_check)
-        {
-            $arr_response = $db_proxy->select(self::TABLE_USER_INFO, 'status', array('and' => array(array('user_id' => array('=' => $user_id,),),),));
-            if (false === $arr_response || !is_array($arr_response) || 0 == count($arr_response))
-            {
-                throw new Exception('carpool.internal select from the DB failed');
-            }
-
-            if(intval($arr_response[0]['status']) == self::USERSTATUS_AUTHORIZED)
-            {
-                throw new Exception('carpool.duplicate already authorized');
-            }
-
-            $update .= ", status = ". self::USERSTATUS_CHECK;   
-        }
 
         
         $ret = $db_proxy->update('user_info', array('and'=>

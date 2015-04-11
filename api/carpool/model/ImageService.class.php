@@ -139,11 +139,6 @@ class ImageService
                 throw new Exception('carpool.internal select from the DB failed');
             }
 
-            if(intval($arr_response[0]['status']) == UserService::USERSTATUS_AUTHORIZED)
-            {
-                throw new Exception('carpool.duplicate already authorized');
-            }
-
             $update .= ", status = ". UserService::USERSTATUS_CHECK;  
             $ret = $db_proxy->update('user_info', array('and'=>
             array(
