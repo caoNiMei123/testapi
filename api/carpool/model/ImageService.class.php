@@ -139,7 +139,7 @@ class ImageService
                 throw new Exception('carpool.internal select from the DB failed');
             }
 
-            $update .= ", status = ". UserService::USERSTATUS_CHECK;  
+            $update .= "status = ". UserService::USERSTATUS_CHECK;  
             $ret = $db_proxy->update('user_info', array('and'=>
             array(
                 array('user_id' =>  
