@@ -23,7 +23,7 @@
 <?php if (!empty($list)):?>
 	<?php foreach ($list as $item): ?>
 		<div  class="list-group-item">
-            <div class="span5">
+            <div >
 	           <p><i class="icon-time">创建时间： <?php echo date("Y-m-d",$item['ctime']);?></i></p>
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
                 <p><i class="icon-star">反馈内容： <?php echo $item['content'];?></i></p>                
