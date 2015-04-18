@@ -35,8 +35,8 @@
                 <img src="<?php echo $item['licence_url']?>"  alt="行驶证" style="width:150px;height:150px;"/>
             </div>             
             <div class="button" style="margin-bottom: 0px;">               
-                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2,<?php echo $_POST["car_type_".$item['user_id']];?>, <?php echo $_POST["car_type_".$item['user_id']];?> )" value="通过" class="btn btn-success"> 
-                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,3, 0, 0)" value="拒绝" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2)" value="通过" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,3)" value="拒绝" class="btn btn-success"> 
             </div>             
         </div>  
     <?php endforeach;?>
