@@ -26,8 +26,8 @@
                <p><i class="icon-time">创建时间： <?php echo date("Y-m-d",$item['ctime']);?></i></p>
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
                 <form method="post" action="">
-                <p>车  型： <input type="text" name=<?php echo "car_type_".$item['user_id'];?> ></p>
-                <p>车牌号：<input type="text" name=<?php echo "car_num_".$item['user_id'];?> ></p>
+                <p>车  型： <input type="text" name="<?php echo "car_type_".$item['user_id'];?>" ></p>
+                <p>车牌号：<input type="text" name="<?php echo "car_num_".$item['user_id'];?>" ></p>
                 </form>
             </div>   
             <div >               
