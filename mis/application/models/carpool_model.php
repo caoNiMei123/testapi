@@ -35,8 +35,8 @@ class Carpool_Model extends CI_Model{
 
     }
 
-    public function set_driver($phone, $user_id, $status){
-        $query = $this->db->query("update user_info  set status =$status where user_id = $user_id");
+    public function set_driver($phone, $user_id, $status, $car_type, $car_num){
+        $query = $this->db->query("update user_info set status =$status, car_type='$car_type', car_num=$car_num where user_id = $user_id");
         //给用户发短信, to do
         if($status == 2)
         {
