@@ -22,13 +22,13 @@
 <?php if (!empty($list)):?>
     <?php foreach ($list as $item): ?>
         <div  class="list-group-item">
-            <div class="span5">
+            <div>
                <p><i class="icon-time">创建时间： <?php echo date("Y-m-d",$item['ctime']);?></i></p>
                 <p><i class="icon-star">手机号： <?php echo $item['phone'];?></i></p>
                 <p><i class="icon-star">车型： <?php echo $item['car_type']."    ";?></i></p>
                 <i class="icon-star">车牌号： <?php echo $item['car_num']."    ";?></i></p>
             </div>   
-            <div class="span5" >               
+            <div >               
                 <img src="<?php echo $item['driver_url']?>"  alt="驾照" style="width:150px;height:150px;"/>
                 <img src="<?php echo $item['licence_url']?>"  alt="行驶证" style="width:150px;height:150px;"/>
             </div>             
