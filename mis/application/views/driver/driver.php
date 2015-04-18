@@ -1,9 +1,9 @@
 <script type="text/javascript"> 
     function Click(ph ,obj, st, ct, cn)
     {   
-        var value1 = document.getElementById(ct).value;
+        var value1 = document.getElementById("ct").value;
         alert(value1);
-        var value2 = document.getElementById(cn).value;
+        var value2 = document.getElementById("cn").value;
         alert(value2);
         $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{phone:ph,user_id:obj, status:st, car_type:value1, car_num:value2},function(data){
             location.reload(true);
@@ -39,8 +39,8 @@
                 <img src="<?php echo $item['licence_url']?>"  alt="行驶证" style="width:150px;height:150px;"/>
             </div>             
             <div class="button" style="margin-bottom: 0px;">               
-                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2,"<?php echo "car_type_".$item['user_id'];?>","<?php echo "car_num_".$item['user_id'];?>")" value="通过" class="btn btn-success"> 
-                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,3,"<?php echo "car_type_".$item['user_id'];?>","<?php echo "car_num_".$item['user_id'];?>")" value="拒绝" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_suc".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,2,<?php echo "car_type_".$item['user_id'];?>,<?php echo "car_num_".$item['user_id'];?>)" value="通过" class="btn btn-success"> 
+                <input type="button" id=<?php echo "go_fail".$item['user_id'];?> onclick="Click(<?php echo $item['phone'];?>,<?php echo $item['user_id'];?>,3,<?php echo "car_type_".$item['user_id'];?>,<?php echo "car_num_".$item['user_id'];?>)" value="拒绝" class="btn btn-success"> 
             </div>             
         </div>  
     <?php endforeach;?>
