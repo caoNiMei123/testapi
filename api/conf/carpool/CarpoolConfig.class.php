@@ -70,7 +70,7 @@ class CarpoolConfig
 
     const USER_MAX_CAR_TYPE_LENGTH = 50;
 
-    const CARPOOL_ORDER_TIMEOUT = 1200;
+    const CARPOOL_ORDER_TIMEOUT = 120;
 
     const CARPOOL_SECSTR_PHONE_TIMEOUT = 60;
 
