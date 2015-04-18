@@ -625,7 +625,7 @@ class CarpoolService
         CLog::trace("order finish succ [account: %s, user_id : %d, pid : %s]", 
                     $user_name, $user_id, $pid);
 
-        return array('honor' => $honor_str);
+        return array('honor' => $honor_str, 'price' => $price);
     }   
     
     

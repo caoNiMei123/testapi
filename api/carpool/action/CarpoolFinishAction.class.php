@@ -22,6 +22,7 @@ class CarpoolFinishAction extends CarpoolBaseAction
         $carpool_service = CarpoolService::getInstance();
         $arr_response = $carpool_service->finish($arr_req, $arr_opt);       
         $this->set('honor', $arr_response['honor']); 
+        $this->set('price', $arr_response['price']); 
     }
     
     public function doGet()
