@@ -1,7 +1,10 @@
 <script type="text/javascript"> 
     function Click(ph ,obj, st, ct, cn)
-    {   alert(ct);
-        alert(cn);
+    {   
+        var value1 = document.getElementById(ct).value;
+        alert(value1);
+        var value2 = document.getElementById(cn).value;
+        alert(value2);
         $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{phone:ph,user_id:obj, status:st, car_type:ct, car_num:cn},function(data){
             location.reload(true);
             return;
