@@ -1,11 +1,11 @@
 <script type="text/javascript"> 
     function Click(ph ,obj, st)
     {  
-	var key1 = "car_type_"+obj; 
+    var key1 = "car_type_"+obj; 
         var ct = document.getElementById(key1).value;
-	var key2 = "car_num_"+obj;
-	var cn = document.getElementById(key2).value;
-	$.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{phone:ph,user_id:obj, status:st, car_type:ct, car_num:cn},function(data){
+    var key2 = "car_num_"+obj;
+    var cn = document.getElementById(key2).value;
+    $.post("http://"+window.location.host+"/mis/index.php?c=driver&m=set",{phone:ph,user_id:obj, status:st, car_type:ct, car_num:cn},function(data){
             location.reload(true);
             return;
         });
